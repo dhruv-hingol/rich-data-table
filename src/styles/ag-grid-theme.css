@@ -1,0 +1,29 @@
+/* AG Grid Custom Light Theme matching LAMDA FLOW specification */
+.ag-theme-alpine,
+.ag-theme-custom-light {
+  --ag-background-color: #ffffff;
+  --ag-header-background-color: #f8fafc;
+  --ag-header-foreground-color: #64748b;
+  --ag-foreground-color: #0f172a;
+  --ag-border-color: #e2e8f0;
+  --ag-row-hover-color: #f1f5f9;
+  --ag-selected-row-background-color: rgba(255, 102, 0, 0.08);
+  --ag-cell-horizontal-border: solid #f1f5f9 1px;
+  --ag-header-column-separator-display: block;
+  --ag-header-column-separator-color: #cbd5e1;
+  --ag-font-family: 'Inter', system-ui, sans-serif;
+  --ag-font-size: 13px;
+  --ag-grid-size: 6px;
+  --ag-active-color: #ff6600;
+  --ag-checkbox-checked-color: #ff6600;
+}
+.ag-root-wrapper{
+  border:none
+}
+
+.ag-header-cell-label {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}

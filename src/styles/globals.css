@@ -1,0 +1,22 @@
+/* Global CSS styling with Tailwind CSS v4 directives and LAMDA FLOW light theme */
+@import "tailwindcss";
+
+@layer utilities {
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+:root {
+  --primary-orange: #ff6600;
+  --primary-orange-hover: #e55c00;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #f8fafc;
+  color: #0f172a;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}

@@ -1,0 +1,4 @@
+sku,name,barcode,category,subcategory,brand,tags,variant,unit,warehouse,qtyOnHand,qtyReserved,reorderPoint,reorderQty,binLocation,unitCost,listPrice,salePrice,priceTier,supplierId,supplierName,supplierSku,leadTimeDays,minOrderQty
+SKU-OK-101,Industrial Sensor X1,100000000001,Electronics,Sensors,ApexGear,"electronics,warehouse",Standard,pcs,WH-NORTH-01,150,10,50,200,A-12-04,15.50,32.00,32.00,Standard,SUP-901,Apex Supplies,SUP-SKU-901,7,10
+INVALID-SKU-BROKEN!!,Abc,100,El,Sub,B,"",Standard,pcs,WH-1,-10,-5,-20,0,A,15,32,32,Standard,SUP-1,Supp,SKU-1,7,10
+SKU-OK-102,Safety Goggles Pro,100000000002,Safety Equipment,PPE,SafeGuard,"safety,warehouse",Standard,pcs,WH-SOUTH-02,300,15,100,500,B-04-12,5.20,12.50,12.50,Standard,SUP-902,SafeCorp,SUP-SKU-902,5,20

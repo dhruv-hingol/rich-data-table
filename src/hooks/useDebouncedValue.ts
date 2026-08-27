@@ -1,0 +1,13 @@
+// Custom hook for debouncing fast UI input values like global search.
+import { useState, useEffect } from 'react';
+
+export function useDebouncedValue<T>(value: T, delay: number = 300): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+
+  return debouncedValue;
+}
