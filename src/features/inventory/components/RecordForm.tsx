@@ -1,33 +1,33 @@
-// Single-page form rendering all sections simultaneously with top tab smooth-scrolling behavior and fixed bottom Save bar.
 import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
 import { recordSchema, type RecordSchemaInput } from "../lib/recordSchema";
-import { inventoryApi } from "../api/inventoryApi";
-import { useTableUIStore } from "../store/useTableUIStore";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Select } from "../../../components/ui/select";
 import { PageHeader } from "../../../components/ui/page-header";
 import type { StockStatus } from "../types/inventory.types";
-
-const TABS = [
-  { id: "sec-details", label: "Product Details" },
-  { id: "sec-inventory", label: "Stock & Location" },
-  { id: "sec-pricing", label: "Pricing & Financial" },
-  { id: "sec-supplier", label: "Supplier Info" },
-  { id: "sec-physical", label: "Physical Specs" },
-];
+import {
+  useInventoryRecordDetailQuery,
+  useCreateRecordMutation,
+  useUpdateRecordMutation,
+} from "../hooks/useInventoryQuery";
+import {
+  DEFAULT_RECORD_FORM_VALUES,
+  RECORD_FORM_TABS as TABS,
+} from "../constants/formDefaultValues";
 
 export function RecordForm() {
   const navigate = useNavigate();
   const { id } = useParams<{ id?: string }>();
   const isEditMode = Boolean(id);
-  const { triggerRefresh } = useTableUIStore();
 
   const [activeTab, setActiveTab] = useState<string>("sec-details");
-  const [isLoadingRecord, setIsLoadingRecord] = useState(isEditMode);
+  const { data: record, isLoading: isLoadingRecord } =
+    useInventoryRecordDetailQuery(id);
+  const createMutation = useCreateRecordMutation();
+  const updateMutation = useUpdateRecordMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
@@ -40,123 +40,59 @@ export function RecordForm() {
     formState: { errors },
   } = useForm<RecordSchemaInput>({
     resolver: zodResolver(recordSchema) as any,
-    defaultValues: {
-      sku: `SKU-W-${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: "",
-      barcode: `${Math.floor(100000000000 + Math.random() * 900000000000)}`,
-      category: "Electronics",
-      subcategory: "Sensors",
-      brand: "ApexGear",
-      tags: ["electronics", "warehouse"],
-      variant: "Standard",
-      unit: "pcs",
-      warehouse: "WH-NORTH-01",
-      qtyOnHand: 150,
-      qtyReserved: 10,
-      reorderPoint: 50,
-      reorderQty: 200,
-      binLocation: "A-12-04",
-      unitCost: 15.5,
-      listPrice: 32.0,
-      salePrice: 32.0,
-      taxRate: 0,
-      discountPercent: 0,
-      priceTier: "Standard",
-      supplierId: "SUP-901",
-      supplierName: "Apex Precision Logistics",
-      supplierSku: "SUP-SKU-901",
-      leadTimeDays: 7,
-      minOrderQty: 10,
-      lastPurchaseDate: new Date().toISOString().split("T")[0],
-      status: "HEALTHY",
-      isPerishable: false,
-      weightKg: 1.2,
-      dimensionsCm: "20x15x10",
-      isFragile: false,
-      hazardClass: "None",
-      bayNumber: "B-12",
-      shelfNumber: "S-04",
-      countryOfOrigin: "USA",
-      hsCode: "8544.42.20",
-      warrantyMonths: 12,
-      packageType: "Box",
-      handlingInstructions: "Standard handling",
-      isReturnable: true,
-      minStorageTempC: -10,
-      maxStorageTempC: 40,
-    },
+    defaultValues: DEFAULT_RECORD_FORM_VALUES,
   });
 
-  // Fetch record on mount if in Edit mode
   useEffect(() => {
-    if (!id) return;
-
-    let isMounted = true;
-    setIsLoadingRecord(true);
-
-    inventoryApi
-      .getRecord(id)
-      .then((record) => {
-        if (isMounted && record) {
-          reset({
-            sku: record.sku,
-            name: record.name,
-            barcode: record.barcode,
-            category: record.category,
-            subcategory: record.subcategory,
-            brand: record.brand,
-            tags: record.tags || ["imported"],
-            variant: record.variant || "Standard",
-            unit: record.unit || "pcs",
-            warehouse: record.warehouse,
-            qtyOnHand: record.qtyOnHand,
-            qtyReserved: record.qtyReserved,
-            reorderPoint: record.reorderPoint,
-            reorderQty: record.reorderQty,
-            binLocation: record.binLocation,
-            unitCost: record.unitCost,
-            listPrice: record.listPrice,
-            salePrice: record.salePrice || record.listPrice,
-            taxRate: record.taxRate || 0,
-            discountPercent: record.discountPercent || 0,
-            priceTier: (record.priceTier as any) || "Standard",
-            supplierId: record.supplierId,
-            supplierName: record.supplierName,
-            supplierSku: record.supplierSku,
-            leadTimeDays: record.leadTimeDays,
-            minOrderQty: record.minOrderQty,
-            lastPurchaseDate:
-              record.lastPurchaseDate || new Date().toISOString().split("T")[0],
-            status: record.status,
-            isPerishable: record.isPerishable,
-            weightKg: record.weightKg,
-            dimensionsCm: record.dimensionsCm,
-            isFragile: record.isFragile,
-            hazardClass: record.hazardClass,
-            bayNumber: record.bayNumber,
-            shelfNumber: record.shelfNumber,
-            countryOfOrigin: record.countryOfOrigin,
-            hsCode: record.hsCode,
-            warrantyMonths: record.warrantyMonths,
-            packageType: record.packageType,
-            handlingInstructions: record.handlingInstructions,
-            isReturnable: record.isReturnable,
-            minStorageTempC: record.minStorageTempC,
-            maxStorageTempC: record.maxStorageTempC,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error("Fetch record error:", err);
-      })
-      .finally(() => {
-        if (isMounted) setIsLoadingRecord(false);
+    if (record) {
+      reset({
+        sku: record.sku,
+        name: record.name,
+        barcode: record.barcode,
+        category: record.category,
+        subcategory: record.subcategory,
+        brand: record.brand,
+        tags: record.tags || ["imported"],
+        variant: record.variant || "Standard",
+        unit: record.unit || "pcs",
+        warehouse: record.warehouse,
+        qtyOnHand: record.qtyOnHand,
+        qtyReserved: record.qtyReserved,
+        reorderPoint: record.reorderPoint,
+        reorderQty: record.reorderQty,
+        binLocation: record.binLocation,
+        unitCost: record.unitCost,
+        listPrice: record.listPrice,
+        salePrice: record.salePrice || record.listPrice,
+        taxRate: record.taxRate || 0,
+        discountPercent: record.discountPercent || 0,
+        priceTier: (record.priceTier as any) || "Standard",
+        supplierId: record.supplierId,
+        supplierName: record.supplierName,
+        supplierSku: record.supplierSku,
+        leadTimeDays: record.leadTimeDays,
+        minOrderQty: record.minOrderQty,
+        lastPurchaseDate:
+          record.lastPurchaseDate || new Date().toISOString().split("T")[0],
+        status: record.status,
+        isPerishable: record.isPerishable,
+        weightKg: record.weightKg,
+        dimensionsCm: record.dimensionsCm,
+        isFragile: record.isFragile,
+        hazardClass: record.hazardClass,
+        bayNumber: record.bayNumber,
+        shelfNumber: record.shelfNumber,
+        countryOfOrigin: record.countryOfOrigin,
+        hsCode: record.hsCode,
+        warrantyMonths: record.warrantyMonths,
+        packageType: record.packageType,
+        handlingInstructions: record.handlingInstructions,
+        isReturnable: record.isReturnable,
+        minStorageTempC: record.minStorageTempC,
+        maxStorageTempC: record.maxStorageTempC,
       });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [id, reset]);
+    }
+  }, [record, reset]);
 
   const isProgrammaticScrollRef = useRef(false);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -170,8 +106,10 @@ export function RecordForm() {
     const handleScroll = () => {
       if (isProgrammaticScrollRef.current) return;
 
-      const scrollContainer = document.querySelector('.overflow-y-auto');
-      const scrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+      const scrollContainer = document.querySelector(".overflow-y-auto");
+      const scrollTop = scrollContainer
+        ? scrollContainer.scrollTop
+        : window.scrollY;
       const targetOffset = scrollTop + 145;
 
       for (let i = sectionIds.length - 1; i >= 0; i--) {
@@ -183,11 +121,11 @@ export function RecordForm() {
       }
     };
 
-    const container = document.querySelector('.overflow-y-auto') || window;
-    container.addEventListener('scroll', handleScroll, { passive: true });
+    const container = document.querySelector(".overflow-y-auto") || window;
+    container.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
-      container.removeEventListener('scroll', handleScroll);
+      container.removeEventListener("scroll", handleScroll);
     };
   }, [isLoadingRecord]);
 
@@ -212,17 +150,16 @@ export function RecordForm() {
     setIsSubmitting(true);
     try {
       if (isEditMode && id) {
-        await inventoryApi.updateRecord(id, {
-          ...data,
-          status: liveStatus,
-        } as any);
+        await updateMutation.mutateAsync({
+          id,
+          patch: { ...data, status: liveStatus } as any,
+        });
       } else {
-        await inventoryApi.createRecord({
+        await createMutation.mutateAsync({
           ...data,
           status: liveStatus,
         } as any);
       }
-      triggerRefresh();
       setSubmitSuccess(true);
       setTimeout(() => {
         navigate("/");
@@ -243,13 +180,13 @@ export function RecordForm() {
     }
 
     const el = document.getElementById(sectionId);
-    const container = document.querySelector('.overflow-y-auto');
+    const container = document.querySelector(".overflow-y-auto");
     if (el && container) {
       const headerOffset = 130;
       const targetPos = Math.max(0, el.offsetTop - headerOffset);
       container.scrollTo({
         top: targetPos,
-        behavior: 'smooth',
+        behavior: "smooth",
       });
     }
 

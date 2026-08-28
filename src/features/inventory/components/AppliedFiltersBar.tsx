@@ -1,9 +1,8 @@
-// Inventory AppliedFiltersBar connecting Zustand UI store state dynamically to reusable AppliedFiltersBar UI component.
-import { useTableUIStore } from '../store/useTableUIStore';
+import { useTableUIStore } from "../store/useTableUIStore";
 import {
   AppliedFiltersBar as AppliedFiltersBarUI,
   type AppliedFilterItem,
-} from '../../../components/ui/applied-filters-bar';
+} from "../../../components/ui/applied-filters-bar";
 
 export function AppliedFiltersBar() {
   const {
@@ -20,46 +19,41 @@ export function AppliedFiltersBar() {
 
   const filters: AppliedFilterItem[] = [];
 
-  if (searchQuery && searchQuery.trim() !== '') {
+  if (searchQuery && searchQuery.trim() !== "") {
     filters.push({
-      key: 'search',
-      label: 'Search',
+      key: "search",
+      label: "Search",
       value: `"${searchQuery.trim()}"`,
-      onRemove: () => setSearchQuery(''),
+      onRemove: () => setSearchQuery(""),
     });
   }
 
-  if (statusFilter && statusFilter !== 'ALL') {
+  if (statusFilter && statusFilter !== "ALL") {
     filters.push({
-      key: 'status',
-      label: 'Status',
-      value: statusFilter.replace('_', ' '),
-      onRemove: () => setStatusFilter('ALL'),
+      key: "status",
+      label: "Status",
+      value: statusFilter.replace("_", " "),
+      onRemove: () => setStatusFilter("ALL"),
     });
   }
 
-  if (categoryFilter && categoryFilter !== 'ALL') {
+  if (categoryFilter && categoryFilter !== "ALL") {
     filters.push({
-      key: 'category',
-      label: 'Category',
+      key: "category",
+      label: "Category",
       value: categoryFilter,
-      onRemove: () => setCategoryFilter('ALL'),
+      onRemove: () => setCategoryFilter("ALL"),
     });
   }
 
-  if (skuFilter && skuFilter.trim() !== '') {
+  if (skuFilter && skuFilter.trim() !== "") {
     filters.push({
-      key: 'sku',
-      label: 'SKU',
+      key: "sku",
+      label: "SKU",
       value: skuFilter.trim(),
-      onRemove: () => setSkuFilter(''),
+      onRemove: () => setSkuFilter(""),
     });
   }
 
-  return (
-    <AppliedFiltersBarUI
-      filters={filters}
-      onClearAll={resetAllFilters}
-    />
-  );
+  return <AppliedFiltersBarUI filters={filters} onClearAll={resetAllFilters} />;
 }

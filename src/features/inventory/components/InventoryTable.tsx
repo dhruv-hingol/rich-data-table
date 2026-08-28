@@ -1,11 +1,18 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { GridReadyEvent, GridApi, RowSelectionOptions } from "ag-grid-community";
+import type {
+  GridReadyEvent,
+  GridApi,
+  RowSelectionOptions,
+} from "ag-grid-community";
 import { AgGridTable } from "../../../components/data-table";
 import { createColumnDefinitions } from "../lib/columnDefsFactory.tsx";
-import { inventoryApi } from "../api/inventoryApi";
 import { useTableUIStore } from "../store/useTableUIStore";
 import { SelectionActionBar } from "./SelectionActionBar";
 import type { InventoryRecord } from "../types/inventory.types";
+import {
+  useInventoryRecordsQuery,
+  useDeleteRecordsMutation,
+} from "../hooks/useInventoryQuery";
 
 export function InventoryTable() {
   const {
@@ -16,14 +23,10 @@ export function InventoryTable() {
     selectedRowIds,
     setSelectedRowIds,
     clearSelection,
-    refreshKey,
   } = useTableUIStore();
 
-  const [rowData, setRowData] = useState<InventoryRecord[]>([]);
-  const [totalCount, setTotalCount] = useState<number>(0);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(10);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [gridApi, setGridApi] = useState<GridApi<InventoryRecord> | null>(null);
 
   const columnDefs = useMemo(() => createColumnDefinitions(), []);
@@ -35,55 +38,41 @@ export function InventoryTable() {
       checkboxes: true,
       enableClickSelection: false,
     }),
-    []
+    [],
   );
 
-  const fetchRecords = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const filters = [];
-      if (categoryFilter && categoryFilter !== "ALL") {
-        filters.push({
-          field: "category" as const,
-          operator: "equals" as const,
-          value: categoryFilter,
-        });
-      }
-      if (skuFilter && skuFilter.trim() !== "") {
-        filters.push({
-          field: "sku" as const,
-          operator: "contains" as const,
-          value: skuFilter.trim(),
-        });
-      }
-
-      const res = await inventoryApi.listRecords({
-        page: currentPage - 1, // 0-indexed page for server
-        pageSize,
-        search: searchQuery,
-        statusFilter,
-        filters,
+  const filters = useMemo(() => {
+    const list = [];
+    if (categoryFilter && categoryFilter !== "ALL") {
+      list.push({
+        field: "category" as const,
+        operator: "equals" as const,
+        value: categoryFilter,
       });
-      setRowData(res.rows);
-      setTotalCount(res.totalCount);
-    } catch (err) {
-      console.error("Inventory list fetch error:", err);
-    } finally {
-      setIsLoading(false);
     }
-  }, [
-    currentPage,
+    if (skuFilter && skuFilter.trim() !== "") {
+      list.push({
+        field: "sku" as const,
+        operator: "contains" as const,
+        value: skuFilter.trim(),
+      });
+    }
+    return list;
+  }, [categoryFilter, skuFilter]);
+
+  const { data, isLoading } = useInventoryRecordsQuery({
+    page: currentPage - 1,
     pageSize,
-    searchQuery,
+    search: searchQuery,
     statusFilter,
-    categoryFilter,
-    skuFilter,
-    refreshKey,
-  ]);
+    filters,
+  });
+
+  const deleteMutation = useDeleteRecordsMutation();
 
   useEffect(() => {
-    fetchRecords();
-  }, [fetchRecords]);
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, categoryFilter, skuFilter]);
 
   const onGridReady = useCallback((params: GridReadyEvent<InventoryRecord>) => {
     setGridApi(params.api);
@@ -110,22 +99,20 @@ export function InventoryTable() {
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedRowIds.length === 0) return;
-    try {
-      await inventoryApi.deleteRecords(selectedRowIds);
-      if (gridApi) {
-        gridApi.deselectAll();
-      }
-      clearSelection();
-      fetchRecords();
-    } catch (err) {
-      console.error("Delete error:", err);
-    }
-  }, [selectedRowIds, gridApi, clearSelection, fetchRecords]);
+    deleteMutation.mutate(selectedRowIds, {
+      onSuccess: () => {
+        if (gridApi) {
+          gridApi.deselectAll();
+        }
+        clearSelection();
+      },
+    });
+  }, [selectedRowIds, gridApi, clearSelection, deleteMutation]);
 
   return (
     <div className="w-full flex-1 flex flex-col min-h-0">
       <AgGridTable<InventoryRecord>
-        rowData={rowData}
+        rowData={data?.rows || []}
         columnDefs={columnDefs}
         isLoading={isLoading}
         rowSelection={rowSelection}
@@ -135,7 +122,7 @@ export function InventoryTable() {
         onSelectionChanged={onSelectionChanged}
         paginatorOptions={{
           current: currentPage,
-          total: totalCount,
+          total: data?.totalCount || 0,
           pageSize,
           onChange: (page) => setCurrentPage(page),
           setPageSize: (size) => {

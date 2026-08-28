@@ -1,4 +1,3 @@
-// In-memory fake server engine providing server-side pagination, sorting, global search, and column filtering.
 import { get, set } from 'idb-keyval';
 import type {
   InventoryRecord,
@@ -379,6 +378,20 @@ class MockServerEngine {
     set(IDB_KEY, this.records).catch(() => {});
 
     return { created, rejected };
+  }
+
+  public async getUniqueSkus(): Promise<string[]> {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    return Array.from(new Set(this.records.map((r) => r.sku))).slice(0, 50);
+  }
+
+  public async getUniqueCategories(): Promise<string[]> {
+    if (!this.isInitialized) {
+      await this.initialize();
+    }
+    return Array.from(new Set(this.records.map((r) => r.category)));
   }
 }
 

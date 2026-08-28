@@ -1,16 +1,16 @@
-// Inventory Filters slide-over sheet drawer supporting Category, Stock Status, and SKU dropdown select filters.
+// Inventory Filters slide-over sheet drawer powered by TanStack Query for dynamic SKU dropdown options.
 import React, { useState, useEffect } from "react";
 import { Button } from "../../../components/ui/button";
-import { Select } from "../../../components/ui/select";
+import { Select, type SelectOption } from "../../../components/ui/select";
 import { useTableUIStore } from "../store/useTableUIStore";
 import type { StockStatus } from "../types/inventory.types";
 import {
   CATEGORY_OPTIONS,
   STATUS_OPTIONS,
-  SKU_OPTIONS,
   WAREHOUSE_OPTIONS,
 } from "../constants/filterOptions";
 import Drawer from "../../../components/ui/drawer";
+import { useUniqueSkusQuery } from "../hooks/useInventoryQuery";
 
 export function FilterSheet() {
   const {
@@ -29,6 +29,16 @@ export function FilterSheet() {
   const [localCategory, setLocalCategory] = useState<string>(categoryFilter);
   const [localStatus, setLocalStatus] = useState<StockStatus | "ALL">(statusFilter);
   const [localSku, setLocalSku] = useState<string>(skuFilter);
+
+  // TanStack Query for unique SKUs
+  const { data: uniqueSkus = [] } = useUniqueSkusQuery();
+
+  const dynamicSkuOptions: SelectOption[] = React.useMemo(() => {
+    return [
+      { label: "Select SKU", value: "ALL" },
+      ...uniqueSkus.map((sku) => ({ label: sku, value: sku })),
+    ];
+  }, [uniqueSkus]);
 
   // Sync local draft filter state when drawer opens
   useEffect(() => {
@@ -63,11 +73,11 @@ export function FilterSheet() {
     >
       <div className="flex flex-col justify-between h-full space-y-6">
         <div className="space-y-5">
-          {/* SKU Select Dropdown */}
+          {/* SKU Select Dropdown with Real Dynamic Dataset SKUs from TanStack Query */}
           <Select
             label="SKU"
             labelClassName="font-semibold text-slate-700 mb-1.5"
-            options={SKU_OPTIONS}
+            options={dynamicSkuOptions}
             value={localSku || "ALL"}
             onChange={(val) => setLocalSku(val)}
           />

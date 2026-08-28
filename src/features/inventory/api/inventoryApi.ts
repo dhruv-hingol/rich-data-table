@@ -1,13 +1,14 @@
-// API client wrapper abstraction interfacing with the mockServer engine instance.
-import { mockServer } from '../lib/mockServer';
+// Unified Inventory API interface delegating requests to apiInterceptor.
+import { apiInterceptor } from './apiInterceptor';
 import type { GetRecordsParams, CreateInventoryRecordPayload, UpdateInventoryRecordPayload } from '../types/inventory.types';
 
 export const inventoryApi = {
-  listRecords: (params: GetRecordsParams) => mockServer.listRecords(params),
-  getRecord: (id: string) => mockServer.getRecord(id),
-  createRecord: (payload: CreateInventoryRecordPayload) => mockServer.createRecord(payload),
-  updateRecord: (id: string, patch: UpdateInventoryRecordPayload) => mockServer.updateRecord(id, patch),
-  deleteRecords: (ids: string[]) => mockServer.deleteRecords(ids),
-  restoreRecords: (records: any[]) => mockServer.restoreRecords(records),
-  bulkCreateRecords: (rows: any[]) => mockServer.bulkCreateRecords(rows),
+  listRecords: (params: GetRecordsParams) => apiInterceptor.listRecords(params),
+  getRecord: (id: string) => apiInterceptor.getRecord(id),
+  createRecord: (payload: CreateInventoryRecordPayload) => apiInterceptor.createRecord(payload),
+  updateRecord: (id: string, patch: UpdateInventoryRecordPayload) => apiInterceptor.updateRecord(id, patch),
+  deleteRecords: (ids: string[]) => apiInterceptor.deleteRecords(ids),
+  bulkCreateRecords: (rows: any[]) => apiInterceptor.bulkCreateRecords(rows),
+  getUniqueSkus: () => apiInterceptor.getUniqueSkus(),
+  getUniqueCategories: () => apiInterceptor.getUniqueCategories(),
 };

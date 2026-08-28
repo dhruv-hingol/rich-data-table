@@ -1,4 +1,3 @@
-// Floating action toolbar appearing on row selection with primary badge, solid delete button, and common Button variant=text clear button.
 import { useState, useEffect } from "react";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../utils/cn";
@@ -38,13 +37,11 @@ export function SelectionActionBar({
       )}
     >
       <div className="bg-white border border-slate-200 rounded-xl shadow-xl p-3 flex items-center justify-between gap-4">
-        {/* Primary Color Selected Items Badge */}
         <div className="text-xs font-bold text-white bg-[#ff6600] px-3 py-1.5 rounded-lg whitespace-nowrap shadow-xs">
           {selectedRows.size} {selectedRows.size === 1 ? "item" : "items"}{" "}
           selected
         </div>
 
-        {/* Solid Variant Delete Button */}
         <Button variant="primary" size="sm" onClick={onDelete}>
           Delete
         </Button>
@@ -55,7 +52,6 @@ export function SelectionActionBar({
           </Button>
         )}
 
-        {/* Common Button variant="text" Clear Button */}
         <Button variant="text" size="sm" onClick={onCancel} className="text-xs">
           Clear
         </Button>

@@ -1,4 +1,3 @@
-// Top action toolbar using common TableHeader with prefixIcon buttons.
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Plus } from "lucide-react";
@@ -33,7 +32,6 @@ export function TableToolbar({
     setSearchQuery(debouncedSearch);
   }, [debouncedSearch, setSearchQuery]);
 
-  // 1. Import CSV Button
   const importCsvButton = (
     <Button
       variant="outline"
