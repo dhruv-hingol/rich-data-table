@@ -162,7 +162,7 @@ export function AgGridTable<T>({
     if (dynamicViewportHeight && availableHeight !== undefined) {
       const headerHeight = 44;
       const rowCount = rowData ? Math.max(1, rowData.length) : 0;
-      const contentHeight = headerHeight + rowCount * rowHeight + 4;
+      const contentHeight = headerHeight + rowCount * rowHeight;
       const finalHeight = Math.min(contentHeight, availableHeight);
       return {
         height: `${finalHeight}px`,
@@ -202,7 +202,7 @@ export function AgGridTable<T>({
           headerHeight={44}
           onGridReady={handleGridReady}
           onSortChanged={onSortChanged ? handleSortChanged : undefined}
-          animateRows={false}
+          animateRows={true}
           suppressCellFocus
           overlayNoRowsTemplate={`<span class="text-sm font-medium text-slate-500">${noRowsMessage}</span>`}
           {...restProps}

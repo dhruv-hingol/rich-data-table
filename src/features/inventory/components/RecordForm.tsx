@@ -158,13 +158,18 @@ export function RecordForm() {
     };
   }, [id, reset]);
 
-  // ScrollSpy: Automatically update activeTab to match the section currently visible below sticky header as user scrolls
+  const isProgrammaticScrollRef = useRef(false);
+  const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // ScrollSpy: Automatically update activeTab to match section visible below header on manual scroll
   useEffect(() => {
     if (isLoadingRecord) return;
 
     const sectionIds = TABS.map((t) => t.id);
 
     const handleScroll = () => {
+      if (isProgrammaticScrollRef.current) return;
+
       const scrollContainer = document.querySelector('.overflow-y-auto');
       const scrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
       const targetOffset = scrollTop + 145;
@@ -180,7 +185,6 @@ export function RecordForm() {
 
     const container = document.querySelector('.overflow-y-auto') || window;
     container.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
 
     return () => {
       container.removeEventListener('scroll', handleScroll);
@@ -232,6 +236,12 @@ export function RecordForm() {
 
   const scrollToSection = useCallback((sectionId: string) => {
     setActiveTab(sectionId);
+    isProgrammaticScrollRef.current = true;
+
+    if (scrollTimerRef.current) {
+      clearTimeout(scrollTimerRef.current);
+    }
+
     const el = document.getElementById(sectionId);
     const container = document.querySelector('.overflow-y-auto');
     if (el && container) {
@@ -242,6 +252,10 @@ export function RecordForm() {
         behavior: 'smooth',
       });
     }
+
+    scrollTimerRef.current = setTimeout(() => {
+      isProgrammaticScrollRef.current = false;
+    }, 600);
   }, []);
 
   const categoryOptions = [

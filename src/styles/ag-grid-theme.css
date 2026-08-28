@@ -90,6 +90,18 @@
   font-weight: 500;
 }
 
+/* Remove horizontal bottom border line under the last row */
+.ag-row-last .ag-cell,
+.ag-row:last-child .ag-cell,
+.ag-row-last {
+  border-bottom: none !important;
+}
+
+/* Smooth Row Position Transition Animation when sorting */
+.ag-row {
+  transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease-in-out !important;
+}
+
 /* Column Header Resizer handle & resize guide line styling */
 .ag-header-cell-resize {
   cursor: ew-resize !important;
