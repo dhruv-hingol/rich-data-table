@@ -1,14 +1,16 @@
 import { Routes, Route } from "react-router-dom";
 import { InventoryTable } from "../features/inventory/components/InventoryTable";
 import { TableToolbar } from "../features/inventory/components/TableToolbar";
+import { AppliedFiltersBar } from "../features/inventory/components/AppliedFiltersBar";
 import { RecordForm } from "../features/inventory/components/RecordForm";
 import { FilterSheet } from "../features/inventory/components/FilterSheet";
 import { BulkImportDialog } from "../features/inventory/components/BulkImportDialog";
 
 function InventoryDashboardView() {
   return (
-    <div className="flex-1 flex flex-col gap-4 w-full h-full min-h-0 overflow-hidden">
+    <div className="flex-1 flex flex-col gap-3 w-full h-full min-h-0 overflow-hidden">
       <TableToolbar />
+      <AppliedFiltersBar />
       <InventoryTable />
     </div>
   );

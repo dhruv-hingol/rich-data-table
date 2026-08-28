@@ -1,15 +1,14 @@
-// Inventory Filters slide-over sheet drawer matching Screenshot 2 using exported constants.
-import React, { useState } from "react";
+// Inventory Filters slide-over sheet drawer supporting Category, Stock Status, and SKU dropdown select filters.
+import React, { useState, useEffect } from "react";
 import { Button } from "../../../components/ui/button";
 import { Select } from "../../../components/ui/select";
 import { useTableUIStore } from "../store/useTableUIStore";
 import type { StockStatus } from "../types/inventory.types";
 import {
-  WAREHOUSE_OPTIONS,
   CATEGORY_OPTIONS,
-  SUBCATEGORY_OPTIONS,
   STATUS_OPTIONS,
-  LOCATION_DISABLED_OPTIONS,
+  SKU_OPTIONS,
+  WAREHOUSE_OPTIONS,
 } from "../constants/filterOptions";
 import Drawer from "../../../components/ui/drawer";
 
@@ -19,23 +18,40 @@ export function FilterSheet() {
     setIsColumnManagerOpen,
     statusFilter,
     setStatusFilter,
+    categoryFilter,
+    setCategoryFilter,
+    skuFilter,
+    setSkuFilter,
+    resetAllFilters,
   } = useTableUIStore();
 
   const [selectedWarehouse, setSelectedWarehouse] = useState<string>("ALL");
-  const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
-  const [selectedStatus, setSelectedStatus] = useState<StockStatus | "ALL">(
-    statusFilter,
-  );
+  const [localCategory, setLocalCategory] = useState<string>(categoryFilter);
+  const [localStatus, setLocalStatus] = useState<StockStatus | "ALL">(statusFilter);
+  const [localSku, setLocalSku] = useState<string>(skuFilter);
+
+  // Sync local draft filter state when drawer opens
+  useEffect(() => {
+    if (isColumnManagerOpen) {
+      setLocalCategory(categoryFilter);
+      setLocalStatus(statusFilter);
+      setLocalSku(skuFilter);
+    }
+  }, [isColumnManagerOpen, categoryFilter, statusFilter, skuFilter]);
 
   const handleClear = () => {
     setSelectedWarehouse("ALL");
-    setSelectedCategory("ALL");
-    setSelectedStatus("ALL");
-    setStatusFilter("ALL");
+    setLocalCategory("ALL");
+    setLocalStatus("ALL");
+    setLocalSku("ALL");
+    resetAllFilters();
+    setIsColumnManagerOpen(false);
   };
 
   const handleApply = () => {
-    setStatusFilter(selectedStatus);
+    setCategoryFilter(localCategory);
+    setStatusFilter(localStatus);
+    setSkuFilter(localSku === "ALL" ? "" : localSku);
     setIsColumnManagerOpen(false);
   };
 
@@ -46,51 +62,53 @@ export function FilterSheet() {
       title="Inventory Filters"
     >
       <div className="flex flex-col justify-between h-full space-y-6">
-        <div className="space-y-4">
+        <div className="space-y-5">
+          {/* SKU Select Dropdown */}
+          <Select
+            label="SKU"
+            labelClassName="font-semibold text-slate-700 mb-1.5"
+            options={SKU_OPTIONS}
+            value={localSku || "ALL"}
+            onChange={(val) => setLocalSku(val)}
+          />
+
+          {/* Category Select Dropdown */}
+          <Select
+            label="Category"
+            labelClassName="font-semibold text-slate-700 mb-1.5"
+            options={CATEGORY_OPTIONS}
+            value={localCategory}
+            onChange={(val) => setLocalCategory(val)}
+          />
+
+          {/* Stock Status Select Dropdown */}
+          <Select
+            label="Stock Status"
+            labelClassName="font-semibold text-slate-700 mb-1.5"
+            options={STATUS_OPTIONS}
+            value={localStatus}
+            onChange={(val) => setLocalStatus(val as any)}
+          />
+
+          {/* Warehouse Select Dropdown */}
           <Select
             label="Warehouse"
+            labelClassName="font-semibold text-slate-700 mb-1.5"
             options={WAREHOUSE_OPTIONS}
             value={selectedWarehouse}
             onChange={(val) => setSelectedWarehouse(val)}
           />
-
-          <Select
-            label="Location"
-            options={LOCATION_DISABLED_OPTIONS}
-            value="NONE"
-            disabled
-          />
-
-          <Select
-            label="Category"
-            options={CATEGORY_OPTIONS}
-            value={selectedCategory}
-            onChange={(val) => setSelectedCategory(val)}
-          />
-
-          <Select
-            label="Sub Category"
-            options={SUBCATEGORY_OPTIONS}
-            value="ALL"
-          />
-
-          <Select
-            label="Stock Status"
-            options={STATUS_OPTIONS}
-            value={selectedStatus}
-            onChange={(val) => setSelectedStatus(val as any)}
-          />
         </div>
 
-        {/* Footer Buttons matching Screenshot 2 */}
-        <div className="pt-6 border-t border-slate-100 grid grid-cols-2 gap-4 mt-auto">
+        {/* Footer Action Buttons */}
+        <div className="pt-6 border-t border-slate-100 grid grid-cols-2 gap-4 mt-auto shrink-0">
           <Button
             variant="outline"
             size="md"
             onClick={handleClear}
             className="w-full"
           >
-            Clear
+            Clear Filters
           </Button>
           <Button
             variant="primary"

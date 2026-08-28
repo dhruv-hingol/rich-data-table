@@ -53,7 +53,7 @@ export function DataTablePagination({
   const pageItems = getPageItems();
 
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2.5 px-4 bg-white text-slate-700 text-sm border border-slate-200 rounded-xl shadow-2xs">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2.5 px-4 text-slate-700 text-sm ">
       {/* Left: Rows Per Page Selector & Total Counter */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">

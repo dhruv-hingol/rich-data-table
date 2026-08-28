@@ -11,6 +11,8 @@ export function InventoryTable() {
   const {
     searchQuery,
     statusFilter,
+    categoryFilter,
+    skuFilter,
     selectedRowIds,
     setSelectedRowIds,
     clearSelection,
@@ -39,11 +41,28 @@ export function InventoryTable() {
   const fetchRecords = useCallback(async () => {
     setIsLoading(true);
     try {
+      const filters = [];
+      if (categoryFilter && categoryFilter !== "ALL") {
+        filters.push({
+          field: "category" as const,
+          operator: "equals" as const,
+          value: categoryFilter,
+        });
+      }
+      if (skuFilter && skuFilter.trim() !== "") {
+        filters.push({
+          field: "sku" as const,
+          operator: "contains" as const,
+          value: skuFilter.trim(),
+        });
+      }
+
       const res = await inventoryApi.listRecords({
         page: currentPage - 1, // 0-indexed page for server
         pageSize,
         search: searchQuery,
         statusFilter,
+        filters,
       });
       setRowData(res.rows);
       setTotalCount(res.totalCount);
@@ -52,7 +71,15 @@ export function InventoryTable() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize, searchQuery, statusFilter, refreshKey]);
+  }, [
+    currentPage,
+    pageSize,
+    searchQuery,
+    statusFilter,
+    categoryFilter,
+    skuFilter,
+    refreshKey,
+  ]);
 
   useEffect(() => {
     fetchRecords();

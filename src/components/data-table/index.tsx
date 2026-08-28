@@ -161,8 +161,18 @@ export function AgGridTable<T>({
     }
     if (dynamicViewportHeight && availableHeight !== undefined) {
       const headerHeight = 44;
-      const rowCount = rowData ? Math.max(1, rowData.length) : 0;
-      const contentHeight = headerHeight + rowCount * rowHeight;
+      const hasRows = rowData && rowData.length > 0;
+
+      if (!hasRows) {
+        return {
+          height: "400px",
+          minHeight: "400px",
+          maxHeight: `${availableHeight}px`,
+          width: "100%",
+        };
+      }
+
+      const contentHeight = headerHeight + rowData.length * rowHeight;
       const finalHeight = Math.min(contentHeight, availableHeight);
       return {
         height: `${finalHeight}px`,

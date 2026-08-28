@@ -32,6 +32,16 @@ export const STATUS_OPTIONS: SelectOption[] = [
   { label: 'Discontinued', value: 'DISCONTINUED' },
 ];
 
+export const SKU_OPTIONS: SelectOption[] = [
+  { label: 'Select SKU', value: 'ALL' },
+  { label: 'SKU-OK-115', value: 'SKU-OK-115' },
+  { label: 'SKU-LOW-102', value: 'SKU-LOW-102' },
+  { label: 'SKU-OVER-201', value: 'SKU-OVER-201' },
+  { label: 'SKU-DISC-305', value: 'SKU-DISC-305' },
+  { label: 'SKU-W-901-4401', value: 'SKU-W-901-4401' },
+  { label: 'SKU-W-450-8820', value: 'SKU-W-450-8820' },
+];
+
 export const LOCATION_DISABLED_OPTIONS: SelectOption[] = [
   { label: 'Select warehouse first', value: 'NONE' },
 ];

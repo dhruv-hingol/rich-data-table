@@ -1,4 +1,4 @@
-// Zustand UI-only state store for search text, status quick filters, column visibility presets, row selections, and refresh trigger.
+// Zustand UI-only state store for search text, status quick filters, category, SKU, column presets, row selections, and refresh trigger.
 import { create } from 'zustand';
 import type { StockStatus } from '../types/inventory.types';
 
@@ -7,6 +7,8 @@ export type ColumnPreset = 'ALL' | 'ESSENTIALS' | 'INVENTORY' | 'PRICING' | 'SUP
 interface TableUIState {
   searchQuery: string;
   statusFilter: StockStatus | 'ALL';
+  categoryFilter: string;
+  skuFilter: string;
   selectedRowIds: string[];
   columnPreset: ColumnPreset;
   visibleColumns: string[];
@@ -16,6 +18,9 @@ interface TableUIState {
   refreshKey: number;
   setSearchQuery: (query: string) => void;
   setStatusFilter: (status: StockStatus | 'ALL') => void;
+  setCategoryFilter: (category: string) => void;
+  setSkuFilter: (sku: string) => void;
+  resetAllFilters: () => void;
   setSelectedRowIds: (ids: string[]) => void;
   toggleRowSelection: (id: string) => void;
   clearSelection: () => void;
@@ -30,6 +35,8 @@ interface TableUIState {
 export const useTableUIStore = create<TableUIState>((set) => ({
   searchQuery: '',
   statusFilter: 'ALL',
+  categoryFilter: 'ALL',
+  skuFilter: '',
   selectedRowIds: [],
   columnPreset: 'ALL',
   visibleColumns: [],
@@ -40,6 +47,15 @@ export const useTableUIStore = create<TableUIState>((set) => ({
 
   setSearchQuery: (query) => set({ searchQuery: query }),
   setStatusFilter: (status) => set({ statusFilter: status }),
+  setCategoryFilter: (category) => set({ categoryFilter: category }),
+  setSkuFilter: (sku) => set({ skuFilter: sku }),
+  resetAllFilters: () =>
+    set({
+      searchQuery: '',
+      statusFilter: 'ALL',
+      categoryFilter: 'ALL',
+      skuFilter: '',
+    }),
   setSelectedRowIds: (ids) => set({ selectedRowIds: ids }),
   toggleRowSelection: (id) =>
     set((state) => ({
