@@ -1,249 +1,602 @@
-// Tabbed collapsible form layout powered by React Hook Form and Zod record validation schema.
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
-import { recordSchema, type RecordSchemaInput } from '../lib/recordSchema';
-import { inventoryApi } from '../api/inventoryApi';
-import { Button } from '../../../components/ui/button';
-import { Input } from '../../../components/ui/input';
-import { Select } from '../../../components/ui/select';
-import { Badge } from '../../../components/ui/badge';
-import type { StockStatus } from '../types/inventory.types';
+// Single-page form rendering all sections simultaneously with top tab smooth-scrolling behavior and fixed bottom Save bar.
+import React, { useEffect, useState, useRef, useCallback } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate, useParams } from "react-router-dom";
+import { recordSchema, type RecordSchemaInput } from "../lib/recordSchema";
+import { inventoryApi } from "../api/inventoryApi";
+import { useTableUIStore } from "../store/useTableUIStore";
+import { Button } from "../../../components/ui/button";
+import { Input } from "../../../components/ui/input";
+import { Select } from "../../../components/ui/select";
+import { PageHeader } from "../../../components/ui/page-header";
+import type { StockStatus } from "../types/inventory.types";
+
+const TABS = [
+  { id: "sec-details", label: "Product Details" },
+  { id: "sec-inventory", label: "Stock & Location" },
+  { id: "sec-pricing", label: "Pricing & Financial" },
+  { id: "sec-supplier", label: "Supplier Info" },
+  { id: "sec-physical", label: "Physical Specs" },
+];
 
 export function RecordForm() {
   const navigate = useNavigate();
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [submitSuccess, setSubmitSuccess] = React.useState(false);
+  const { id } = useParams<{ id?: string }>();
+  const isEditMode = Boolean(id);
+  const { triggerRefresh } = useTableUIStore();
+
+  const [activeTab, setActiveTab] = useState<string>("sec-details");
+  const [isLoadingRecord, setIsLoadingRecord] = useState(isEditMode);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
+    reset,
     formState: { errors },
   } = useForm<RecordSchemaInput>({
     resolver: zodResolver(recordSchema) as any,
     defaultValues: {
       sku: `SKU-W-${Math.floor(100 + Math.random() * 900)}-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: '',
+      name: "",
       barcode: `${Math.floor(100000000000 + Math.random() * 900000000000)}`,
-      category: 'Electronics',
-      subcategory: 'Sensors',
-      brand: 'ApexGear',
-      tags: ['electronics', 'warehouse'],
-      variant: 'Standard',
-      unit: 'pcs',
-      warehouse: 'WH-NORTH-01',
+      category: "Electronics",
+      subcategory: "Sensors",
+      brand: "ApexGear",
+      tags: ["electronics", "warehouse"],
+      variant: "Standard",
+      unit: "pcs",
+      warehouse: "WH-NORTH-01",
       qtyOnHand: 150,
       qtyReserved: 10,
       reorderPoint: 50,
       reorderQty: 200,
-      binLocation: 'A-12-04',
+      binLocation: "A-12-04",
       unitCost: 15.5,
       listPrice: 32.0,
       salePrice: 32.0,
       taxRate: 0,
       discountPercent: 0,
-      priceTier: 'Standard',
-      supplierId: 'SUP-901',
-      supplierName: 'Apex Precision Logistics',
-      supplierSku: 'SUP-SKU-901',
+      priceTier: "Standard",
+      supplierId: "SUP-901",
+      supplierName: "Apex Precision Logistics",
+      supplierSku: "SUP-SKU-901",
       leadTimeDays: 7,
       minOrderQty: 10,
-      lastPurchaseDate: new Date().toISOString().split('T')[0],
-      status: 'HEALTHY',
+      lastPurchaseDate: new Date().toISOString().split("T")[0],
+      status: "HEALTHY",
       isPerishable: false,
       weightKg: 1.2,
-      dimensionsCm: '20x15x10',
+      dimensionsCm: "20x15x10",
       isFragile: false,
-      hazardClass: 'None',
-      bayNumber: 'B-12',
-      shelfNumber: 'S-04',
-      countryOfOrigin: 'USA',
-      hsCode: '8544.42.20',
+      hazardClass: "None",
+      bayNumber: "B-12",
+      shelfNumber: "S-04",
+      countryOfOrigin: "USA",
+      hsCode: "8544.42.20",
       warrantyMonths: 12,
-      packageType: 'Box',
-      handlingInstructions: 'Standard handling',
+      packageType: "Box",
+      handlingInstructions: "Standard handling",
       isReturnable: true,
       minStorageTempC: -10,
       maxStorageTempC: 40,
     },
   });
 
-  const watchQtyOnHand = watch('qtyOnHand') || 0;
-  const watchReorderPoint = watch('reorderPoint') || 0;
+  // Fetch record on mount if in Edit mode
+  useEffect(() => {
+    if (!id) return;
 
-  // Live status preview badge computation
+    let isMounted = true;
+    setIsLoadingRecord(true);
+
+    inventoryApi
+      .getRecord(id)
+      .then((record) => {
+        if (isMounted && record) {
+          reset({
+            sku: record.sku,
+            name: record.name,
+            barcode: record.barcode,
+            category: record.category,
+            subcategory: record.subcategory,
+            brand: record.brand,
+            tags: record.tags || ["imported"],
+            variant: record.variant || "Standard",
+            unit: record.unit || "pcs",
+            warehouse: record.warehouse,
+            qtyOnHand: record.qtyOnHand,
+            qtyReserved: record.qtyReserved,
+            reorderPoint: record.reorderPoint,
+            reorderQty: record.reorderQty,
+            binLocation: record.binLocation,
+            unitCost: record.unitCost,
+            listPrice: record.listPrice,
+            salePrice: record.salePrice || record.listPrice,
+            taxRate: record.taxRate || 0,
+            discountPercent: record.discountPercent || 0,
+            priceTier: (record.priceTier as any) || "Standard",
+            supplierId: record.supplierId,
+            supplierName: record.supplierName,
+            supplierSku: record.supplierSku,
+            leadTimeDays: record.leadTimeDays,
+            minOrderQty: record.minOrderQty,
+            lastPurchaseDate:
+              record.lastPurchaseDate || new Date().toISOString().split("T")[0],
+            status: record.status,
+            isPerishable: record.isPerishable,
+            weightKg: record.weightKg,
+            dimensionsCm: record.dimensionsCm,
+            isFragile: record.isFragile,
+            hazardClass: record.hazardClass,
+            bayNumber: record.bayNumber,
+            shelfNumber: record.shelfNumber,
+            countryOfOrigin: record.countryOfOrigin,
+            hsCode: record.hsCode,
+            warrantyMonths: record.warrantyMonths,
+            packageType: record.packageType,
+            handlingInstructions: record.handlingInstructions,
+            isReturnable: record.isReturnable,
+            minStorageTempC: record.minStorageTempC,
+            maxStorageTempC: record.maxStorageTempC,
+          });
+        }
+      })
+      .catch((err) => {
+        console.error("Fetch record error:", err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingRecord(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [id, reset]);
+
+  // ScrollSpy: Automatically update activeTab to match the section currently visible below sticky header as user scrolls
+  useEffect(() => {
+    if (isLoadingRecord) return;
+
+    const sectionIds = TABS.map((t) => t.id);
+
+    const handleScroll = () => {
+      const scrollContainer = document.querySelector('.overflow-y-auto');
+      const scrollTop = scrollContainer ? scrollContainer.scrollTop : window.scrollY;
+      const targetOffset = scrollTop + 145;
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const el = document.getElementById(sectionIds[i]);
+        if (el && el.offsetTop <= targetOffset) {
+          setActiveTab(sectionIds[i]);
+          break;
+        }
+      }
+    };
+
+    const container = document.querySelector('.overflow-y-auto') || window;
+    container.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+
+    return () => {
+      container.removeEventListener('scroll', handleScroll);
+    };
+  }, [isLoadingRecord]);
+
+  const watchName = watch("name");
+  const watchSku = watch("sku");
+  const watchQtyOnHand = watch("qtyOnHand") || 0;
+  const watchReorderPoint = watch("reorderPoint") || 0;
+  const watchCategory = watch("category");
+  const watchWarehouse = watch("warehouse");
+
   const liveStatus: StockStatus = React.useMemo(() => {
     if (watchQtyOnHand === 0 || watchQtyOnHand <= watchReorderPoint) {
-      return 'LOW_STOCK';
+      return "LOW_STOCK";
     }
     if (watchQtyOnHand > 1000) {
-      return 'OVERSTOCK';
+      return "OVERSTOCK";
     }
-    return 'HEALTHY';
+    return "HEALTHY";
   }, [watchQtyOnHand, watchReorderPoint]);
 
   const onSubmit = async (data: RecordSchemaInput) => {
     setIsSubmitting(true);
     try {
-      await inventoryApi.createRecord({
-        ...data,
-        status: liveStatus,
-      } as any);
+      if (isEditMode && id) {
+        await inventoryApi.updateRecord(id, {
+          ...data,
+          status: liveStatus,
+        } as any);
+      } else {
+        await inventoryApi.createRecord({
+          ...data,
+          status: liveStatus,
+        } as any);
+      }
+      triggerRefresh();
       setSubmitSuccess(true);
       setTimeout(() => {
-        navigate('/');
-      }, 1200);
+        navigate("/");
+      }, 1000);
     } catch (err) {
-      console.error('Create record error:', err);
+      console.error("Form submission error:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  const scrollToSection = useCallback((sectionId: string) => {
+    setActiveTab(sectionId);
+    const el = document.getElementById(sectionId);
+    const container = document.querySelector('.overflow-y-auto');
+    if (el && container) {
+      const headerOffset = 130;
+      const targetPos = Math.max(0, el.offsetTop - headerOffset);
+      container.scrollTo({
+        top: targetPos,
+        behavior: 'smooth',
+      });
+    }
+  }, []);
+
+  const categoryOptions = [
+    { label: "Electronics", value: "Electronics" },
+    { label: "Industrial Hardware", value: "Industrial Hardware" },
+    { label: "Safety Equipment", value: "Safety Equipment" },
+    { label: "Packaging Materials", value: "Packaging Materials" },
+  ];
+
+  const warehouseOptions = [
+    { label: "WH-NORTH-01", value: "WH-NORTH-01" },
+    { label: "WH-SOUTH-02", value: "WH-SOUTH-02" },
+    { label: "WH-EAST-05", value: "WH-EAST-05" },
+    { label: "WH-WEST-09", value: "WH-WEST-09" },
+  ];
+
+  if (isLoadingRecord) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3">
+        <div className="w-8 h-8 border-2 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
+        <span className="text-xs font-semibold text-slate-600">
+          Loading item details...
+        </span>
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Live Status Preview Banner */}
-      <div className="flex items-center justify-between p-4 bg-slate-50 border border-slate-200 rounded-xl">
-        <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold uppercase text-slate-500">Live Stock Status Preview:</span>
-          {liveStatus === 'LOW_STOCK' && <Badge variant="low">Low Stock Alert</Badge>}
-          {liveStatus === 'HEALTHY' && <Badge variant="healthy">Healthy Stock</Badge>}
-          {liveStatus === 'OVERSTOCK' && <Badge variant="overstock">Overstock</Badge>}
+    <form onSubmit={handleSubmit(onSubmit)} className="pb-4">
+      <PageHeader
+        sticky
+        backText="Back to Product Inventories"
+        backHref="/"
+        title={
+          isEditMode
+            ? `Product Detail - ${watchName || watchSku || id}`
+            : "Create Product Inventory"
+        }
+      >
+        <div className="flex items-center gap-8 text-sm font-medium overflow-x-auto pt-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => scrollToSection(tab.id)}
+              className={`pb-2 transition-colors cursor-pointer whitespace-nowrap ${
+                activeTab === tab.id
+                  ? "text-slate-900 border-b-2 border-[#ff6600] font-bold"
+                  : "text-slate-500 hover:text-slate-800 font-medium"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
-        {submitSuccess && (
-          <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200 animate-pulse">
-            ✓ Record Created Successfully! Redirecting...
+      </PageHeader>
+
+      {/* Success Notification Banner */}
+      {submitSuccess && (
+        <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-xs font-semibold text-emerald-800 flex items-center gap-2">
+          <span>
+            ✓{" "}
+            {isEditMode
+              ? "Record updated successfully!"
+              : "Record created successfully!"}{" "}
+            Redirecting...
           </span>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Section 1: Product Identity & Classification */}
-      <div className="space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff6600] pb-1 border-b border-slate-100">
-          1. Product Identity & Classification
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">SKU *</label>
-            <Input {...register('sku')} error={!!errors.sku} />
-            {errors.sku && <p className="text-[11px] text-rose-500 mt-1">{errors.sku.message}</p>}
+      {/* ALL SECTIONS VISIBLE ON ONE PAGE */}
+
+      {/* Section 1: Product Details */}
+      <div id="sec-details" className="pt-2 scroll-mt-20">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12 pb-8">
+          <div className="w-full md:w-52 shrink-0">
+            <h3 className="text-base font-bold text-slate-900">Details</h3>
           </div>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                SKU *
+              </label>
+              <Input {...register("sku")} error={!!errors.sku} />
+              {errors.sku && (
+                <p className="text-[11px] text-rose-500 mt-1">
+                  {errors.sku.message}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Product Name *</label>
-            <Input {...register('name')} error={!!errors.name} placeholder="e.g. Barcode Labels" />
-            {errors.name && <p className="text-[11px] text-rose-500 mt-1">{errors.name.message}</p>}
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Product Name *
+              </label>
+              <Input
+                {...register("name")}
+                error={!!errors.name}
+                placeholder="e.g. Barcode Scanner"
+              />
+              {errors.name && (
+                <p className="text-[11px] text-rose-500 mt-1">
+                  {errors.name.message}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Barcode *</label>
-            <Input {...register('barcode')} error={!!errors.barcode} />
-            {errors.barcode && <p className="text-[11px] text-rose-500 mt-1">{errors.barcode.message}</p>}
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Barcode *
+              </label>
+              <Input {...register("barcode")} error={!!errors.barcode} />
+              {errors.barcode && (
+                <p className="text-[11px] text-rose-500 mt-1">
+                  {errors.barcode.message}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Category *</label>
-            <Select {...register('category')}>
-              <option value="Electronics">Electronics</option>
-              <option value="Industrial Hardware">Industrial Hardware</option>
-              <option value="Safety Equipment">Safety Equipment</option>
-              <option value="Packaging Materials">Packaging Materials</option>
-            </Select>
-          </div>
+            <Select
+              label="Category *"
+              labelClassName="font-medium text-slate-700 mb-1.5"
+              options={categoryOptions}
+              value={watchCategory}
+              onChange={(val) => setValue("category", val)}
+            />
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Subcategory</label>
-            <Input {...register('subcategory')} />
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Subcategory
+              </label>
+              <Input {...register("subcategory")} />
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Brand *</label>
-            <Input {...register('brand')} />
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Brand *
+              </label>
+              <Input {...register("brand")} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Section 2: Stock Levels & Warehouse Location */}
-      <div className="space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff6600] pb-1 border-b border-slate-100">
-          2. Inventory Stock & Bin Location
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Warehouse *</label>
-            <Select {...register('warehouse')}>
-              <option value="WH-NORTH-01">WH-NORTH-01</option>
-              <option value="WH-SOUTH-02">WH-SOUTH-02</option>
-              <option value="WH-EAST-05">WH-EAST-05</option>
-              <option value="WH-WEST-09">WH-WEST-09</option>
-            </Select>
-          </div>
+      <div className="border-t border-dashed border-slate-200 my-6" />
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Qty On Hand *</label>
-            <Input type="number" {...register('qtyOnHand')} error={!!errors.qtyOnHand} />
-            {errors.qtyOnHand && <p className="text-[11px] text-rose-500 mt-1">{errors.qtyOnHand.message}</p>}
+      {/* Section 2: Stock & Location */}
+      <div id="sec-inventory" className="pt-2 scroll-mt-20">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12 pb-8">
+          <div className="w-full md:w-52 shrink-0">
+            <h3 className="text-base font-bold text-slate-900">
+              Stock & Location
+            </h3>
           </div>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <Select
+              label="Warehouse *"
+              labelClassName="font-medium text-slate-700 mb-1.5"
+              options={warehouseOptions}
+              value={watchWarehouse}
+              onChange={(val) => setValue("warehouse", val)}
+            />
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Qty Reserved</label>
-            <Input type="number" {...register('qtyReserved')} />
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Qty On Hand *
+              </label>
+              <Input
+                type="number"
+                {...register("qtyOnHand")}
+                error={!!errors.qtyOnHand}
+              />
+              {errors.qtyOnHand && (
+                <p className="text-[11px] text-rose-500 mt-1">
+                  {errors.qtyOnHand.message}
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Reorder Point *</label>
-            <Input type="number" {...register('reorderPoint')} error={!!errors.reorderPoint} />
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Qty Reserved
+              </label>
+              <Input type="number" {...register("qtyReserved")} />
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Reorder Qty</label>
-            <Input type="number" {...register('reorderQty')} />
-          </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Reorder Point *
+              </label>
+              <Input
+                type="number"
+                {...register("reorderPoint")}
+                error={!!errors.reorderPoint}
+              />
+            </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Bin Location *</label>
-            <Input {...register('binLocation')} placeholder="e.g. A-12-04" />
-          </div>
-        </div>
-      </div>
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Reorder Qty
+              </label>
+              <Input type="number" {...register("reorderQty")} />
+            </div>
 
-      {/* Section 3: Pricing & Supplier */}
-      <div className="space-y-4">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-[#ff6600] pb-1 border-b border-slate-100">
-          3. Pricing & Supplier Details
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Unit Cost ($) *</label>
-            <Input type="number" step="0.01" {...register('unitCost')} />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">List Price ($) *</label>
-            <Input type="number" step="0.01" {...register('listPrice')} />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Supplier Name *</label>
-            <Input {...register('supplierName')} />
-          </div>
-
-          <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Lead Time (Days)</label>
-            <Input type="number" {...register('leadTimeDays')} />
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Bin Location *
+              </label>
+              <Input {...register("binLocation")} placeholder="e.g. A-12-04" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Form Action Controls */}
-      <div className="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
-        <Button variant="outline" type="button" onClick={() => navigate('/')}>
+      <div className="border-t border-dashed border-slate-200 my-6" />
+
+      {/* Section 3: Pricing & Financial */}
+      <div id="sec-pricing" className="pt-2 scroll-mt-20">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12 pb-8">
+          <div className="w-full md:w-52 shrink-0">
+            <h3 className="text-base font-bold text-slate-900">
+              Pricing & Financial
+            </h3>
+          </div>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Unit Cost (₹) *
+              </label>
+              <Input type="number" step="0.01" {...register("unitCost")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                List Price (₹) *
+              </label>
+              <Input type="number" step="0.01" {...register("listPrice")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Sale Price (₹)
+              </label>
+              <Input type="number" step="0.01" {...register("salePrice")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Tax Rate (%)
+              </label>
+              <Input type="number" step="0.1" {...register("taxRate")} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-dashed border-slate-200 my-6" />
+
+      {/* Section 4: Supplier Info */}
+      <div id="sec-supplier" className="pt-2 scroll-mt-20">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12 pb-8">
+          <div className="w-full md:w-52 shrink-0">
+            <h3 className="text-base font-bold text-slate-900">
+              Supplier Info
+            </h3>
+          </div>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Supplier Name *
+              </label>
+              <Input {...register("supplierName")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Supplier SKU
+              </label>
+              <Input {...register("supplierSku")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Lead Time (Days)
+              </label>
+              <Input type="number" {...register("leadTimeDays")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Min Order Qty
+              </label>
+              <Input type="number" {...register("minOrderQty")} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-dashed border-slate-200 my-6" />
+
+      {/* Section 5: Physical Specs */}
+      <div id="sec-physical" className="pt-2 scroll-mt-20">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-12 pb-8">
+          <div className="w-full md:w-52 shrink-0">
+            <h3 className="text-base font-bold text-slate-900">
+              Physical Specs
+            </h3>
+          </div>
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Weight (kg)
+              </label>
+              <Input type="number" step="0.1" {...register("weightKg")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Dimensions (cm)
+              </label>
+              <Input
+                {...register("dimensionsCm")}
+                placeholder="e.g. 20x15x10"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Package Type
+              </label>
+              <Input {...register("packageType")} />
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-700 mb-1.5">
+                Handling Instructions
+              </label>
+              <Input {...register("handlingInstructions")} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fixed Footer Bar at Bottom matching screenshot */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-8 py-3.5 flex items-center justify-end gap-3 z-40 shadow-lg">
+        <Button variant="outline" type="button" onClick={() => navigate("/")}>
           Cancel
         </Button>
-        <Button variant="primary" type="submit" disabled={isSubmitting} className="bg-[#ff6600]">
-          {isSubmitting ? 'Creating Record...' : 'Create Inventory Record'}
+        <Button
+          variant="primary"
+          type="submit"
+          disabled={isSubmitting}
+          className="bg-[#ff6600] px-6"
+        >
+          {isSubmitting ? "Saving..." : "Save"}
         </Button>
       </div>
     </form>

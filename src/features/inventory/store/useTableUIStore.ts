@@ -1,4 +1,4 @@
-// Zustand UI-only state store for search text, status quick filters, column visibility presets, and row selections.
+// Zustand UI-only state store for search text, status quick filters, column visibility presets, row selections, and refresh trigger.
 import { create } from 'zustand';
 import type { StockStatus } from '../types/inventory.types';
 
@@ -13,6 +13,7 @@ interface TableUIState {
   isAddDialogOpen: boolean;
   isBulkImportOpen: boolean;
   isColumnManagerOpen: boolean;
+  refreshKey: number;
   setSearchQuery: (query: string) => void;
   setStatusFilter: (status: StockStatus | 'ALL') => void;
   setSelectedRowIds: (ids: string[]) => void;
@@ -23,6 +24,7 @@ interface TableUIState {
   setIsAddDialogOpen: (open: boolean) => void;
   setIsBulkImportOpen: (open: boolean) => void;
   setIsColumnManagerOpen: (open: boolean) => void;
+  triggerRefresh: () => void;
 }
 
 export const useTableUIStore = create<TableUIState>((set) => ({
@@ -34,6 +36,7 @@ export const useTableUIStore = create<TableUIState>((set) => ({
   isAddDialogOpen: false,
   isBulkImportOpen: false,
   isColumnManagerOpen: false,
+  refreshKey: 0,
 
   setSearchQuery: (query) => set({ searchQuery: query }),
   setStatusFilter: (status) => set({ statusFilter: status }),
@@ -50,4 +53,5 @@ export const useTableUIStore = create<TableUIState>((set) => ({
   setIsAddDialogOpen: (open) => set({ isAddDialogOpen: open }),
   setIsBulkImportOpen: (open) => set({ isBulkImportOpen: open }),
   setIsColumnManagerOpen: (open) => set({ isColumnManagerOpen: open }),
+  triggerRefresh: () => set((state) => ({ refreshKey: state.refreshKey + 1 })),
 }));

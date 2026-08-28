@@ -6,13 +6,14 @@ import {
   ValidationModule,
   type RowSelectionOptions,
 } from "ag-grid-community";
-import type { GridReadyEvent, GridApi } from "ag-grid-community";
+import type { GridReadyEvent, GridApi, ColDef } from "ag-grid-community";
 
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
 import type { AgGridTableProps } from "./types";
 import DataTablePagination from "./table-pagination";
+import { HashLoader } from "../ui/hash-loader";
 
 ModuleRegistry.registerModules([AllCommunityModule, ValidationModule]);
 
@@ -21,6 +22,7 @@ const VIEWPORT_BOTTOM_GAP = 24;
 export function AgGridTable<T>({
   rowData,
   columnDefs,
+  defaultColDef: propDefaultColDef,
   isLoading = false,
   isFilterActive = false,
   paginatorOptions,
@@ -44,19 +46,37 @@ export function AgGridTable<T>({
     undefined,
   );
 
-  const defaultColDef = useMemo(
+  const defaultColDef = useMemo<ColDef<T>>(
     () => ({
+      width: 400,
+      minWidth: 150,
       resizable: true,
       sortable: true,
       filter: true,
+      ...propDefaultColDef,
+    }),
+    [propDefaultColDef],
+  );
+
+  // Configure selectionColumnDef to ensure checkbox column is pinned at index 0 as first column
+  const defaultSelectionColumnDef = useMemo(
+    () => ({
+      width: 50,
+      pinned: "left" as const,
+      resizable: false,
+      sortable: false,
+      suppressMovable: true,
     }),
     [],
   );
 
-  // Normalize rowSelection to AG Grid v36 RowSelectionOptions object format to avoid #306 deprecation warnings
-  const normalizedRowSelection = useMemo<RowSelectionOptions<T> | undefined>(() => {
+  // Normalize rowSelection to AG Grid v36 RowSelectionOptions object format
+  const normalizedRowSelection = useMemo<
+    RowSelectionOptions<T> | undefined
+  >(() => {
     if (!rowSelection) return undefined;
-    if (typeof rowSelection === "object") return rowSelection as RowSelectionOptions<T>;
+    if (typeof rowSelection === "object")
+      return rowSelection as RowSelectionOptions<T>;
     if (rowSelection === "multiple") {
       return {
         mode: "multiRow",
@@ -111,9 +131,10 @@ export function AgGridTable<T>({
       const tableTop = tableRef.current.getBoundingClientRect().top;
       const paginationHeight = paginationRef.current?.offsetHeight ?? 0;
 
+      // 10px gap between table grid and pagination
       const computedHeight = Math.max(
         200,
-        window.innerHeight - tableTop - paginationHeight - VIEWPORT_BOTTOM_GAP,
+        window.innerHeight - tableTop - paginationHeight - VIEWPORT_BOTTOM_GAP - 10,
       );
       setAvailableHeight(computedHeight);
     };
@@ -133,32 +154,39 @@ export function AgGridTable<T>({
     };
   }, [dynamicViewportHeight, paginatorOptions]);
 
-  const gridHeightStyle = useMemo(() => {
+  // Compute responsive style: fits row content height when rows are few, capped by max availableHeight
+  const gridContainerStyle = useMemo<React.CSSProperties>(() => {
     if (height !== undefined) {
-      return typeof height === "number" ? `${height}px` : height;
+      return { height: typeof height === "number" ? `${height}px` : height, width: "100%" };
     }
     if (dynamicViewportHeight && availableHeight !== undefined) {
-      return `${availableHeight}px`;
+      const headerHeight = 44;
+      const rowCount = rowData ? Math.max(1, rowData.length) : 0;
+      const contentHeight = headerHeight + rowCount * rowHeight + 4;
+      const finalHeight = Math.min(contentHeight, availableHeight);
+      return {
+        height: `${finalHeight}px`,
+        maxHeight: `${availableHeight}px`,
+        width: "100%",
+      };
     }
-    return "580px";
-  }, [height, dynamicViewportHeight, availableHeight]);
+    return { height: "580px", width: "100%" };
+  }, [height, dynamicViewportHeight, availableHeight, rowData, rowHeight]);
 
   return (
     <div
-      className={`w-full flex flex-col flex-1 min-h-0 ${rootContainerClassName || ""}`}
+      className={`w-full flex flex-col flex-1 min-h-0 gap-2.5 ${rootContainerClassName || ""}`}
       style={rootWrapperStyles}
     >
       <div
         ref={tableRef}
-        className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden ag-theme-alpine ag-theme-custom-light relative shadow-xs"
-        style={{ height: gridHeightStyle, width: "100%" }}
+        className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden ag-theme-alpine ag-theme-custom-light relative shadow-xs transition-[height] duration-200"
+        style={gridContainerStyle}
       >
+        {/* Consistent Loading Overlay: Uses common animated HashLoader */}
         {isLoading && (
-          <div className="absolute inset-0 z-10 bg-white/70 backdrop-blur-xs flex items-center justify-center">
-            <div className="flex items-center gap-2 text-sm font-semibold text-[#ff6600]">
-              <div className="w-5 h-5 border-2 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
-              <span>Loading data...</span>
-            </div>
+          <div className="absolute inset-0 z-30 bg-white/65 backdrop-blur-[1px] flex items-center justify-center animate-in fade-in duration-150 pointer-events-auto">
+            <HashLoader size="md" />
           </div>
         )}
 
@@ -169,6 +197,7 @@ export function AgGridTable<T>({
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
           rowSelection={normalizedRowSelection}
+          selectionColumnDef={defaultSelectionColumnDef}
           rowHeight={rowHeight}
           headerHeight={44}
           onGridReady={handleGridReady}

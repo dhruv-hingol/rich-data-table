@@ -1,29 +1,164 @@
-/* AG Grid Custom Light Theme matching LAMDA FLOW specification */
+/* AG Grid Custom Light Theme matching high contrast specification */
 .ag-theme-alpine,
 .ag-theme-custom-light {
   --ag-background-color: #ffffff;
-  --ag-header-background-color: #f8fafc;
-  --ag-header-foreground-color: #64748b;
+  --ag-header-background-color: #f1f5f9;
+  --ag-header-foreground-color: #1e293b;
   --ag-foreground-color: #0f172a;
+  --ag-secondary-foreground-color: #475569;
   --ag-border-color: #e2e8f0;
-  --ag-row-hover-color: #f1f5f9;
+  --ag-row-hover-color: #f8fafc;
   --ag-selected-row-background-color: rgba(255, 102, 0, 0.08);
   --ag-cell-horizontal-border: solid #f1f5f9 1px;
   --ag-header-column-separator-display: block;
   --ag-header-column-separator-color: #cbd5e1;
+  --ag-header-column-resize-handle-color: #94a3b8;
+  --ag-header-column-resize-handle-width: 2px;
   --ag-font-family: 'Inter', system-ui, sans-serif;
-  --ag-font-size: 13px;
+  --ag-font-size: 14px;
   --ag-grid-size: 6px;
   --ag-active-color: #ff6600;
   --ag-checkbox-checked-color: #ff6600;
+  --ag-scrollbar-size: 0px;
+  --ag-horizontal-scrollbar-height: 0px;
 }
-.ag-root-wrapper{
-  border:none
+
+.ag-root-wrapper {
+  border: none;
+}
+
+/* Ensure header container & label render in row flex layout: Text FIRST, then Sort Icon, then Filter Icon */
+.ag-header-cell-comp-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+}
+
+.ag-right-aligned-header .ag-header-cell-comp-wrapper {
+  justify-content: flex-end !important;
+}
+
+.ag-cell-label-container {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  order: 1 !important;
 }
 
 .ag-header-cell-label {
-  font-weight: 600;
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  font-weight: 700;
   text-transform: uppercase;
   font-size: 11px;
   letter-spacing: 0.05em;
+  color: #1e293b;
+}
+
+/* 1. Header Text */
+.ag-header-cell-text {
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  order: 1 !important;
+}
+
+/* 2. Sorting Icon */
+.ag-sort-indicator-container,
+.ag-sort-indicator-icon {
+  order: 2 !important;
+  margin-left: 4px !important;
+  margin-right: 2px !important;
+}
+
+/* 3. Filter Icon & Menu Button (always on the right side of header text) */
+.ag-filter-icon,
+.ag-header-icon:not(.ag-sort-indicator-icon),
+.ag-header-cell-menu-button,
+.ag-icon-filter {
+  color: #475569 !important;
+  order: 3 !important;
+  margin-left: 4px !important;
+  margin-right: 0 !important;
+}
+
+.ag-cell {
+  color: #0f172a !important;
+  font-size: 14px !important;
+  font-weight: 500;
+}
+
+/* Column Header Resizer handle & resize guide line styling */
+.ag-header-cell-resize {
+  cursor: ew-resize !important;
+}
+
+.ag-header-cell-resize::after {
+  background-color: #cbd5e1 !important;
+}
+
+.ag-header-column-resize-line {
+  background-color: #94a3b8 !important;
+  width: 2px !important;
+}
+
+/* Global Scrollbar Hiding Rule across all containers and viewports */
+*::-webkit-scrollbar,
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+div::-webkit-scrollbar,
+.ag-body-viewport::-webkit-scrollbar,
+.ag-body-horizontal-scroll-viewport::-webkit-scrollbar,
+.ag-body-vertical-scroll-viewport::-webkit-scrollbar,
+.ag-body-vertical-scroll::-webkit-scrollbar,
+.ag-vscroll::-webkit-scrollbar,
+.ag-root-wrapper ::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+*,
+html,
+body,
+div,
+.ag-body-viewport,
+.ag-body-horizontal-scroll-viewport,
+.ag-body-vertical-scroll-viewport,
+.ag-body-vertical-scroll,
+.ag-vscroll,
+.ag-root-wrapper {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Eliminate reserved scrollbar space/gutters from AG Grid header & body layouts */
+.ag-vscroll,
+.ag-body-vertical-scroll,
+.ag-body-vertical-scroll-viewport,
+.ag-body-vertical-scroll-container,
+.ag-vscroll-viewport,
+.ag-vertical-right-spacer,
+.ag-vertical-left-spacer,
+.ag-horizontal-left-spacer,
+.ag-horizontal-right-spacer,
+.ag-body-vertical-scroll-spacer,
+.ag-body-horizontal-scroll-spacer,
+.ag-body-horizontal-scroll,
+.ag-body-horizontal-scroll-viewport,
+.ag-body-horizontal-scroll-container {
+  display: none !important;
+  width: 0 !important;
+  min-width: 0 !important;
+  max-width: 0 !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

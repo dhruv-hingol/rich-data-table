@@ -14,6 +14,7 @@ export function InventoryTable() {
     selectedRowIds,
     setSelectedRowIds,
     clearSelection,
+    refreshKey,
   } = useTableUIStore();
 
   const [rowData, setRowData] = useState<InventoryRecord[]>([]);
@@ -51,7 +52,7 @@ export function InventoryTable() {
     } finally {
       setIsLoading(false);
     }
-  }, [currentPage, pageSize, searchQuery, statusFilter]);
+  }, [currentPage, pageSize, searchQuery, statusFilter, refreshKey]);
 
   useEffect(() => {
     fetchRecords();
@@ -73,16 +74,26 @@ export function InventoryTable() {
 
   const selectedSet = useMemo(() => new Set(selectedRowIds), [selectedRowIds]);
 
+  const handleClearSelection = useCallback(() => {
+    if (gridApi) {
+      gridApi.deselectAll();
+    }
+    clearSelection();
+  }, [gridApi, clearSelection]);
+
   const handleDeleteSelected = useCallback(async () => {
     if (selectedRowIds.length === 0) return;
     try {
       await inventoryApi.deleteRecords(selectedRowIds);
+      if (gridApi) {
+        gridApi.deselectAll();
+      }
       clearSelection();
       fetchRecords();
     } catch (err) {
       console.error("Delete error:", err);
     }
-  }, [selectedRowIds, clearSelection, fetchRecords]);
+  }, [selectedRowIds, gridApi, clearSelection, fetchRecords]);
 
   return (
     <div className="w-full flex-1 flex flex-col min-h-0">
@@ -110,7 +121,7 @@ export function InventoryTable() {
       <SelectionActionBar
         selectedRows={selectedSet}
         onDelete={handleDeleteSelected}
-        onCancel={clearSelection}
+        onCancel={handleClearSelection}
       />
     </div>
   );

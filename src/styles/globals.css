@@ -7,6 +7,12 @@
   }
 }
 
+@layer base {
+  html, body, button, input, select, textarea {
+    font-family: 'Inter';
+  }
+}
+
 :root {
   --primary-orange: #ff6600;
   --primary-orange-hover: #e55c00;
@@ -19,4 +25,73 @@ body {
   color: #0f172a;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Minimal Scrollbar Styles (Width & Height: 6px) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6600;
+}
+
+/* Firefox Scrollbar Support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+
+/* Animated Hash Loader Icon (Lines expanding in and out) */
+@keyframes hashLineScaleH {
+  0%, 100% {
+    transform: scaleX(0.2);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scaleX(1.1);
+    opacity: 1;
+  }
+}
+
+@keyframes hashLineScaleV {
+  0%, 100% {
+    transform: scaleY(0.2);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scaleY(1.1);
+    opacity: 1;
+  }
+}
+
+.animate-hash-h-top {
+  animation: hashLineScaleH 1.4s ease-in-out infinite;
+  transform-origin: 20px 14px;
+}
+
+.animate-hash-h-bottom {
+  animation: hashLineScaleH 1.4s ease-in-out infinite 0.2s;
+  transform-origin: 20px 26px;
+}
+
+.animate-hash-v-left {
+  animation: hashLineScaleV 1.4s ease-in-out infinite 0.1s;
+  transform-origin: 15px 20px;
+}
+
+.animate-hash-v-right {
+  animation: hashLineScaleV 1.4s ease-in-out infinite 0.3s;
+  transform-origin: 25px 20px;
 }

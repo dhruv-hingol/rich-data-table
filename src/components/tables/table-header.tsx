@@ -1,4 +1,3 @@
-// Reusable Common Table Header component supporting top actions order (Import CSV -> Filters -> Manage Inventory) and bottom search bar.
 import React from "react";
 import { Search, X, Filter } from "lucide-react";
 import { Button } from "../ui/button";
@@ -36,9 +35,7 @@ export function TableHeader({
   className = "",
 }: TableHeaderProps) {
   return (
-    <div
-      className={`flex flex-col gap-4 border-b border-slate-200 pb-4 pt-1 ${className}`}
-    >
+    <div className={`flex flex-col gap-4 pt-1 ${className}`}>
       {/* Top Row: Title (Left) + Action Buttons (Right) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         {/* Title */}
@@ -58,11 +55,11 @@ export function TableHeader({
             <Button
               variant="outline"
               size="sm"
+              prefixIcon={<Filter className="h-3.5 w-3.5" />}
               onClick={onFilterClick}
-              className="text-xs font-semibold text-slate-700 bg-white border-slate-200 hover:bg-slate-50 flex items-center gap-1.5 relative"
+              className="relative"
             >
-              <Filter className="h-3.5 w-3.5 text-slate-500" />
-              <span>Filters</span>
+              Filters
               {isFilterActive && (
                 <span className="w-2 h-2 rounded-full bg-[#ff6600] absolute -top-1 -right-1" />
               )}
