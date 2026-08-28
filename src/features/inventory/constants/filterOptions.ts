@@ -1,4 +1,4 @@
-// Inventory Filter Options Constants single source of truth.
+// Inventory Filter & Form Options Constants single source of truth.
 import type { SelectOption } from '../../../components/ui/select';
 
 export const WAREHOUSE_OPTIONS: SelectOption[] = [
@@ -15,6 +15,20 @@ export const CATEGORY_OPTIONS: SelectOption[] = [
   { label: 'Industrial Hardware', value: 'Industrial Hardware' },
   { label: 'Safety Equipment', value: 'Safety Equipment' },
   { label: 'Packaging Materials', value: 'Packaging Materials' },
+];
+
+export const FORM_CATEGORY_OPTIONS: SelectOption[] = [
+  { label: 'Electronics', value: 'Electronics' },
+  { label: 'Industrial Hardware', value: 'Industrial Hardware' },
+  { label: 'Safety Equipment', value: 'Safety Equipment' },
+  { label: 'Packaging Materials', value: 'Packaging Materials' },
+];
+
+export const FORM_WAREHOUSE_OPTIONS: SelectOption[] = [
+  { label: 'WH-NORTH-01', value: 'WH-NORTH-01' },
+  { label: 'WH-SOUTH-02', value: 'WH-SOUTH-02' },
+  { label: 'WH-EAST-05', value: 'WH-EAST-05' },
+  { label: 'WH-WEST-09', value: 'WH-WEST-09' },
 ];
 
 export const SUBCATEGORY_OPTIONS: SelectOption[] = [

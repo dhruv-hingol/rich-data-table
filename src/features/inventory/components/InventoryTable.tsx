@@ -1,3 +1,4 @@
+import { showToast } from "../../../components/ui/toast";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type {
   GridReadyEvent,
@@ -99,12 +100,17 @@ export function InventoryTable() {
 
   const handleDeleteSelected = useCallback(async () => {
     if (selectedRowIds.length === 0) return;
+    const count = selectedRowIds.length;
     deleteMutation.mutate(selectedRowIds, {
       onSuccess: () => {
         if (gridApi) {
           gridApi.deselectAll();
         }
         clearSelection();
+        showToast.success(`${count} ${count === 1 ? 'product' : 'products'} deleted successfully`);
+      },
+      onError: () => {
+        showToast.error("Failed to delete selected products");
       },
     });
   }, [selectedRowIds, gridApi, clearSelection, deleteMutation]);

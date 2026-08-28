@@ -95,3 +95,24 @@ body {
   animation: hashLineScaleV 1.4s ease-in-out infinite 0.3s;
   transform-origin: 25px 20px;
 }
+
+/* Top Center Screen Viewport Toast Position Overrides */
+[data-sonner-toaster][data-position='top-center'] {
+  top: 24px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  z-index: 99999 !important;
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: auto !important;
+  pointer-events: none !important;
+}
+
+[data-sonner-toast] {
+  pointer-events: auto !important;
+  margin: 0 auto !important;
+  font-family: 'Inter', sans-serif !important;
+  border-radius: 12px !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.08) !important;
+}

@@ -1,4 +1,5 @@
 // 3-step CSV import wizard modal handling file selection, row validation preview, batch commit, and store refresh.
+import { showToast } from '../../../components/ui/toast';
 import { useState } from 'react';
 import { Dialog } from '../../../components/ui/dialog';
 import { Button } from '../../../components/ui/button';
@@ -39,6 +40,7 @@ export function BulkImportDialog() {
         created: res.created.length,
         rejected: res.rejected.length + parseResult.invalidRows.length,
       });
+      showToast.success(`Successfully imported ${res.created.length} products`);
       triggerRefresh(); // Trigger instant data table refresh
     } catch (err) {
       console.error('Bulk create error:', err);
