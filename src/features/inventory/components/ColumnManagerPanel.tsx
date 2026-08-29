@@ -2,35 +2,7 @@ import { Sheet } from "../../../components/ui/sheet";
 import { Button } from "../../../components/ui/button";
 import { Checkbox } from "../../../components/ui/checkbox";
 import { useTableUIStore, type ColumnPreset } from "../store/useTableUIStore";
-
-const ALL_COLUMNS = [
-  { field: "sku", label: "SKU", group: "Identity" },
-  { field: "name", label: "Product Name", group: "Identity" },
-  { field: "barcode", label: "Barcode", group: "Identity" },
-  { field: "category", label: "Category", group: "Identity" },
-  { field: "subcategory", label: "Subcategory", group: "Classification" },
-  { field: "brand", label: "Brand", group: "Classification" },
-  { field: "status", label: "Stock Status", group: "Lifecycle" },
-  { field: "warehouse", label: "Warehouse", group: "Inventory" },
-  { field: "qtyOnHand", label: "Qty On Hand", group: "Inventory" },
-  { field: "qtyAvailable", label: "Qty Available", group: "Inventory" },
-  { field: "qtyReserved", label: "Qty Reserved", group: "Inventory" },
-  { field: "reorderPoint", label: "Reorder Point", group: "Inventory" },
-  { field: "reorderQty", label: "Reorder Qty", group: "Inventory" },
-  { field: "binLocation", label: "Bin Location", group: "Inventory" },
-  { field: "unitCost", label: "Unit Cost (₹)", group: "Pricing" },
-  { field: "listPrice", label: "List Price (₹)", group: "Pricing" },
-  { field: "salePrice", label: "Sale Price (₹)", group: "Pricing" },
-  { field: "totalStockValue", label: "Stock Value (₹)", group: "Pricing" },
-  { field: "marginPercent", label: "Margin %", group: "Pricing" },
-  { field: "supplierName", label: "Supplier Name", group: "Supplier" },
-  { field: "supplierSku", label: "Supplier SKU", group: "Supplier" },
-  { field: "leadTimeDays", label: "Lead Time (Days)", group: "Supplier" },
-  { field: "isPerishable", label: "Perishable", group: "Lifecycle" },
-  { field: "weightKg", label: "Weight (kg)", group: "Lifecycle" },
-  { field: "dimensionsCm", label: "Dimensions (cm)", group: "Lifecycle" },
-  { field: "isFragile", label: "Fragile", group: "Lifecycle" },
-];
+import { ALL_COLUMNS_METADATA } from "../lib/columnDefsFactory";
 
 export function ColumnManagerPanel() {
   const {
@@ -38,6 +10,8 @@ export function ColumnManagerPanel() {
     setIsColumnManagerOpen,
     columnPreset,
     setColumnPreset,
+    visibleColumns,
+    toggleColumnVisibility,
   } = useTableUIStore();
 
   const presets: { id: ColumnPreset; label: string }[] = [
@@ -47,6 +21,8 @@ export function ColumnManagerPanel() {
     { id: "PRICING", label: "Pricing & Margins" },
     { id: "SUPPLIER", label: "Supplier Operations" },
   ];
+
+  const visibleCount = visibleColumns.length;
 
   return (
     <Sheet
@@ -82,27 +58,33 @@ export function ColumnManagerPanel() {
         <div className="flex-1 min-h-0 flex flex-col">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-3 shrink-0">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-              Visible Columns ({ALL_COLUMNS.length})
+              Visible Columns ({visibleCount} / {ALL_COLUMNS_METADATA.length})
             </span>
           </div>
 
           <div className="space-y-2 overflow-y-auto pr-1 flex-1">
-            {ALL_COLUMNS.map((col) => (
-              <label
-                key={col.field}
-                className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-200 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Checkbox defaultChecked />
-                  <span className="text-sm font-medium text-slate-800">
-                    {col.label}
+            {ALL_COLUMNS_METADATA.map((col) => {
+              const isChecked = visibleColumns.includes(col.field);
+              return (
+                <label
+                  key={col.field}
+                  className="flex items-center justify-between p-2 rounded-lg hover:bg-slate-50 cursor-pointer border border-transparent hover:border-slate-200 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <Checkbox
+                      checked={isChecked}
+                      onChange={() => toggleColumnVisibility(col.field)}
+                    />
+                    <span className="text-sm font-medium text-slate-800">
+                      {col.label}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                    {col.group}
                   </span>
-                </div>
-                <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                  {col.group}
-                </span>
-              </label>
-            ))}
+                </label>
+              );
+            })}
           </div>
         </div>
 

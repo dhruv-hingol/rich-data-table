@@ -19,6 +19,7 @@ export interface SelectProps {
   menuClassName?: string;
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
+  required?: boolean;
 }
 
 export function Select({
@@ -33,9 +34,13 @@ export function Select({
   menuClassName = "",
   disabled = false,
   size = "md",
+  required = false,
 }: SelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const isRequired = required || (typeof label === "string" && label.includes("*"));
+  const cleanLabel = typeof label === "string" ? label.replace(/\s*\*/g, "").trim() : label;
 
   // Safely normalize options array into SelectOption format
   const normalizedOptions: SelectOption[] = useMemo(() => {
@@ -83,7 +88,10 @@ export function Select({
         <label
           className={`block text-xs font-medium text-slate-700 mb-1.5 ${labelClassName}`}
         >
-          {label}
+          {cleanLabel}
+          {isRequired && (
+            <span className="text-rose-500 font-bold ml-0.5">*</span>
+          )}
         </label>
       )}
 

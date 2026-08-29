@@ -23,6 +23,8 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const errorText = typeof error === "string" ? error : errorMessage;
     const hasError = Boolean(error || errorMessage);
+    const isRequired = props.required || (typeof label === "string" && label.includes("*"));
+    const cleanLabel = typeof label === "string" ? label.replace(/\s*\*/g, "").trim() : label;
 
     const inputElement = (
       <input
@@ -46,7 +48,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <label
             className={`block text-xs font-medium text-slate-700 mb-1.5 ${labelClassName}`}
           >
-            {label}
+            {cleanLabel}
+            {isRequired && (
+              <span className="text-rose-500 font-bold ml-0.5">*</span>
+            )}
           </label>
         )}
         {inputElement}

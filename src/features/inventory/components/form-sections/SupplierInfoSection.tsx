@@ -15,7 +15,8 @@ export function SupplierInfoSection({
   return (
     <FormSection id="sec-supplier" title="Supplier Info">
       <Input
-        label="Supplier Name *"
+        label="Supplier Name"
+        required
         placeholder="e.g. Acme Tech Solutions Pvt Ltd"
         errorMessage={errors?.supplierName?.message}
         {...register("supplierName")}

@@ -26,28 +26,32 @@ export function ProductDetailsSection({
   return (
     <FormSection id="sec-details" title="Details">
       <Input
-        label="SKU *"
+        label="SKU"
+        required
         placeholder="e.g. SKU-10023"
         errorMessage={errors.sku?.message}
         {...register("sku")}
       />
 
       <Input
-        label="Product Name *"
+        label="Product Name"
+        required
         placeholder="e.g. Wireless Barcode Scanner"
         errorMessage={errors.name?.message}
         {...register("name")}
       />
 
       <Input
-        label="Barcode *"
+        label="Barcode"
+        required
         placeholder="e.g. 8901234567890"
         errorMessage={errors.barcode?.message}
         {...register("barcode")}
       />
 
       <Select
-        label="Category *"
+        label="Category"
+        required
         labelClassName="font-medium text-slate-700 mb-1.5"
         options={categoryOptions}
         value={watchCategory}
@@ -61,7 +65,8 @@ export function ProductDetailsSection({
       />
 
       <Input
-        label="Brand *"
+        label="Brand"
+        required
         placeholder="e.g. Zebra Technologies"
         {...register("brand")}
       />

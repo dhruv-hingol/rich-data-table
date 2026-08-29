@@ -25,13 +25,14 @@ export function InventoryTable() {
     selectedRowIds,
     setSelectedRowIds,
     clearSelection,
+    visibleColumns,
   } = useTableUIStore();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(10);
+  const [pageSize, setPageSize] = useState<number>(25);
   const [gridApi, setGridApi] = useState<GridApi<InventoryRecord> | null>(null);
 
-  const columnDefs = useMemo(() => createColumnDefinitions(), []);
+  const columnDefs = useMemo(() => createColumnDefinitions(visibleColumns), [visibleColumns]);
 
   const rowSelection = useMemo<RowSelectionOptions<InventoryRecord>>(
     () => ({

@@ -1,7 +1,7 @@
 import { Toaster } from "sonner";
 import { AppRouter } from "../routes/appRouter";
 import { FilterSheet } from "../features/inventory/components/FilterSheet";
-import { BulkImportDialog } from "../features/inventory/components/BulkImportDialog";
+import { BulkImportDialog } from "../features/inventory/components/bulk-import/BulkImportDialog";
 
 export default function App() {
   return (

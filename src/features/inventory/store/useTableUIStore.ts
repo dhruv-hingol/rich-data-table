@@ -1,7 +1,47 @@
 import { create } from 'zustand';
 import type { StockStatus } from '../types/inventory.types';
+import { ALL_COLUMN_FIELDS, PRESET_FIELDS } from '../lib/columnDefsFactory';
 
 export type ColumnPreset = 'ALL' | 'ESSENTIALS' | 'INVENTORY' | 'PRICING' | 'SUPPLIER';
+
+const STORAGE_VISIBLE_COLS_KEY = 'apex_visible_columns_v1';
+const STORAGE_PRESET_KEY = 'apex_column_preset_v1';
+
+function getInitialVisibleColumns(): string[] {
+  try {
+    const saved = localStorage.getItem(STORAGE_VISIBLE_COLS_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+  return ALL_COLUMN_FIELDS;
+}
+
+function getInitialPreset(): ColumnPreset {
+  try {
+    const saved = localStorage.getItem(STORAGE_PRESET_KEY);
+    if (saved && ['ALL', 'ESSENTIALS', 'INVENTORY', 'PRICING', 'SUPPLIER'].includes(saved)) {
+      return saved as ColumnPreset;
+    }
+  } catch {
+    // Ignore localStorage errors
+  }
+  return 'ALL';
+}
+
+function saveToLocalStorage(visibleCols: string[], preset: ColumnPreset) {
+  try {
+    localStorage.setItem(STORAGE_VISIBLE_COLS_KEY, JSON.stringify(visibleCols));
+    localStorage.setItem(STORAGE_PRESET_KEY, preset);
+  } catch {
+    // Ignore localStorage errors
+  }
+}
 
 interface TableUIState {
   searchQuery: string;
@@ -27,6 +67,7 @@ interface TableUIState {
   clearSelection: () => void;
   setColumnPreset: (preset: ColumnPreset) => void;
   setVisibleColumns: (cols: string[]) => void;
+  toggleColumnVisibility: (field: string) => void;
   setIsAddDialogOpen: (open: boolean) => void;
   setIsBulkImportOpen: (open: boolean) => void;
   setIsColumnManagerOpen: (open: boolean) => void;
@@ -40,8 +81,8 @@ export const useTableUIStore = create<TableUIState>((set) => ({
   skuFilter: '',
   warehouseFilter: 'ALL',
   selectedRowIds: [],
-  columnPreset: 'ALL',
-  visibleColumns: [],
+  columnPreset: getInitialPreset(),
+  visibleColumns: getInitialVisibleColumns(),
   isAddDialogOpen: false,
   isBulkImportOpen: false,
   isColumnManagerOpen: false,
@@ -68,10 +109,27 @@ export const useTableUIStore = create<TableUIState>((set) => ({
         : [...state.selectedRowIds, id],
     })),
   clearSelection: () => set({ selectedRowIds: [] }),
-  setColumnPreset: (preset) => set({ columnPreset: preset }),
-  setVisibleColumns: (cols) => set({ visibleColumns: cols }),
+  setColumnPreset: (preset) => {
+    const fields = PRESET_FIELDS[preset] || ALL_COLUMN_FIELDS;
+    saveToLocalStorage(fields, preset);
+    set({ columnPreset: preset, visibleColumns: fields });
+  },
+  setVisibleColumns: (cols) => {
+    saveToLocalStorage(cols, 'ALL');
+    set({ visibleColumns: cols, columnPreset: 'ALL' });
+  },
+  toggleColumnVisibility: (field) =>
+    set((state) => {
+      const isCurrentlyVisible = state.visibleColumns.includes(field);
+      const updated = isCurrentlyVisible
+        ? state.visibleColumns.filter((c) => c !== field)
+        : [...state.visibleColumns, field];
+      saveToLocalStorage(updated, 'ALL');
+      return { visibleColumns: updated, columnPreset: 'ALL' };
+    }),
   setIsAddDialogOpen: (open) => set({ isAddDialogOpen: open }),
   setIsBulkImportOpen: (open) => set({ isBulkImportOpen: open }),
   setIsColumnManagerOpen: (open) => set({ isColumnManagerOpen: open }),
   triggerRefresh: () => set((state) => ({ refreshKey: state.refreshKey + 1 })),
 }));
+

@@ -14,6 +14,44 @@ const IDB_KEY = 'apex_inventory_records_v1';
 class MockServerEngine {
   private records: InventoryRecord[] = [];
   private isInitialized = false;
+  private saveDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+  constructor() {
+    if (typeof window !== 'undefined') {
+      window.addEventListener('beforeunload', () => {
+        this.flushSaveToIDB();
+      });
+    }
+  }
+
+  /**
+   * PERFORMANCE TRADEOFF & ARCHITECTURAL CHOICE:
+   * Instead of executing a costly 50,000-item JSON serialization & IndexedDB write
+   * synchronously on every single mutation (e.g. single row edit/delete), writes are debounced
+   * (2000ms trailing edge) and automatically flushed on window unload (`beforeunload`).
+   * This maintains 60 FPS UI responsiveness during rapid mutations while ensuring
+   * eventual consistency and durability across page reloads.
+   */
+  private scheduleSaveToIDB(): void {
+    if (this.saveDebounceTimer) {
+      clearTimeout(this.saveDebounceTimer);
+    }
+    this.saveDebounceTimer = setTimeout(() => {
+      this.flushSaveToIDB();
+    }, 2000);
+  }
+
+  public async flushSaveToIDB(): Promise<void> {
+    if (this.saveDebounceTimer) {
+      clearTimeout(this.saveDebounceTimer);
+      this.saveDebounceTimer = null;
+    }
+    try {
+      await set(IDB_KEY, this.records);
+    } catch (err) {
+      console.warn('IDB background save failed:', err);
+    }
+  }
 
   private async simulateNetworkDelay(): Promise<void> {
     const delay = Math.floor(Math.random() * (500 - 150 + 1)) + 150;
@@ -236,7 +274,7 @@ class MockServerEngine {
     };
 
     this.records.unshift(newRecord); // Place newly created record at the beginning
-    set(IDB_KEY, this.records).catch(() => {});
+    this.scheduleSaveToIDB();
     return newRecord;
   }
 
@@ -263,7 +301,7 @@ class MockServerEngine {
     updated.isLowStock = updated.qtyOnHand <= updated.reorderPoint;
 
     this.records[index] = updated;
-    set(IDB_KEY, this.records).catch(() => {});
+    this.scheduleSaveToIDB();
     return updated;
   }
 
@@ -271,7 +309,7 @@ class MockServerEngine {
     await this.simulateNetworkDelay();
     const idSet = new Set(ids);
     this.records = this.records.filter((r) => !idSet.has(r.id));
-    set(IDB_KEY, this.records).catch(() => {});
+    this.scheduleSaveToIDB();
     return { deletedIds: ids };
   }
 
@@ -280,7 +318,7 @@ class MockServerEngine {
     const existingIds = new Set(this.records.map((r) => r.id));
     const newToInsert = recordsToRestore.filter((r) => !existingIds.has(r.id));
     this.records.unshift(...newToInsert);
-    set(IDB_KEY, this.records).catch(() => {});
+    this.scheduleSaveToIDB();
   }
 
   public async bulkCreateRecords(
@@ -379,7 +417,7 @@ class MockServerEngine {
     }
 
     this.records.unshift(...created);
-    set(IDB_KEY, this.records).catch(() => {});
+    this.scheduleSaveToIDB();
 
     return { created, rejected };
   }

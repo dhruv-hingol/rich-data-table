@@ -15,7 +15,8 @@ export function PricingFinancialSection({
   return (
     <FormSection id="sec-pricing" title="Pricing & Financial">
       <Input
-        label="Unit Cost (₹) *"
+        label="Unit Cost (₹)"
+        required
         type="number"
         step="0.01"
         placeholder="e.g. 450.00"
@@ -24,7 +25,8 @@ export function PricingFinancialSection({
       />
 
       <Input
-        label="List Price (₹) *"
+        label="List Price (₹)"
+        required
         type="number"
         step="0.01"
         placeholder="e.g. 899.00"

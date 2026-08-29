@@ -233,21 +233,23 @@ React Query hooks wrap these 1:1. No component calls `inventoryApi` directly —
 
 ---
 
-## 8. AI Integration & Workflow Report (Honest Version)
+## 8. AI Integration & Workflow Report
 
-### Prompts Used
-1. **Master Build Spec & Architecture Prompt:** Fed Section 0 & Section 1 of this spec to establish folder architecture, strict layer boundaries (Zustand vs TanStack Query vs MockServer Engine), and 49-column inventory schema.
-2. **Streaming CSV Import & Zod Schema Validation Prompt:** Requested PapaParse `step`-mode streaming parser integrated with shared Zod schema validation to handle multi-row CSV validation, row-level error reporting, and error CSV generation without main thread freezes.
-3. **AG Grid Virtualization & Theme Customization Prompt:** Requested AG Grid Community configuration with 49 columns, custom header renderers, cell status badges (Low Stock, Healthy, Overstock, Returnable, Fragile, Perishable), and brand theme styling (`ag-grid-theme.css`).
-4. **Refactoring & Strict TypeScript/ESLint Fixes:** Prompted for full strict typing checks (`tsc -b`), removal of `any` types across API interceptors and custom cell renderers, and resolving React 19 hook warning side-effects in modal/drawer components.
+### Prompts Used & Interaction Summary
+1. **Architecture & Schema Scaffold:** Prompts establishing the 49-column `InventoryRecord` model, directory boundaries (Zustand for UI state vs TanStack Query for server state vs `mockServer.ts` for backend simulation), and Vite + Tailwind setup.
+2. **Virtualization & AG Grid Integration:** Prompts targeting AG Grid Community configuration with 49 wide columns, custom cell renderers (stock badges, currency formatters), and viewport auto-resizing.
+3. **PapaParse Streaming & Zod Validation:** Prompts generating the step-mode CSV streaming parser, normalizing raw headers, and handling row-level error reporting against `recordSchema.ts`.
+4. **Refactoring & Polish Prompts:** Requests to verify strict TypeScript types (`tsc -b`), fix linting rules, and implement 5-second undo toast mechanics for single deletes.
 
-### Tools, Skills, Workflows & MCP Servers Wired Up
-- **Antigravity IDE Agentic Workflow:** Leveraged task management, ripgrep file searching, directory listing, and automated TypeScript/ESLint verification loops to catch and fix regressions instantly.
-- **MCP Servers & Integrations:** Registered project build specs, automated testing tasks via Vitest, and background terminal commands.
-- **Custom Skills:** Applied project-level architecture guidelines ensuring separation of concerns (UI state in Zustand, server cache in React Query, business logic in features/inventory/lib).
+### What Was Written Manually vs. AI-Assisted
+- **Scaffolding & Boilerplate (AI-Assisted):** Generating the 49 column definitions, Zod schema defaults, fake domain data fields via FakerJS, and initial UI shell layout.
+- **Data Engine & Business Logic (Collaborative):** Designing `mockServer.ts` to ensure search and multi-column filtering execute on the full dataset before pagination slicing, preventing false page-sliced search results.
+- **Manual Oversight & Bug Fixes (Human Review):**
+  - **Column Manager Wiring Fix:** Identified that the initial AI-generated `ColumnManagerPanel` rendered uncontrolled `defaultChecked` checkboxes and wrote `columnPreset` to Zustand without reading it anywhere in the grid. Rewrote `columnDefsFactory.tsx` and `useTableUIStore` to introduce controlled `visibleColumns` state, preset mappings, and `localStorage` persistence.
+  - **IndexedDB Mutation Performance Fix:** Caught that `mockServer` was calling `set(IDB_KEY, this.records)` on every single row mutation (serializing 50,000 JSON items synchronously). Implemented a trailing 2-second debounced save with a `beforeunload` window listener flush.
+  - **Fabricated Testing Claim Removal:** Audited `README.md` and removed fabricated claims regarding non-existent Vitest test suites, keeping documentation strictly aligned with verified codebase reality.
 
-### How AI Fit Into The Workflow (Honest Version)
-- **Architecture & Scaffolding (40%):** Generated initial boilerplate file structures, domain type definitions (`InventoryRecord` 50 fields), and repetitive column definition mappings.
-- **Pair-Writing Complex Logic (45%):** Collaborated on designing `MockServerEngine` with in-memory filter/sort ordering before pagination, PapaParse streaming integration, and double-pass Zod schema validation.
-- **Debugging & Strict Verification (15%):** Diagnosed and resolved TypeScript compilation errors, React 19 effect state warning cascades, and AG Grid column virtualization alignment.
+### Areas for Further Review With More Time
+- **SQLite Wasm Web Worker:** Moving the mock database out of main-thread JavaScript arrays into a Web Worker running SQLite Wasm for 1M+ row scalability.
+- **Inline Grid Cell Editing:** Extending AG Grid with multi-cell batch editing and dirty-state transaction commits.
 

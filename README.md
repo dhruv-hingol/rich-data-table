@@ -18,9 +18,6 @@ npm install
 # Start local development server (Vite)
 npm run dev
 
-# Run unit tests (Vitest)
-npm test
-
 # Build for production
 npm run build
 ```
@@ -37,7 +34,7 @@ npm run build
 | **Form Logic & Schema** | `react-hook-form` + `zod` | Single source of truth Zod schema (`recordSchema.ts`) shared between the 6-section Add/Edit record form and CSV row-level stream validation. |
 | **CSV Import Engine** | `papaparse` (Streaming Mode) | Uses `step`-based stream parsing so large CSV files (100k+ rows) are processed sequentially without blocking the browser UI main thread. |
 | **Styling & Components** | Tailwind CSS v4 + Custom AG Grid Theme | Modern visual design, custom CSS variable overrides (`ag-grid-theme.css`), Sonner toast notifications, responsive drawers, and modal dialogs. |
-| **Mock Network & DB Layer** | In-Memory Server + `idb-keyval` | Simulates real REST API with 150–500ms network latency, server-side pagination, sorting, filtering, and IndexedDB persistence across browser reloads. |
+| **Mock Network & DB Layer** | In-Memory Server + `idb-keyval` | Simulates real REST API with 150–500ms network latency, server-side pagination, sorting, filtering, debounced background IndexedDB persistence, and window unload flushing. |
 | **Data Generation** | `@faker-js/faker` in Web Worker | Generates 50,000 deterministic domain records in a Web Worker (`mockDataGenerator.worker.ts`) to keep app initialization instant. |
 
 ---
@@ -45,10 +42,10 @@ npm run build
 ## 📦 Features & Assignment Requirement Coverage
 
 - [x] **50,000 Mock Records Dataset:** High-cardinality e-commerce inventory data covering 49 fields across 7 domain categories (Identity, Inventory & Location, Pricing & Financial, Supplier Details, Physical & Lifecycle, Extra Attributes & Audit, Derived/Computed metrics).
-- [x] **Wide Table (~10 to 60 Columns Configurable):** 49 configurable columns with pinned columns (SKU, Checkbox), column reordering, custom cell renderers (SKU navigation, stock status pills with live status indicators, returnable/fragile badges, Indian Rupee currency formatters `₹ INR`), and a persistent **Column Manager Panel**.
+- [x] **Wide Table (~10 to 60 Columns Configurable):** 49 configurable columns with pinned columns (SKU, Checkbox), column reordering, custom cell renderers (SKU navigation, stock status pills with live status indicators, returnable/fragile badges, Indian Rupee currency formatters `₹ INR`), and a persistent, toggleable **Column Manager Panel** saved to `localStorage`.
 - [x] **Search & Filter:** Global debounced search input (300ms), stock status quick-filter tabs, and column filter sheet. **All search and filter execution occurs on the server layer before pagination**, ensuring accuracy across the dataset.
 - [x] **Add / Edit Record Form:** Multi-section drawer/page form powered by React Hook Form & Zod with live derived status calculation and optimistic cache update on submission.
-- [x] **Bulk CSV Upload:** 3-step wizard (Upload $\rightarrow$ Streaming Validation & Preview Table with downloadable errors CSV $\rightarrow$ Bulk Commit progress indicator).
+- [x] **Bulk CSV Upload:** 3-step wizard (Upload → Streaming Validation & Preview Table with downloadable errors CSV → Bulk Commit progress indicator).
 - [x] **Single & Bulk Delete:** Multi-select checkbox column with a floating action bar (`SelectionActionBar`), bulk delete modal confirmation (`DeleteConfirmDialog`), and single-item delete with a 5-second undo toast (`useUndoableAction`).
 
 ---
@@ -81,24 +78,10 @@ npm run build
 ### 3. What I'd build next with more time
 
 1. **Saved Column Views & Layout Presets:** Allow users to create, save, and toggle between named column presets (e.g., *"Pricing View"*, *"Warehouse Audit View"*, *"Shipping Details"*).
-2. **Multi-Row Batch Inline Cell Editing:** Enable inline cell editing directly in the grid with dirty-cell tracking and batch updates (e.g. select 100 rows $\rightarrow$ set warehouse location in bulk).
+2. **Multi-Row Batch Inline Cell Editing:** Enable inline cell editing directly in the grid with dirty-cell tracking and batch updates (e.g. select 100 rows → set warehouse location in bulk).
 3. **Advanced Visual Filter Builder:** A multi-condition visual query builder supporting complex boolean expressions (`AND` / `OR` logic across date ranges, numeric bounds, and tag arrays).
 4. **Streamed CSV / XLSX Export:** Export filtered or selected rows to downloadable CSV / Excel files using web workers.
 5. **Real-Time Data Sync:** WebSocket / Server-Sent Events (SSE) integration for live inventory stock level updates with visual grid highlight flashes.
-
----
-
-## 🧪 Automated Testing
-
-Run unit tests via Vitest:
-```bash
-npm test
-```
-
-Test suite validates:
-- Global search filtering executes **before** pagination.
-- Column-level operators filter datasets accurately before slicing pages.
-- Quick status filters return exact counts and matching records.
 
 ---
 
@@ -119,5 +102,4 @@ src/
       lib/                 # Zod schema, PapaParse streaming, MockServer & Web Worker generator
       store/               # Zustand table UI store (selection, search, filters, drawer state)
       types/               # TypeScript domain interfaces & API payload types
-  test/                    # Vitest unit test suites
 ```

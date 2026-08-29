@@ -22,7 +22,8 @@ export function StockLocationSection({
   return (
     <FormSection id="sec-inventory" title="Stock & Location">
       <Select
-        label="Warehouse *"
+        label="Warehouse"
+        required
         labelClassName="font-medium text-slate-700 mb-1.5"
         options={warehouseOptions}
         value={watchWarehouse}
@@ -30,7 +31,8 @@ export function StockLocationSection({
       />
 
       <Input
-        label="Qty On Hand *"
+        label="Qty On Hand"
+        required
         type="number"
         placeholder="e.g. 150"
         errorMessage={errors.qtyOnHand?.message}
@@ -45,7 +47,8 @@ export function StockLocationSection({
       />
 
       <Input
-        label="Reorder Point *"
+        label="Reorder Point"
+        required
         type="number"
         placeholder="e.g. 30"
         errorMessage={errors.reorderPoint?.message}
@@ -60,7 +63,8 @@ export function StockLocationSection({
       />
 
       <Input
-        label="Bin Location *"
+        label="Bin Location"
+        required
         placeholder="e.g. A-12-04"
         {...register("binLocation")}
       />
