@@ -1,5 +1,5 @@
 import { showToast } from "@/src/components/ui/toast";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect, useRef } from "react";
 import type {
   GridReadyEvent,
   GridApi,
@@ -89,6 +89,34 @@ export function InventoryTable() {
   const totalCount = data?.pages[0]?.totalCount || 0;
 
   const deleteMutation = useDeleteRecordsMutation();
+
+  const prevRowsCountRef = useRef(allRows.length);
+  const isAllSelectedBeforeScrollRef = useRef(false);
+
+  useEffect(() => {
+    if (allRows.length > 0 && selectedRowIds.length >= allRows.length) {
+      isAllSelectedBeforeScrollRef.current = true;
+    } else {
+      isAllSelectedBeforeScrollRef.current = false;
+    }
+  }, [selectedRowIds.length, allRows.length]);
+
+  useEffect(() => {
+    const prevCount = prevRowsCountRef.current;
+    const currentCount = allRows.length;
+
+    if (
+      gridApi &&
+      currentCount > prevCount &&
+      isAllSelectedBeforeScrollRef.current
+    ) {
+      gridApi.selectAll();
+      const newAllIds = allRows.map((r) => r.id);
+      setSelectedRowIds(newAllIds);
+    }
+
+    prevRowsCountRef.current = currentCount;
+  }, [allRows, gridApi, setSelectedRowIds]);
 
   const onGridReady = useCallback((params: GridReadyEvent<InventoryRecord>) => {
     setGridApi(params.api);
