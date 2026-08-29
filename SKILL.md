@@ -81,7 +81,7 @@ important checkpoint in the whole build — don't move on until scroll performan
 
 **Prompt to send:**
 > Implement `TableToolbar.tsx` with debounced search (use `useDebouncedValue.ts`),
-> `ColumnManagerPanel.tsx` with show/hide/reorder + localStorage persistence, and
+> `ColumnManagerPanel.tsx` with Drawer slide-over, show/hide/reorder + localStorage persistence, and
 > `useTableUIStore.ts` (zustand) holding selectedIds, filterText, and columnVisibility. Wire the
 > toolbar's search box to `useInventoryList`'s `search` param.
 

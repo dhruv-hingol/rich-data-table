@@ -131,7 +131,7 @@ src/
       table-pagination.tsx   # Custom pagination controls
     tables/
       table-header.tsx
-    ui/                      # Primitives (button, input, select, dialog, drawer, sheet, toast, etc.)
+    ui/                      # Primitives (button, input, select, modal, drawer, toast, badge, checkbox, etc.)
   hooks/
     useDebouncedValue.ts
     useUndoableAction.ts     # Generic undo-toast timer logic for single delete

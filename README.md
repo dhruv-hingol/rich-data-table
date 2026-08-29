@@ -96,7 +96,7 @@ src/
   app/                     # App shell, router, providers (QueryClient, Toaster)
   components/
     data-table/            # Reusable AG Grid wrapper & custom pagination bar
-    ui/                    # Design system primitives (button, input, select, dialog, drawer, toast)
+    ui/                    # Design system primitives (button, input, select, modal, drawer, toast)
   features/
     inventory/
       api/                 # API interceptors, React Query hooks & query key factories

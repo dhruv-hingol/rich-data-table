@@ -93,7 +93,7 @@ it off because you ran it and it does what section says.
 |---|---|---|---|
 | `EmptyState.tsx` | 8 | §6 | ☑ |
 | `TableSkeleton.tsx` | 8 | §6 | ☑ |
-| `button.tsx`, `input.tsx`, `select.tsx`, `dialog.tsx`, `drawer.tsx`, `sheet.tsx`, `toast.tsx` | 8 | §1 (primitives with red asterisk support) | ☑ |
+| `button.tsx`, `input.tsx`, `select.tsx`, `modal.tsx`, `drawer.tsx`, `toast.tsx`, `badge.tsx`, `checkbox.tsx` | 8 | §1 (primitives with red asterisk support) | ☑ |
 
 ## API Contract (implemented in `inventoryApi.ts`, backed by `mockServer.ts`)
 
