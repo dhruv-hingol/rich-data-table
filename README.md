@@ -109,3 +109,8 @@ src/
       store/               # Zustand table UI store (selection, search, filters, drawer state)
       types/               # TypeScript domain interfaces & API payload types
 ```
+
+---
+
+## 📚 Technical Interview Guide
+For a full deep-dive into code architecture, file-by-file responsibilities, technical library defense, and sample interview Q&A for this repository, see **[`INTERVIEWER_CHEAT_SHEET.md`](file:///d:/practice/rich-data-table/INTERVIEWER_CHEAT_SHEET.md)**.

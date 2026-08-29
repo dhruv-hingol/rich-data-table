@@ -114,6 +114,7 @@ it off because you ran it and it does what section says.
 | `PROMPT.md` | 9 | Master prompt, folder structure, AI interaction & workflow report | ☑ |
 | `INDEX.md` | 9 | File reference table & progress tracker | ☑ |
 | `SKILL.md` | 9 | Agent workflow guide & build phase checkpoints | ☑ |
+| `INTERVIEWER_CHEAT_SHEET.md` | 9 | Complete technical defense, file map & interview Q&A guide | ☑ |
 
 ## Cross-cutting checks (Verified Clean)
 
