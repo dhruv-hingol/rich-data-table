@@ -1,4 +1,4 @@
-# Apex Inventory — Rich Virtualized Data Table
+# Inventory — Rich Virtualized Data Table
 
 A high-performance, data-intensive React + TypeScript data table built to navigate, filter, edit, and bulk-import large-scale e-commerce inventory datasets (**50,000+ records**) across **49 wide columns** with row and column virtualization.
 
