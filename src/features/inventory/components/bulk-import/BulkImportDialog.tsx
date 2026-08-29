@@ -1,9 +1,10 @@
 import { showToast } from "../../../../components/ui/toast";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Dialog } from "../../../../components/ui/dialog";
 import { parseCSVStream, type ParseResult } from "../../lib/csvParser";
-import { inventoryApi } from "../../api/inventoryApi";
 import { useTableUIStore } from "../../store/useTableUIStore";
+import { useBulkCreateRecordsMutation, inventoryKeys } from "../../hooks/useInventoryQuery";
 import { ImportWizardSteps } from "./ImportWizardSteps";
 import { UploadStep } from "./UploadStep";
 import { ValidationPreviewStep } from "./ValidationPreviewStep";
@@ -12,6 +13,9 @@ import { CommitSummaryStep } from "./CommitSummaryStep";
 export function BulkImportDialog() {
   const { isBulkImportOpen, setIsBulkImportOpen, triggerRefresh } =
     useTableUIStore();
+  const queryClient = useQueryClient();
+  const bulkCreateMutation = useBulkCreateRecordsMutation();
+
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isParsing, setIsParsing] = useState(false);
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
@@ -39,13 +43,14 @@ export function BulkImportDialog() {
     setStep(3);
     setIsImporting(true);
     try {
-      const res = await inventoryApi.bulkCreateRecords(parseResult.validRows);
+      const res = await bulkCreateMutation.mutateAsync(parseResult.validRows);
       setImportSummary({
         created: res.created.length,
         rejected: res.rejected.length + parseResult.invalidRows.length,
       });
       showToast.success(`Successfully imported ${res.created.length} products`);
-      triggerRefresh(); // Trigger instant data table refresh
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+      triggerRefresh();
     } catch (err) {
       console.error("Bulk create error:", err);
     } finally {
@@ -57,6 +62,7 @@ export function BulkImportDialog() {
     setStep(1);
     setParseResult(null);
     setImportSummary(null);
+    queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
     triggerRefresh();
     setIsBulkImportOpen(false);
   };

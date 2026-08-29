@@ -71,3 +71,14 @@ export function useDeleteRecordsMutation() {
     },
   });
 }
+
+export function useBulkCreateRecordsMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (records: Parameters<typeof inventoryApi.bulkCreateRecords>[0]) =>
+      inventoryApi.bulkCreateRecords(records),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: inventoryKeys.all });
+    },
+  });
+}
