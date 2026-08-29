@@ -1,5 +1,4 @@
-// Custom TanStack React Query hooks for Inventory records management, mutations, and cache invalidations.
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { inventoryApi } from '../api/inventoryApi';
 import type {
   GetRecordsParams,
@@ -7,7 +6,6 @@ import type {
   UpdateInventoryRecordPayload,
 } from '../types/inventory.types';
 
-// Query Keys Factory
 export const inventoryKeys = {
   all: ['inventory'] as const,
   lists: () => [...inventoryKeys.all, 'list'] as const,
@@ -18,15 +16,14 @@ export const inventoryKeys = {
   categories: () => [...inventoryKeys.all, 'categories'] as const,
 };
 
-// 1. Fetch Paginated Inventory Records Query Hook
 export function useInventoryRecordsQuery(params: GetRecordsParams) {
   return useQuery({
     queryKey: inventoryKeys.list(params),
     queryFn: () => inventoryApi.listRecords(params),
+    placeholderData: keepPreviousData,
   });
 }
 
-// 2. Fetch Record Detail by ID Query Hook
 export function useInventoryRecordDetailQuery(id?: string) {
   return useQuery({
     queryKey: inventoryKeys.detail(id || ''),
@@ -35,7 +32,6 @@ export function useInventoryRecordDetailQuery(id?: string) {
   });
 }
 
-// 3. Fetch Unique SKUs Query Hook
 export function useUniqueSkusQuery() {
   return useQuery({
     queryKey: inventoryKeys.skus(),
@@ -44,7 +40,6 @@ export function useUniqueSkusQuery() {
   });
 }
 
-// 4. Create Record Mutation Hook
 export function useCreateRecordMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -55,7 +50,6 @@ export function useCreateRecordMutation() {
   });
 }
 
-// 5. Update Record Mutation Hook
 export function useUpdateRecordMutation() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -68,7 +62,6 @@ export function useUpdateRecordMutation() {
   });
 }
 
-// 6. Delete Records Mutation Hook
 export function useDeleteRecordsMutation() {
   const queryClient = useQueryClient();
   return useMutation({

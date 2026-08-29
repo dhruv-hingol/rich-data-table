@@ -11,6 +11,8 @@ import type { GridReadyEvent, GridApi, ColDef } from "ag-grid-community";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
+import { renderToString } from "react-dom/server";
+import { ArrowUp, ArrowDown, ArrowUpDown } from "lucide-react";
 import type { AgGridTableProps } from "./types";
 import DataTablePagination from "./table-pagination";
 import { HashLoader } from "../ui/hash-loader";
@@ -52,10 +54,26 @@ export function AgGridTable<T>({
       minWidth: 150,
       resizable: true,
       sortable: true,
+      unSortIcon: true,
       filter: true,
       ...propDefaultColDef,
     }),
     [propDefaultColDef],
+  );
+
+  const gridIcons = useMemo(
+    () => ({
+      sortUnSort: renderToString(
+        <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 opacity-70" />,
+      ),
+      sortAscending: renderToString(
+        <ArrowUp className="w-3.5 h-3.5 text-[#ff6600]" />,
+      ),
+      sortDescending: renderToString(
+        <ArrowDown className="w-3.5 h-3.5 text-[#ff6600]" />,
+      ),
+    }),
+    [],
   );
 
   // Configure selectionColumnDef to ensure checkbox column is pinned at index 0 as first column
@@ -70,7 +88,6 @@ export function AgGridTable<T>({
     [],
   );
 
-  // Normalize rowSelection to AG Grid v36 RowSelectionOptions object format
   const normalizedRowSelection = useMemo<
     RowSelectionOptions<T> | undefined
   >(() => {
@@ -131,10 +148,13 @@ export function AgGridTable<T>({
       const tableTop = tableRef.current.getBoundingClientRect().top;
       const paginationHeight = paginationRef.current?.offsetHeight ?? 0;
 
-      // 10px gap between table grid and pagination
       const computedHeight = Math.max(
         200,
-        window.innerHeight - tableTop - paginationHeight - VIEWPORT_BOTTOM_GAP - 10,
+        window.innerHeight -
+          tableTop -
+          paginationHeight -
+          VIEWPORT_BOTTOM_GAP -
+          10,
       );
       setAvailableHeight(computedHeight);
     };
@@ -154,10 +174,12 @@ export function AgGridTable<T>({
     };
   }, [dynamicViewportHeight, paginatorOptions]);
 
-  // Compute responsive style: fits row content height when rows are few, capped by max availableHeight
   const gridContainerStyle = useMemo<React.CSSProperties>(() => {
     if (height !== undefined) {
-      return { height: typeof height === "number" ? `${height}px` : height, width: "100%" };
+      return {
+        height: typeof height === "number" ? `${height}px` : height,
+        width: "100%",
+      };
     }
     if (dynamicViewportHeight && availableHeight !== undefined) {
       const headerHeight = 44;
@@ -206,6 +228,7 @@ export function AgGridTable<T>({
           rowData={rowData}
           columnDefs={columnDefs}
           defaultColDef={defaultColDef}
+          icons={gridIcons}
           rowSelection={normalizedRowSelection}
           selectionColumnDef={defaultSelectionColumnDef}
           rowHeight={rowHeight}

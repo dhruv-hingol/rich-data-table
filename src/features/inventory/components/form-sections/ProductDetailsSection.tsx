@@ -26,7 +26,11 @@ export function ProductDetailsSection({
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           SKU *
         </label>
-        <Input {...register("sku")} error={!!errors.sku} />
+        <Input
+          {...register("sku")}
+          error={!!errors.sku}
+          placeholder="e.g. SKU-10023"
+        />
         {errors.sku && (
           <p className="text-[11px] text-rose-500 mt-1">
             {errors.sku.message}
@@ -41,7 +45,7 @@ export function ProductDetailsSection({
         <Input
           {...register("name")}
           error={!!errors.name}
-          placeholder="e.g. Barcode Scanner"
+          placeholder="e.g. Wireless Barcode Scanner"
         />
         {errors.name && (
           <p className="text-[11px] text-rose-500 mt-1">
@@ -54,7 +58,11 @@ export function ProductDetailsSection({
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Barcode *
         </label>
-        <Input {...register("barcode")} error={!!errors.barcode} />
+        <Input
+          {...register("barcode")}
+          error={!!errors.barcode}
+          placeholder="e.g. 8901234567890"
+        />
         {errors.barcode && (
           <p className="text-[11px] text-rose-500 mt-1">
             {errors.barcode.message}
@@ -74,14 +82,20 @@ export function ProductDetailsSection({
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Subcategory
         </label>
-        <Input {...register("subcategory")} />
+        <Input
+          {...register("subcategory")}
+          placeholder="e.g. Handheld Scanners"
+        />
       </div>
 
       <div>
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Brand *
         </label>
-        <Input {...register("brand")} />
+        <Input
+          {...register("brand")}
+          placeholder="e.g. Zebra Technologies"
+        />
       </div>
     </FormSection>
   );

@@ -15,28 +15,42 @@ export function SupplierInfoSection({ register }: SupplierInfoSectionProps) {
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Supplier Name *
         </label>
-        <Input {...register("supplierName")} />
+        <Input
+          {...register("supplierName")}
+          placeholder="e.g. Acme Tech Solutions Pvt Ltd"
+        />
       </div>
 
       <div>
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Supplier SKU
         </label>
-        <Input {...register("supplierSku")} />
+        <Input
+          {...register("supplierSku")}
+          placeholder="e.g. SUP-ZB-990"
+        />
       </div>
 
       <div>
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Lead Time (Days)
         </label>
-        <Input type="number" {...register("leadTimeDays")} />
+        <Input
+          type="number"
+          {...register("leadTimeDays")}
+          placeholder="e.g. 7"
+        />
       </div>
 
       <div>
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Min Order Qty
         </label>
-        <Input type="number" {...register("minOrderQty")} />
+        <Input
+          type="number"
+          {...register("minOrderQty")}
+          placeholder="e.g. 10"
+        />
       </div>
     </FormSection>
   );

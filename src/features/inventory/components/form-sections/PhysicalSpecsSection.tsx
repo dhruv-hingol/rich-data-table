@@ -15,7 +15,12 @@ export function PhysicalSpecsSection({ register }: PhysicalSpecsSectionProps) {
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Weight (kg)
         </label>
-        <Input type="number" step="0.1" {...register("weightKg")} />
+        <Input
+          type="number"
+          step="0.1"
+          {...register("weightKg")}
+          placeholder="e.g. 1.25"
+        />
       </div>
 
       <div>
@@ -24,7 +29,7 @@ export function PhysicalSpecsSection({ register }: PhysicalSpecsSectionProps) {
         </label>
         <Input
           {...register("dimensionsCm")}
-          placeholder="e.g. 20x15x10"
+          placeholder="e.g. 20 x 15 x 10"
         />
       </div>
 
@@ -32,14 +37,20 @@ export function PhysicalSpecsSection({ register }: PhysicalSpecsSectionProps) {
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Package Type
         </label>
-        <Input {...register("packageType")} />
+        <Input
+          {...register("packageType")}
+          placeholder="e.g. Corrugated Box"
+        />
       </div>
 
       <div>
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Handling Instructions
         </label>
-        <Input {...register("handlingInstructions")} />
+        <Input
+          {...register("handlingInstructions")}
+          placeholder="e.g. Handle with care, fragile glass lens"
+        />
       </div>
     </FormSection>
   );

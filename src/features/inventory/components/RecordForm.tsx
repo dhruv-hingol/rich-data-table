@@ -28,6 +28,7 @@ import {
   SupplierInfoSection,
   PhysicalSpecsSection,
 } from "./form-sections";
+import { RecordFormSkeleton } from "./RecordFormSkeleton";
 
 export function RecordForm() {
   const navigate = useNavigate();
@@ -159,14 +160,7 @@ export function RecordForm() {
   };
 
   if (isLoadingRecord) {
-    return (
-      <div className="flex flex-col items-center justify-center py-20 gap-3">
-        <div className="w-8 h-8 border-2 border-[#ff6600] border-t-transparent rounded-full animate-spin" />
-        <span className="text-xs font-semibold text-slate-600">
-          Loading item details...
-        </span>
-      </div>
-    );
+    return <RecordFormSkeleton />;
   }
 
   return (

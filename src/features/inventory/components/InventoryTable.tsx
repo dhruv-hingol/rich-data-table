@@ -61,7 +61,7 @@ export function InventoryTable() {
     return list;
   }, [categoryFilter, skuFilter]);
 
-  const { data, isLoading } = useInventoryRecordsQuery({
+  const { data, isFetching } = useInventoryRecordsQuery({
     page: currentPage - 1,
     pageSize,
     search: searchQuery,
@@ -120,7 +120,7 @@ export function InventoryTable() {
       <AgGridTable<InventoryRecord>
         rowData={data?.rows || []}
         columnDefs={columnDefs}
-        isLoading={isLoading}
+        isLoading={isFetching}
         rowSelection={rowSelection}
         rowHeight={44}
         dynamicViewportHeight={true}

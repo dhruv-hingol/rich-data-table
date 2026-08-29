@@ -38,6 +38,7 @@ export function StockLocationSection({
           type="number"
           {...register("qtyOnHand")}
           error={!!errors.qtyOnHand}
+          placeholder="e.g. 150"
         />
         {errors.qtyOnHand && (
           <p className="text-[11px] text-rose-500 mt-1">
@@ -50,7 +51,11 @@ export function StockLocationSection({
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Qty Reserved
         </label>
-        <Input type="number" {...register("qtyReserved")} />
+        <Input
+          type="number"
+          {...register("qtyReserved")}
+          placeholder="e.g. 25"
+        />
       </div>
 
       <div>
@@ -61,6 +66,7 @@ export function StockLocationSection({
           type="number"
           {...register("reorderPoint")}
           error={!!errors.reorderPoint}
+          placeholder="e.g. 30"
         />
       </div>
 
@@ -68,7 +74,11 @@ export function StockLocationSection({
         <label className="block text-xs font-medium text-slate-700 mb-1.5">
           Reorder Qty
         </label>
-        <Input type="number" {...register("reorderQty")} />
+        <Input
+          type="number"
+          {...register("reorderQty")}
+          placeholder="e.g. 100"
+        />
       </div>
 
       <div>
