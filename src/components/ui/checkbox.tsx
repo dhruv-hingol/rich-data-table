@@ -1,7 +1,9 @@
-// Styled checkbox primitive for grid selection and bulk operations.
-import React from 'react';
+import React from "react";
 
-export const Checkbox = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(({ className = '', ...props }, ref) => {
+export const Checkbox = React.forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement>
+>(({ className = "", ...props }, ref) => {
   return (
     <input
       type="checkbox"
@@ -11,4 +13,4 @@ export const Checkbox = React.forwardRef<HTMLInputElement, React.InputHTMLAttrib
     />
   );
 });
-Checkbox.displayName = 'Checkbox';
+Checkbox.displayName = "Checkbox";

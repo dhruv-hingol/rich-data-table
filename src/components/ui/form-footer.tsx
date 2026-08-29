@@ -1,6 +1,5 @@
-// Reusable sticky FormFooter component with customizable cancel, save, submitting state, and custom actions.
-import React from 'react';
-import { Button } from './button';
+import React from "react";
+import { Button } from "./button";
 
 export interface FormFooterProps {
   onCancel?: () => void;
@@ -16,18 +15,18 @@ export interface FormFooterProps {
 
 export function FormFooter({
   onCancel,
-  cancelText = 'Cancel',
-  submitText = 'Save',
-  submittingText = 'Saving...',
+  cancelText = "Cancel",
+  submitText = "Save",
+  submittingText = "Saving...",
   isSubmitting = false,
   disabled = false,
   sticky = true,
-  className = '',
+  className = "",
   children,
 }: FormFooterProps) {
   const baseClasses = sticky
-    ? 'fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-end gap-2.5 sm:gap-3 z-40 shadow-lg'
-    : 'mt-8 pt-4 border-t border-slate-200 flex items-center justify-end gap-3';
+    ? "fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 sm:px-8 py-3 flex items-center justify-end gap-2.5 sm:gap-3 z-40 shadow-lg"
+    : "mt-8 pt-4 border-t border-slate-200 flex items-center justify-end gap-3";
 
   return (
     <div className={`${baseClasses} ${className}`}>

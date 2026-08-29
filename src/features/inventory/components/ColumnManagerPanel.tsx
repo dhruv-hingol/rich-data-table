@@ -1,4 +1,4 @@
-import { Sheet } from "@/src/components/ui/sheet";
+import { Drawer } from "@/src/components/ui/drawer";
 import { Button } from "@/src/components/ui/button";
 import { Checkbox } from "@/src/components/ui/checkbox";
 import {
@@ -28,7 +28,7 @@ export function ColumnManagerPanel() {
   const visibleCount = visibleColumns.length;
 
   return (
-    <Sheet
+    <Drawer
       open={isColumnManagerOpen}
       onClose={() => setIsColumnManagerOpen(false)}
       title="Configure Columns & Presets"
@@ -100,6 +100,6 @@ export function ColumnManagerPanel() {
           </Button>
         </div>
       </div>
-    </Sheet>
+    </Drawer>
   );
 }

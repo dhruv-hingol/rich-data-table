@@ -1,4 +1,3 @@
-// Reusable PageHeader component supporting title, back navigation text, back arrow, subtitle, custom actions, sticky positioning, and children elements.
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";

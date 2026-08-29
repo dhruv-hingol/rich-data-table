@@ -1,4 +1,3 @@
-/* Global CSS styling with Tailwind CSS v4 directives and LAMDA FLOW light theme */
 @import "tailwindcss";
 
 @layer utilities {
@@ -27,7 +26,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Minimal Scrollbar Styles (Width & Height: 6px) */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -47,13 +45,11 @@ body {
   background: #ff6600;
 }
 
-/* Firefox Scrollbar Support */
 * {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
 }
 
-/* Animated Hash Loader Icon (Smooth hardware-accelerated expanding lines) */
 .animate-hash-h-top,
 .animate-hash-h-bottom,
 .animate-hash-v-left,

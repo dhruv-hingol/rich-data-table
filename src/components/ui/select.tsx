@@ -1,4 +1,3 @@
-// Common Reusable Select Component with label/title prop support and brand theme styling (#FF6600).
 import { useState, useRef, useEffect, useMemo } from "react";
 import { ChevronDown, Check } from "lucide-react";
 
@@ -39,8 +38,10 @@ export function Select({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const isRequired = required || (typeof label === "string" && label.includes("*"));
-  const cleanLabel = typeof label === "string" ? label.replace(/\s*\*/g, "").trim() : label;
+  const isRequired =
+    required || (typeof label === "string" && label.includes("*"));
+  const cleanLabel =
+    typeof label === "string" ? label.replace(/\s*\*/g, "").trim() : label;
 
   // Safely normalize options array into SelectOption format
   const normalizedOptions: SelectOption[] = useMemo(() => {

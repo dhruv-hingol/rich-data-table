@@ -1,7 +1,7 @@
 import { showToast } from "@/src/components/ui/toast";
 import { useState, lazy, Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Dialog } from "@/src/components/ui/dialog";
+import { Modal } from "@/src/components/ui/modal";
 import { parseCSVStream, type ParseResult } from "@/src/features/inventory/lib/csvParser";
 import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
 import { useBulkCreateRecordsMutation, inventoryKeys } from "@/src/features/inventory/hooks/useInventoryQuery";
@@ -113,7 +113,7 @@ export function BulkImportDialog() {
   };
 
   return (
-    <Dialog
+    <Modal
       open={isBulkImportOpen}
       onClose={resetState}
       title="Bulk CSV Inventory Import Wizard"
@@ -129,6 +129,6 @@ export function BulkImportDialog() {
       >
         {renderStepContent()}
       </Suspense>
-    </Dialog>
+    </Modal>
   );
 }

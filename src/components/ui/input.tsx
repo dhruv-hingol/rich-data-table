@@ -1,8 +1,6 @@
-// Industrial text input primitive formatted for LAMDA FLOW light theme with integrated label and error message support.
 import React from "react";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   labelClassName?: string;
   error?: boolean | string;
@@ -23,8 +21,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ) => {
     const errorText = typeof error === "string" ? error : errorMessage;
     const hasError = Boolean(error || errorMessage);
-    const isRequired = props.required || (typeof label === "string" && label.includes("*"));
-    const cleanLabel = typeof label === "string" ? label.replace(/\s*\*/g, "").trim() : label;
+    const isRequired =
+      props.required || (typeof label === "string" && label.includes("*"));
+    const cleanLabel =
+      typeof label === "string" ? label.replace(/\s*\*/g, "").trim() : label;
 
     const inputElement = (
       <input
