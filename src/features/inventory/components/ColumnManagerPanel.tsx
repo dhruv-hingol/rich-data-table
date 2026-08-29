@@ -5,7 +5,7 @@ import {
   useTableUIStore,
   type ColumnPreset,
 } from "@/src/features/inventory/store/useTableUIStore";
-import { ALL_COLUMNS_METADATA } from "@/src/features/inventory/lib/columnDefsFactory";
+import { ALL_COLUMNS_METADATA } from "@/src/features/inventory/lib/columnMetadata";
 
 export function ColumnManagerPanel() {
   const {

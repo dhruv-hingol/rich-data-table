@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { StockStatus } from '../types/inventory.types';
-import { ALL_COLUMN_FIELDS, PRESET_FIELDS } from '../lib/columnDefsFactory';
+import { ALL_COLUMN_FIELDS, PRESET_FIELDS } from '../lib/columnMetadata';
 
 export type ColumnPreset = 'ALL' | 'ESSENTIALS' | 'INVENTORY' | 'PRICING' | 'SUPPLIER';
 

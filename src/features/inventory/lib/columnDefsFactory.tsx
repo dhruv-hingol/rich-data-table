@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import type {
   ColDef,
   CellClassParams,
@@ -5,6 +6,12 @@ import type {
 } from "ag-grid-community";
 import { useNavigate } from "react-router-dom";
 import type { InventoryRecord, StockStatus } from "../types/inventory.types";
+export {
+  ALL_COLUMNS_METADATA,
+  ALL_COLUMN_FIELDS,
+  PRESET_FIELDS,
+  type ColumnMeta,
+} from "./columnMetadata";
 
 export function SkuCellRenderer(params: {
   value: string;
@@ -486,114 +493,6 @@ const columnConfigs: ColumnConfig[] = [
         : "text-amber-700 text-xs font-semibold",
   },
 ];
-
-export interface ColumnMeta {
-  field: keyof InventoryRecord;
-  label: string;
-  group: string;
-}
-
-export const ALL_COLUMNS_METADATA: ColumnMeta[] = columnConfigs.map((cfg) => ({
-  field: cfg.field,
-  label: cfg.headerName || String(cfg.field),
-  group: [
-    "sku",
-    "name",
-    "barcode",
-    "category",
-    "subcategory",
-    "brand",
-  ].includes(cfg.field)
-    ? "Identity"
-    : [
-          "warehouse",
-          "qtyOnHand",
-          "qtyReserved",
-          "qtyAvailable",
-          "reorderPoint",
-          "reorderQty",
-          "binLocation",
-          "bayNumber",
-          "shelfNumber",
-        ].includes(cfg.field)
-      ? "Inventory"
-      : [
-            "totalStockValue",
-            "unitCost",
-            "listPrice",
-            "salePrice",
-            "marginPercent",
-            "priceTier",
-            "discountPercent",
-            "taxRate",
-          ].includes(cfg.field)
-        ? "Pricing"
-        : [
-              "supplierName",
-              "supplierSku",
-              "supplierId",
-              "leadTimeDays",
-              "minOrderQty",
-              "lastPurchaseDate",
-            ].includes(cfg.field)
-          ? "Supplier"
-          : "Lifecycle & Audit",
-}));
-
-export const ALL_COLUMN_FIELDS = columnConfigs.map((cfg) => cfg.field);
-
-export const PRESET_FIELDS: Record<string, string[]> = {
-  ALL: ALL_COLUMN_FIELDS,
-  ESSENTIALS: [
-    "sku",
-    "name",
-    "barcode",
-    "category",
-    "status",
-    "warehouse",
-    "qtyOnHand",
-    "totalStockValue",
-    "unitCost",
-    "listPrice",
-    "supplierName",
-  ],
-  INVENTORY: [
-    "sku",
-    "name",
-    "status",
-    "warehouse",
-    "qtyOnHand",
-    "qtyAvailable",
-    "qtyReserved",
-    "reorderPoint",
-    "reorderQty",
-    "binLocation",
-    "bayNumber",
-    "shelfNumber",
-  ],
-  PRICING: [
-    "sku",
-    "name",
-    "unitCost",
-    "listPrice",
-    "salePrice",
-    "totalStockValue",
-    "marginPercent",
-    "priceTier",
-    "discountPercent",
-    "taxRate",
-  ],
-  SUPPLIER: [
-    "sku",
-    "name",
-    "supplierName",
-    "supplierSku",
-    "supplierId",
-    "leadTimeDays",
-    "minOrderQty",
-    "lastPurchaseDate",
-  ],
-};
 
 export function createColumnDefinitions(
   visibleColumns?: string[],
