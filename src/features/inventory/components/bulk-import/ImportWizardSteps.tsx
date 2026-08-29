@@ -9,6 +9,7 @@ export interface WizardStep {
 export interface ImportWizardStepsProps {
   currentStep: number;
   steps?: WizardStep[];
+  onStepClick?: (stepNumber: number) => void;
 }
 
 const DEFAULT_STEPS: WizardStep[] = [
@@ -20,17 +21,21 @@ const DEFAULT_STEPS: WizardStep[] = [
 export function ImportWizardSteps({
   currentStep,
   steps = DEFAULT_STEPS,
+  onStepClick,
 }: ImportWizardStepsProps) {
   return (
     <div className="flex items-center justify-between border-b border-slate-200 pb-4 mb-6">
       {steps.map((stepItem, index) => {
         const isActive = currentStep >= stepItem.number;
+        const isClickable = onStepClick && stepItem.number < currentStep;
+
         return (
           <React.Fragment key={stepItem.number}>
             <div
+              onClick={() => isClickable && onStepClick(stepItem.number)}
               className={`flex items-center gap-2 ${
                 isActive ? "text-[#ff6600] font-bold" : "text-slate-400"
-              }`}
+              } ${isClickable ? "cursor-pointer hover:opacity-80 hover:underline" : ""}`}
             >
               <span
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-xs ${

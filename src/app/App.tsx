@@ -2,15 +2,9 @@ import { lazy, Suspense } from "react";
 import { Toaster } from "sonner";
 import { AppRouter } from "@/src/routes/appRouter";
 
-const FilterSheet = lazy(() =>
-  import("@/src/features/inventory/components/FilterSheet").then((m) => ({
-    default: m.FilterSheet,
-  }))
-);
-const BulkImportDialog = lazy(() =>
-  import("@/src/features/inventory/components/bulk-import/BulkImportDialog").then(
-    (m) => ({ default: m.BulkImportDialog })
-  )
+const FilterSheet = lazy(() => import("@/src/features/inventory/components/FilterSheet"));
+const BulkImportDialog = lazy(
+  () => import("@/src/features/inventory/components/bulk-import/BulkImportDialog")
 );
 
 export default function App() {

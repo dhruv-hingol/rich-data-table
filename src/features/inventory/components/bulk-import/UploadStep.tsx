@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { UploadCloud } from "lucide-react";
 
 export interface UploadStepProps {
@@ -6,17 +7,56 @@ export interface UploadStepProps {
 }
 
 export function UploadStep({ isParsing, onFileSelected }: UploadStepProps) {
+  const [isDragOver, setIsDragOver] = useState(false);
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.name.endsWith(".csv")) {
+        onFileSelected(file);
+      }
+    }
+  };
+
   return (
     <div className="space-y-6 text-center py-6">
-      <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 hover:border-[#ff6600] transition-colors cursor-pointer bg-slate-50">
+      <div
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        className={`border-2 border-dashed rounded-xl p-8 transition-colors cursor-pointer ${
+          isDragOver
+            ? "border-[#ff6600] bg-orange-50/50"
+            : "border-slate-200 hover:border-[#ff6600] bg-slate-50"
+        }`}
+      >
         <input
           type="file"
           accept=".csv"
           id="csv-file-input"
           className="hidden"
-          onChange={(e) =>
-            e.target.files?.[0] && onFileSelected(e.target.files[0])
-          }
+          onChange={(e) => {
+            if (e.target.files?.[0]) {
+              const file = e.target.files[0];
+              e.target.value = "";
+              onFileSelected(file);
+            }
+          }}
         />
         <label
           htmlFor="csv-file-input"

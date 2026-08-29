@@ -1,16 +1,18 @@
 import { Button } from "@/src/components/ui/button";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, UploadCloud } from "lucide-react";
 
 export interface CommitSummaryStepProps {
   isImporting: boolean;
   importSummary: { created: number; rejected: number } | null;
   onDone: () => void;
+  onUploadAnother?: () => void;
 }
 
 export function CommitSummaryStep({
   isImporting,
   importSummary,
   onDone,
+  onUploadAnother,
 }: CommitSummaryStepProps) {
   return (
     <div className="space-y-6 text-center py-6">
@@ -41,13 +43,25 @@ export function CommitSummaryStep({
               )}
             </p>
           )}
-          <Button
-            variant="primary"
-            onClick={onDone}
-            className="bg-[#ff6600] mx-auto"
-          >
-            Done & Return to Dashboard
-          </Button>
+          <div className="flex items-center gap-3 pt-2">
+            {onUploadAnother && (
+              <Button
+                variant="outline"
+                onClick={onUploadAnother}
+                className="flex items-center gap-1.5"
+              >
+                <UploadCloud className="w-4 h-4 text-[#ff6600]" />
+                Upload Another File
+              </Button>
+            )}
+            <Button
+              variant="primary"
+              onClick={onDone}
+              className="bg-[#ff6600]"
+            >
+              Done & Return to Dashboard
+            </Button>
+          </div>
         </div>
       )}
     </div>

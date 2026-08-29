@@ -1,18 +1,7 @@
-import { lazy, Suspense } from "react";
-import { RecordFormSkeleton } from "@/src/features/inventory/components/RecordFormSkeleton";
-
-const RecordForm = lazy(() =>
-  import("@/src/features/inventory/components/RecordForm").then((m) => ({
-    default: m.RecordForm,
-  }))
-);
+import { RecordForm } from "@/src/features/inventory/components/RecordForm";
 
 export function InventoryFormPage() {
-  return (
-    <Suspense fallback={<RecordFormSkeleton />}>
-      <RecordForm />
-    </Suspense>
-  );
+  return <RecordForm />;
 }
 
 export default InventoryFormPage;

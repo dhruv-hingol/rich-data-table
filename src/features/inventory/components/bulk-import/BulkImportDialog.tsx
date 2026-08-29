@@ -1,25 +1,14 @@
 import { showToast } from "@/src/components/ui/toast";
-import { useState, lazy, Suspense } from "react";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Modal } from "@/src/components/ui/modal";
 import { parseCSVStream, type ParseResult } from "@/src/features/inventory/lib/csvParser";
 import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
 import { useBulkCreateRecordsMutation, inventoryKeys } from "@/src/features/inventory/hooks/useInventoryQuery";
 import { ImportWizardSteps } from "./ImportWizardSteps";
-
-const UploadStep = lazy(() =>
-  import("./UploadStep").then((m) => ({ default: m.UploadStep }))
-);
-const ValidationPreviewStep = lazy(() =>
-  import("./ValidationPreviewStep").then((m) => ({
-    default: m.ValidationPreviewStep,
-  }))
-);
-const CommitSummaryStep = lazy(() =>
-  import("./CommitSummaryStep").then((m) => ({
-    default: m.CommitSummaryStep,
-  }))
-);
+import { UploadStep } from "./UploadStep";
+import { ValidationPreviewStep } from "./ValidationPreviewStep";
+import { CommitSummaryStep } from "./CommitSummaryStep";
 
 export function BulkImportDialog() {
   const { isBulkImportOpen, setIsBulkImportOpen, triggerRefresh } =
@@ -69,6 +58,12 @@ export function BulkImportDialog() {
     }
   };
 
+  const handleBackToUpload = () => {
+    setStep(1);
+    setParseResult(null);
+    setImportSummary(null);
+  };
+
   const resetState = () => {
     setStep(1);
     setParseResult(null);
@@ -95,6 +90,7 @@ export function BulkImportDialog() {
             parseResult={parseResult}
             onCancel={resetState}
             onCommit={handleCommitImport}
+            onBack={handleBackToUpload}
           />
         );
 
@@ -104,6 +100,7 @@ export function BulkImportDialog() {
             isImporting={isImporting}
             importSummary={importSummary}
             onDone={resetState}
+            onUploadAnother={handleBackToUpload}
           />
         );
 
@@ -119,16 +116,13 @@ export function BulkImportDialog() {
       title="Bulk CSV Inventory Import Wizard"
       size="lg"
     >
-      <ImportWizardSteps currentStep={step} />
-      <Suspense
-        fallback={
-          <div className="py-12 text-center text-xs text-slate-400 animate-pulse">
-            Loading step content...
-          </div>
-        }
-      >
-        {renderStepContent()}
-      </Suspense>
+      <ImportWizardSteps
+        currentStep={step}
+        onStepClick={(stepNum) => stepNum === 1 && handleBackToUpload()}
+      />
+      {renderStepContent()}
     </Modal>
   );
 }
+
+export default BulkImportDialog;

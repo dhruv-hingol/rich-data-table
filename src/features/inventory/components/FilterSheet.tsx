@@ -140,3 +140,6 @@ export function FilterSheet() {
     </Drawer>
   );
 }
+
+export default FilterSheet;
+
