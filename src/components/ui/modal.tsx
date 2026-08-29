@@ -25,16 +25,22 @@ export function Modal({
   const [isVisible, setIsVisible] = useState(open);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  if (open && !isVisible) {
+    setIsVisible(true);
+  }
+
   // Sync open state with entrance/exit animation phases
   useEffect(() => {
     if (open) {
-      setIsVisible(true);
       const timer = setTimeout(() => setIsAnimating(true), 15);
       return () => clearTimeout(timer);
     } else {
-      setIsAnimating(false);
-      const timer = setTimeout(() => setIsVisible(false), 200);
-      return () => clearTimeout(timer);
+      const t1 = setTimeout(() => setIsAnimating(false), 0);
+      const t2 = setTimeout(() => setIsVisible(false), 200);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [open]);
 

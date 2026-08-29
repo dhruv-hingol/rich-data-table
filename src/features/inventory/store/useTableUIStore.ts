@@ -8,6 +8,7 @@ interface TableUIState {
   statusFilter: StockStatus | 'ALL';
   categoryFilter: string;
   skuFilter: string;
+  warehouseFilter: string;
   selectedRowIds: string[];
   columnPreset: ColumnPreset;
   visibleColumns: string[];
@@ -19,6 +20,7 @@ interface TableUIState {
   setStatusFilter: (status: StockStatus | 'ALL') => void;
   setCategoryFilter: (category: string) => void;
   setSkuFilter: (sku: string) => void;
+  setWarehouseFilter: (warehouse: string) => void;
   resetAllFilters: () => void;
   setSelectedRowIds: (ids: string[]) => void;
   toggleRowSelection: (id: string) => void;
@@ -36,6 +38,7 @@ export const useTableUIStore = create<TableUIState>((set) => ({
   statusFilter: 'ALL',
   categoryFilter: 'ALL',
   skuFilter: '',
+  warehouseFilter: 'ALL',
   selectedRowIds: [],
   columnPreset: 'ALL',
   visibleColumns: [],
@@ -48,12 +51,14 @@ export const useTableUIStore = create<TableUIState>((set) => ({
   setStatusFilter: (status) => set({ statusFilter: status }),
   setCategoryFilter: (category) => set({ categoryFilter: category }),
   setSkuFilter: (sku) => set({ skuFilter: sku }),
+  setWarehouseFilter: (warehouse) => set({ warehouseFilter: warehouse }),
   resetAllFilters: () =>
     set({
       searchQuery: '',
       statusFilter: 'ALL',
       categoryFilter: 'ALL',
       skuFilter: '',
+      warehouseFilter: 'ALL',
     }),
   setSelectedRowIds: (ids) => set({ selectedRowIds: ids }),
   toggleRowSelection: (id) =>

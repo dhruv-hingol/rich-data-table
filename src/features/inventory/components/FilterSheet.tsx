@@ -22,10 +22,12 @@ export function FilterSheet() {
     setCategoryFilter,
     skuFilter,
     setSkuFilter,
+    warehouseFilter,
+    setWarehouseFilter,
     resetAllFilters,
   } = useTableUIStore();
 
-  const [selectedWarehouse, setSelectedWarehouse] = useState<string>("ALL");
+  const [localWarehouse, setLocalWarehouse] = useState<string>(warehouseFilter);
   const [localCategory, setLocalCategory] = useState<string>(categoryFilter);
   const [localStatus, setLocalStatus] = useState<StockStatus | "ALL">(statusFilter);
   const [localSku, setLocalSku] = useState<string>(skuFilter);
@@ -40,17 +42,20 @@ export function FilterSheet() {
     ];
   }, [uniqueSkus]);
 
-  // Sync local draft filter state when drawer opens
+  const prevOpenRef = React.useRef(isColumnManagerOpen);
+
   useEffect(() => {
-    if (isColumnManagerOpen) {
+    if (isColumnManagerOpen && !prevOpenRef.current) {
       setLocalCategory(categoryFilter);
       setLocalStatus(statusFilter);
       setLocalSku(skuFilter);
+      setLocalWarehouse(warehouseFilter);
     }
-  }, [isColumnManagerOpen, categoryFilter, statusFilter, skuFilter]);
+    prevOpenRef.current = isColumnManagerOpen;
+  }, [isColumnManagerOpen, categoryFilter, statusFilter, skuFilter, warehouseFilter]);
 
   const handleClear = () => {
-    setSelectedWarehouse("ALL");
+    setLocalWarehouse("ALL");
     setLocalCategory("ALL");
     setLocalStatus("ALL");
     setLocalSku("ALL");
@@ -62,6 +67,7 @@ export function FilterSheet() {
     setCategoryFilter(localCategory);
     setStatusFilter(localStatus);
     setSkuFilter(localSku === "ALL" ? "" : localSku);
+    setWarehouseFilter(localWarehouse);
     setIsColumnManagerOpen(false);
   };
 
@@ -97,7 +103,7 @@ export function FilterSheet() {
             labelClassName="font-semibold text-slate-700 mb-1.5"
             options={STATUS_OPTIONS}
             value={localStatus}
-            onChange={(val) => setLocalStatus(val as any)}
+            onChange={(val) => setLocalStatus(val as StockStatus | "ALL")}
           />
 
           {/* Warehouse Select Dropdown */}
@@ -105,8 +111,8 @@ export function FilterSheet() {
             label="Warehouse"
             labelClassName="font-semibold text-slate-700 mb-1.5"
             options={WAREHOUSE_OPTIONS}
-            value={selectedWarehouse}
-            onChange={(val) => setSelectedWarehouse(val)}
+            value={localWarehouse}
+            onChange={(val) => setLocalWarehouse(val)}
           />
         </div>
 

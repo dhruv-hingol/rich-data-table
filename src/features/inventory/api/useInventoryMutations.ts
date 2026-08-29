@@ -3,6 +3,8 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { inventoryApi } from './inventoryApi';
 import { inventoryKeys } from './inventoryKeys';
 
+import type { UpdateInventoryRecordPayload } from '../types/inventory.types';
+
 export function useInventoryMutations() {
   const queryClient = useQueryClient();
 
@@ -14,7 +16,7 @@ export function useInventoryMutations() {
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, patch }: { id: string; patch: any }) => inventoryApi.updateRecord(id, patch),
+    mutationFn: ({ id, patch }: { id: string; patch: UpdateInventoryRecordPayload }) => inventoryApi.updateRecord(id, patch),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: inventoryKeys.lists() });
     },

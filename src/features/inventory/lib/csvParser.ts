@@ -4,12 +4,12 @@ import type { InventoryRecord } from '../types/inventory.types';
 
 export interface ParseResult {
   validRows: Partial<InventoryRecord>[];
-  invalidRows: { rowNumber: number; raw: any; errors: string[] }[];
+  invalidRows: { rowNumber: number; raw: Record<string, unknown>; errors: string[] }[];
   totalParsed: number;
 }
 
-function normalizeCSVRow(raw: Record<string, any>, rowNumber: number): Record<string, any> {
-  const normalized: Record<string, any> = {};
+function normalizeCSVRow(raw: Record<string, unknown>, rowNumber: number): Record<string, unknown> {
+  const normalized: Record<string, unknown> = {};
 
   for (const key of Object.keys(raw)) {
     const val = raw[key];
@@ -92,7 +92,7 @@ function normalizeCSVRow(raw: Record<string, any>, rowNumber: number): Record<st
 export function parseCSVStream(file: File): Promise<ParseResult> {
   return new Promise((resolve, reject) => {
     const validRows: Partial<InventoryRecord>[] = [];
-    const invalidRows: { rowNumber: number; raw: any; errors: string[] }[] = [];
+    const invalidRows: { rowNumber: number; raw: Record<string, unknown>; errors: string[] }[] = [];
     let rowNumber = 0;
 
     Papa.parse(file, {
@@ -100,12 +100,12 @@ export function parseCSVStream(file: File): Promise<ParseResult> {
       skipEmptyLines: true,
       step: (results) => {
         rowNumber++;
-        const raw = results.data as any;
+        const raw = results.data as Record<string, unknown>;
         const normalized = normalizeCSVRow(raw, rowNumber);
         const parseResult = recordSchema.safeParse(normalized);
 
         if (parseResult.success) {
-          validRows.push(parseResult.data as any);
+          validRows.push(parseResult.data as Partial<InventoryRecord>);
         } else {
           const errors = parseResult.error.issues.map(
             (issue) => `${issue.path.join('.')}: ${issue.message}`

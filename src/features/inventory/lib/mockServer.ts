@@ -55,7 +55,7 @@ class MockServerEngine {
     this.isInitialized = true;
     try {
       await set(IDB_KEY, this.records);
-    } catch (e) {
+    } catch {
       // Ignore IDB write fallback
     }
   }
@@ -84,6 +84,7 @@ class MockServerEngine {
       search,
       filters = [],
       statusFilter = 'ALL',
+      warehouseFilter = 'ALL',
     } = params;
 
     // STEP 1: Apply global search and column filters FIRST before pagination or sorting
@@ -108,6 +109,11 @@ class MockServerEngine {
     // Status Quick Filter
     if (statusFilter && statusFilter !== 'ALL') {
       filtered = filtered.filter((r) => r.status === statusFilter);
+    }
+
+    // Warehouse Filter
+    if (warehouseFilter && warehouseFilter !== 'ALL') {
+      filtered = filtered.filter((r) => r.warehouse === warehouseFilter);
     }
 
     // Column level filters
@@ -170,12 +176,10 @@ class MockServerEngine {
         if (valA === null || valA === undefined) return 1;
         if (valB === null || valB === undefined) return -1;
 
-        let result = 0;
-        if (typeof valA === 'number' && typeof valB === 'number') {
-          result = valA - valB;
-        } else {
-          result = String(valA).localeCompare(String(valB));
-        }
+        const result =
+          typeof valA === 'number' && typeof valB === 'number'
+            ? valA - valB
+            : String(valA).localeCompare(String(valB));
 
         return sortDir === 'desc' ? -result : result;
       });
@@ -281,11 +285,11 @@ class MockServerEngine {
 
   public async bulkCreateRecords(
     rawRows: Partial<InventoryRecord>[]
-  ): Promise<{ created: InventoryRecord[]; rejected: { row: any; errors: string[] }[] }> {
+  ): Promise<{ created: InventoryRecord[]; rejected: { row: Record<string, unknown>; errors: string[] }[] }> {
     await this.simulateNetworkDelay();
 
     const created: InventoryRecord[] = [];
-    const rejected: { row: any; errors: string[] }[] = [];
+    const rejected: { row: Record<string, unknown>; errors: string[] }[] = [];
 
     for (let i = 0; i < rawRows.length; i++) {
       const raw = rawRows[i];
@@ -331,7 +335,7 @@ class MockServerEngine {
         marginPercent: listPrice > 0 ? Number((((listPrice - unitCost) / listPrice) * 100).toFixed(1)) : 0,
         taxRate: Number(raw.taxRate || 0),
         discountPercent: Number(raw.discountPercent || 0),
-        priceTier: (raw.priceTier as any) || 'Standard',
+        priceTier: (raw.priceTier as InventoryRecord['priceTier']) || 'Standard',
 
         supplierId: String(raw.supplierId || 'SUP-001'),
         supplierName: String(raw.supplierName || 'Default Supplier'),

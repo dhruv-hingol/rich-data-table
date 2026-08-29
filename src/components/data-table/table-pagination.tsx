@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { DataTablePaginationProps } from "./types";
 import { Select } from "../ui/select";

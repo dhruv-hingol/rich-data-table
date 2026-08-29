@@ -81,7 +81,7 @@ export interface InventoryRecord {
 export interface ColumnFilterValue {
   field: keyof InventoryRecord;
   operator: 'equals' | 'contains' | 'gt' | 'gte' | 'lt' | 'lte' | 'in';
-  value: any;
+  value: unknown;
 }
 
 export interface GetRecordsParams {
@@ -92,6 +92,7 @@ export interface GetRecordsParams {
   search?: string;
   filters?: ColumnFilterValue[];
   statusFilter?: StockStatus | 'ALL';
+  warehouseFilter?: string;
 }
 
 export interface PaginatedResponse<T> {

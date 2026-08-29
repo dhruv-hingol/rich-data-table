@@ -34,6 +34,7 @@ export function TableHeader({
   children,
   className = "",
 }: TableHeaderProps) {
+  void isFilterActive;
   return (
     <div className={`flex flex-col gap-3 sm:gap-4 pt-1 ${className}`}>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
@@ -52,12 +53,8 @@ export function TableHeader({
               size="sm"
               prefixIcon={<Filter className="h-3.5 w-3.5" />}
               onClick={onFilterClick}
-              className="relative"
             >
               Filters
-              {isFilterActive && (
-                <span className="w-2 h-2 rounded-full bg-[#ff6600] absolute -top-1 -right-1" />
-              )}
             </Button>
           )}
           {manageInventoryButton}

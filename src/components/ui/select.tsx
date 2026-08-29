@@ -12,7 +12,7 @@ export interface SelectProps {
   labelClassName?: string;
   options: (SelectOption | string | number)[];
   value?: string | number;
-  onChange?: (val: any) => void;
+  onChange?: (val: string) => void;
   placeholder?: string;
   className?: string;
   buttonClassName?: string;
@@ -126,7 +126,7 @@ export function Select({
                 key={String(opt.value)}
                 type="button"
                 onClick={() => {
-                  onChange?.(opt.value);
+                  onChange?.(String(opt.value));
                   setIsOpen(false);
                 }}
                 className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors flex items-center justify-between cursor-pointer ${

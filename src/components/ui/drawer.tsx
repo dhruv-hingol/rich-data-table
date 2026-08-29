@@ -22,15 +22,21 @@ export function Drawer({
   const [isVisible, setIsVisible] = useState(open);
   const [isAnimating, setIsAnimating] = useState(false);
 
+  if (open && !isVisible) {
+    setIsVisible(true);
+  }
+
   useEffect(() => {
     if (open) {
-      setIsVisible(true);
       const timer = setTimeout(() => setIsAnimating(true), 15);
       return () => clearTimeout(timer);
     } else {
-      setIsAnimating(false);
-      const timer = setTimeout(() => setIsVisible(false), 250);
-      return () => clearTimeout(timer);
+      const t1 = setTimeout(() => setIsAnimating(false), 0);
+      const t2 = setTimeout(() => setIsVisible(false), 250);
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
     }
   }, [open]);
 

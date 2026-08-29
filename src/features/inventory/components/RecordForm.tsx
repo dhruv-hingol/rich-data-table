@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import type { FieldErrors } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,10 +7,10 @@ import { recordSchema, type RecordSchemaInput } from "../lib/recordSchema";
 import { showToast } from "../../../components/ui/toast";
 import { PageHeader } from "../../../components/ui/page-header";
 import { FormFooter } from "../../../components/ui/form-footer";
-import type { StockStatus } from "../types/inventory.types";
+import type { CreateInventoryRecordPayload, InventoryRecord, StockStatus } from "../types/inventory.types";
 import {
-  useInventoryRecordDetailQuery,
   useCreateRecordMutation,
+  useInventoryRecordDetailQuery,
   useUpdateRecordMutation,
 } from "../hooks/useInventoryQuery";
 import {
@@ -36,7 +37,7 @@ export function RecordForm() {
   const isEditMode = Boolean(id);
 
   const { data: record, isLoading: isLoadingRecord } =
-    useInventoryRecordDetailQuery(id);
+    useInventoryRecordDetailQuery(id!);
 
   const { activeTab, scrollToSection } = useTabScrollSpy({
     tabs: TABS,
@@ -58,6 +59,7 @@ export function RecordForm() {
     reset,
     formState: { errors, isDirty },
   } = useForm<RecordSchemaInput>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(recordSchema) as any,
     defaultValues: DEFAULT_RECORD_FORM_VALUES,
   });
@@ -85,7 +87,7 @@ export function RecordForm() {
         salePrice: record.salePrice || record.listPrice,
         taxRate: record.taxRate || 0,
         discountPercent: record.discountPercent || 0,
-        priceTier: (record.priceTier as any) || "Standard",
+        priceTier: record.priceTier || "Standard",
         supplierId: record.supplierId,
         supplierName: record.supplierName,
         supplierSku: record.supplierSku,
@@ -136,14 +138,14 @@ export function RecordForm() {
       if (isEditMode && id) {
         await updateMutation.mutateAsync({
           id,
-          patch: { ...data, status: liveStatus } as any,
+          patch: { ...data, status: liveStatus } as Partial<InventoryRecord>,
         });
         showToast.success("Product updated successfully");
       } else {
         await createMutation.mutateAsync({
           ...data,
           status: liveStatus,
-        } as any);
+        } as CreateInventoryRecordPayload);
         showToast.success("Product created successfully");
       }
       setTimeout(() => {
@@ -157,7 +159,7 @@ export function RecordForm() {
     }
   };
 
-  const onInvalid = (fieldErrors: any) => {
+  const onInvalid = (fieldErrors: FieldErrors<RecordSchemaInput>) => {
     console.warn("Form validation errors:", fieldErrors);
     showToast.error("Please fill out all required fields marked with *");
   };
@@ -170,7 +172,7 @@ export function RecordForm() {
     <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="pb-4">
       <PageHeader
         sticky
-        backText="Back to Product Inventories"
+        backText="Back to Inventories"
         backHref="/"
         title={
           isEditMode

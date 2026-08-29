@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Button } from "../../../components/ui/button";
 import { cn } from "../../../utils/cn";
 
@@ -15,17 +14,9 @@ export function SelectionActionBar({
   onExport,
   onCancel,
 }: SelectionActionBarProps) {
-  const [isVisible, setIsVisible] = useState(false);
+  const isVisible = selectedRows.size > 0;
 
-  useEffect(() => {
-    if (selectedRows.size > 0 && !isVisible) {
-      setIsVisible(true);
-    } else if (selectedRows.size === 0 && isVisible) {
-      setIsVisible(false);
-    }
-  }, [selectedRows, isVisible]);
-
-  if (!isVisible && selectedRows.size === 0) return null;
+  if (!isVisible) return null;
 
   return (
     <div

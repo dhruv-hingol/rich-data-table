@@ -7,6 +7,7 @@ export const WAREHOUSE_OPTIONS: SelectOption[] = [
   { label: 'WH-SOUTH-02', value: 'WH-SOUTH-02' },
   { label: 'WH-EAST-05', value: 'WH-EAST-05' },
   { label: 'WH-WEST-09', value: 'WH-WEST-09' },
+  { label: 'WH-CENTRAL-MAIN', value: 'WH-CENTRAL-MAIN' },
 ];
 
 export const CATEGORY_OPTIONS: SelectOption[] = [

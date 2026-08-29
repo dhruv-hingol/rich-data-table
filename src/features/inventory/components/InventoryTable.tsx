@@ -1,5 +1,5 @@
 import { showToast } from "../../../components/ui/toast";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import type {
   GridReadyEvent,
   GridApi,
@@ -21,6 +21,7 @@ export function InventoryTable() {
     statusFilter,
     categoryFilter,
     skuFilter,
+    warehouseFilter,
     selectedRowIds,
     setSelectedRowIds,
     clearSelection,
@@ -66,14 +67,18 @@ export function InventoryTable() {
     pageSize,
     search: searchQuery,
     statusFilter,
+    warehouseFilter,
     filters,
   });
 
   const deleteMutation = useDeleteRecordsMutation();
 
-  useEffect(() => {
+  const filterKey = `${searchQuery}_${statusFilter}_${categoryFilter}_${skuFilter}_${warehouseFilter}`;
+  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
+  if (filterKey !== prevFilterKey) {
+    setPrevFilterKey(filterKey);
     setCurrentPage(1);
-  }, [searchQuery, statusFilter, categoryFilter, skuFilter]);
+  }
 
   const onGridReady = useCallback((params: GridReadyEvent<InventoryRecord>) => {
     setGridApi(params.api);

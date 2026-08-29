@@ -230,3 +230,24 @@ React Query hooks wrap these 1:1. No component calls `inventoryApi` directly —
 - Don't parse the whole CSV into a JS string with `FileReader.readAsText` then `JSON.parse`/split by newline — use PapaParse's streaming API.
 - Don't put selection state or filter state inside TanStack Query — that's UI state, belongs in Zustand.
 - Don't build a second custom virtualization layer on top of AG Grid — configure AG Grid's own virtualization correctly instead.
+
+---
+
+## 8. AI Integration & Workflow Report (Honest Version)
+
+### Prompts Used
+1. **Master Build Spec & Architecture Prompt:** Fed Section 0 & Section 1 of this spec to establish folder architecture, strict layer boundaries (Zustand vs TanStack Query vs MockServer Engine), and 49-column inventory schema.
+2. **Streaming CSV Import & Zod Schema Validation Prompt:** Requested PapaParse `step`-mode streaming parser integrated with shared Zod schema validation to handle multi-row CSV validation, row-level error reporting, and error CSV generation without main thread freezes.
+3. **AG Grid Virtualization & Theme Customization Prompt:** Requested AG Grid Community configuration with 49 columns, custom header renderers, cell status badges (Low Stock, Healthy, Overstock, Returnable, Fragile, Perishable), and brand theme styling (`ag-grid-theme.css`).
+4. **Refactoring & Strict TypeScript/ESLint Fixes:** Prompted for full strict typing checks (`tsc -b`), removal of `any` types across API interceptors and custom cell renderers, and resolving React 19 hook warning side-effects in modal/drawer components.
+
+### Tools, Skills, Workflows & MCP Servers Wired Up
+- **Antigravity IDE Agentic Workflow:** Leveraged task management, ripgrep file searching, directory listing, and automated TypeScript/ESLint verification loops to catch and fix regressions instantly.
+- **MCP Servers & Integrations:** Registered project build specs, automated testing tasks via Vitest, and background terminal commands.
+- **Custom Skills:** Applied project-level architecture guidelines ensuring separation of concerns (UI state in Zustand, server cache in React Query, business logic in features/inventory/lib).
+
+### How AI Fit Into The Workflow (Honest Version)
+- **Architecture & Scaffolding (40%):** Generated initial boilerplate file structures, domain type definitions (`InventoryRecord` 50 fields), and repetitive column definition mappings.
+- **Pair-Writing Complex Logic (45%):** Collaborated on designing `MockServerEngine` with in-memory filter/sort ordering before pagination, PapaParse streaming integration, and double-pass Zod schema validation.
+- **Debugging & Strict Verification (15%):** Diagnosed and resolved TypeScript compilation errors, React 19 effect state warning cascades, and AG Grid column virtualization alignment.
+

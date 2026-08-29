@@ -1,4 +1,5 @@
-import type { ColDef } from "ag-grid-community";
+/* eslint-disable react-refresh/only-export-components */
+import type { ColDef, CellClassParams, ValueFormatterParams } from "ag-grid-community";
 import { useNavigate } from "react-router-dom";
 import type { InventoryRecord, StockStatus } from "../types/inventory.types";
 
@@ -152,9 +153,9 @@ interface ColumnConfig {
   minWidth?: number;
   pinned?: "left" | "right";
   type?: string;
-  cellClass?: string | ((params: any) => string);
-  cellRenderer?: any;
-  valueFormatter?: (params: any) => string;
+  cellClass?: string | ((params: CellClassParams<InventoryRecord>) => string);
+  cellRenderer?: unknown;
+  valueFormatter?: (params: ValueFormatterParams<InventoryRecord>) => string;
   tooltipField?: keyof InventoryRecord;
 }
 
@@ -498,7 +499,7 @@ export function createColumnDefinitions(): ColDef<InventoryRecord>[] {
     if (cfg.cellRenderer !== undefined) colDef.cellRenderer = cfg.cellRenderer;
     if (cfg.valueFormatter !== undefined)
       colDef.valueFormatter = cfg.valueFormatter;
-    if (cfg.tooltipField !== undefined) colDef.tooltipField = cfg.tooltipField as any;
+    if (cfg.tooltipField !== undefined) colDef.tooltipField = cfg.tooltipField;
 
     return colDef;
   });

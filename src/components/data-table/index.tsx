@@ -5,6 +5,8 @@ import {
   AllCommunityModule,
   ValidationModule,
   type RowSelectionOptions,
+  type SortChangedEvent,
+  type ColumnState,
 } from "ag-grid-community";
 import type { GridReadyEvent, GridApi, ColDef } from "ag-grid-community";
 
@@ -39,6 +41,7 @@ export function AgGridTable<T>({
   onSortChanged,
   ...restProps
 }: AgGridTableProps<T>) {
+  void isFilterActive;
   const tableRef = useRef<HTMLDivElement>(null);
   const paginationRef = useRef<HTMLDivElement>(null);
   const gridRef = useRef<AgGridReact<T>>(null);
@@ -122,14 +125,14 @@ export function AgGridTable<T>({
   );
 
   const handleSortChanged = useCallback(
-    (event: any) => {
+    (event: SortChangedEvent<T>) => {
       if (!onSortChanged) return;
       const columnState = event.api.getColumnState();
-      const sortedCol = columnState.find((col: any) => col.sort !== null);
+      const sortedCol = columnState.find((col: ColumnState) => col.sort !== null);
 
       if (sortedCol) {
-        const colDef = event.api.getColumnDef(sortedCol.colId) as any;
-        const sortField = colDef?.sortField || sortedCol.colId;
+        const colDef = event.api.getColumnDef(sortedCol.colId);
+        const sortField = (colDef as { sortField?: string })?.sortField || sortedCol.colId;
         onSortChanged(sortField).onClick();
       } else {
         onSortChanged("").onClick();

@@ -122,7 +122,7 @@ export const apiInterceptor = {
       method: 'POST',
       body: JSON.stringify({ rows }),
     });
-    return responseInterceptor<any>(fetch(url, init));
+    return responseInterceptor<{ created: InventoryRecord[]; rejected: { row: Record<string, unknown>; errors: string[] }[] }>(fetch(url, init));
   },
 
   async getUniqueSkus(config: RequestConfig = DEFAULT_CONFIG): Promise<string[]> {
