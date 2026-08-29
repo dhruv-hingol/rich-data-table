@@ -1,7 +1,7 @@
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
-import { FormSection } from "../../../../components/ui/form-section";
-import { Input } from "../../../../components/ui/input";
-import type { RecordSchemaInput } from "../../lib/recordSchema";
+import { FormSection } from "@/src/components/ui/form-section";
+import { Input } from "@/src/components/ui/input";
+import type { RecordSchemaInput } from "@/src/features/inventory/lib/recordSchema";
 
 export interface PhysicalSpecsSectionProps {
   register: UseFormRegister<RecordSchemaInput>;

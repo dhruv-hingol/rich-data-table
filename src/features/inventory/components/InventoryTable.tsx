@@ -1,19 +1,19 @@
-import { showToast } from "../../../components/ui/toast";
+import { showToast } from "@/src/components/ui/toast";
 import { useCallback, useMemo, useState } from "react";
 import type {
   GridReadyEvent,
   GridApi,
   RowSelectionOptions,
 } from "ag-grid-community";
-import { AgGridTable } from "../../../components/data-table";
-import { createColumnDefinitions } from "../lib/columnDefsFactory.tsx";
-import { useTableUIStore } from "../store/useTableUIStore";
+import { AgGridTable } from "@/src/components/data-table";
+import { createColumnDefinitions } from "@/src/features/inventory/lib/columnDefsFactory";
+import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
 import { SelectionActionBar } from "./SelectionActionBar";
-import type { InventoryRecord } from "../types/inventory.types";
+import type { InventoryRecord } from "@/src/features/inventory/types/inventory.types";
 import {
   useInventoryRecordsQuery,
   useDeleteRecordsMutation,
-} from "../hooks/useInventoryQuery";
+} from "@/src/features/inventory/hooks/useInventoryQuery";
 
 export function InventoryTable() {
   const {

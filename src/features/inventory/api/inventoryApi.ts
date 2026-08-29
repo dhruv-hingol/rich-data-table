@@ -1,4 +1,3 @@
-// Unified Inventory API interface delegating requests to apiInterceptor.
 import { apiInterceptor } from './apiInterceptor';
 import type { GetRecordsParams, CreateInventoryRecordPayload, UpdateInventoryRecordPayload, InventoryRecord } from '../types/inventory.types';
 

@@ -1,4 +1,3 @@
-// High-density initial loading skeleton animation placeholder for grid header and rows.
 export function TableSkeleton() {
   return (
     <div className="w-full h-full flex flex-col gap-2 p-4 animate-pulse">

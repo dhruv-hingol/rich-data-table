@@ -1,69 +1,16 @@
-import { useTableUIStore } from '../store/useTableUIStore';
-import type { StockStatus } from '../types/inventory.types';
+import { useTableUIStore } from '@/src/features/inventory/store/useTableUIStore';
+import {
+  getStatusSummaryCards,
+  type StatusCounts,
+} from '@/src/features/inventory/constants/statusCardConfigs';
 
 interface StatusSummaryStripProps {
-  statusCounts?: {
-    LOW_STOCK: number;
-    HEALTHY: number;
-    OVERSTOCK: number;
-    DISCONTINUED: number;
-    ALL: number;
-  };
+  statusCounts?: Partial<StatusCounts>;
 }
 
 export function StatusSummaryStrip({ statusCounts }: StatusSummaryStripProps) {
   const { statusFilter, setStatusFilter } = useTableUIStore();
-
-  const counts = statusCounts || {
-    LOW_STOCK: 0,
-    HEALTHY: 0,
-    OVERSTOCK: 0,
-    DISCONTINUED: 0,
-    ALL: 0,
-  };
-
-  const cards: { label: string; key: StockStatus | 'ALL'; count: number; colorClass: string; bgClass: string; borderClass: string }[] = [
-    {
-      label: 'Total Inventory',
-      key: 'ALL',
-      count: counts.ALL,
-      colorClass: 'text-slate-200',
-      bgClass: 'bg-slate-800/80',
-      borderClass: 'border-slate-700',
-    },
-    {
-      label: 'Low Stock Alert',
-      key: 'LOW_STOCK',
-      count: counts.LOW_STOCK,
-      colorClass: 'text-rose-400',
-      bgClass: 'bg-rose-500/10',
-      borderClass: 'border-rose-500/30',
-    },
-    {
-      label: 'Healthy Stock',
-      key: 'HEALTHY',
-      count: counts.HEALTHY,
-      colorClass: 'text-emerald-400',
-      bgClass: 'bg-emerald-500/10',
-      borderClass: 'border-emerald-500/30',
-    },
-    {
-      label: 'Overstock',
-      key: 'OVERSTOCK',
-      count: counts.OVERSTOCK,
-      colorClass: 'text-blue-400',
-      bgClass: 'bg-blue-500/10',
-      borderClass: 'border-blue-500/30',
-    },
-    {
-      label: 'Discontinued',
-      key: 'DISCONTINUED',
-      count: counts.DISCONTINUED,
-      colorClass: 'text-slate-400',
-      bgClass: 'bg-slate-800/40',
-      borderClass: 'border-slate-700/50',
-    },
-  ];
+  const cards = getStatusSummaryCards(statusCounts);
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-4">

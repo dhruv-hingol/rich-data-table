@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import type { ColDef } from "ag-grid-community";
 import { AgGridReact } from "ag-grid-react";
-import type { ParseResult } from "../lib/csvParser";
+import type { ParseResult } from "@/src/features/inventory/lib/csvParser";
 
 export interface PreviewRow {
   rowNumber: number;

@@ -1,16 +1,15 @@
-// Inventory Filters slide-over sheet drawer powered by TanStack Query for dynamic SKU dropdown options.
 import React, { useState, useEffect } from "react";
-import { Button } from "../../../components/ui/button";
-import { Select, type SelectOption } from "../../../components/ui/select";
-import { useTableUIStore } from "../store/useTableUIStore";
-import type { StockStatus } from "../types/inventory.types";
+import { Button } from "@/src/components/ui/button";
+import { Select, type SelectOption } from "@/src/components/ui/select";
+import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
+import type { StockStatus } from "@/src/features/inventory/types/inventory.types";
 import {
   CATEGORY_OPTIONS,
   STATUS_OPTIONS,
   WAREHOUSE_OPTIONS,
-} from "../constants/filterOptions";
-import Drawer from "../../../components/ui/drawer";
-import { useUniqueSkusQuery } from "../hooks/useInventoryQuery";
+} from "@/src/features/inventory/constants/filterOptions";
+import Drawer from "@/src/components/ui/drawer";
+import { useUniqueSkusQuery } from "@/src/features/inventory/hooks/useInventoryQuery";
 
 export function FilterSheet() {
   const {
@@ -29,10 +28,11 @@ export function FilterSheet() {
 
   const [localWarehouse, setLocalWarehouse] = useState<string>(warehouseFilter);
   const [localCategory, setLocalCategory] = useState<string>(categoryFilter);
-  const [localStatus, setLocalStatus] = useState<StockStatus | "ALL">(statusFilter);
+  const [localStatus, setLocalStatus] = useState<StockStatus | "ALL">(
+    statusFilter,
+  );
   const [localSku, setLocalSku] = useState<string>(skuFilter);
 
-  // TanStack Query for unique SKUs
   const { data: uniqueSkus = [] } = useUniqueSkusQuery();
 
   const dynamicSkuOptions: SelectOption[] = React.useMemo(() => {
@@ -52,7 +52,13 @@ export function FilterSheet() {
       setLocalWarehouse(warehouseFilter);
     }
     prevOpenRef.current = isColumnManagerOpen;
-  }, [isColumnManagerOpen, categoryFilter, statusFilter, skuFilter, warehouseFilter]);
+  }, [
+    isColumnManagerOpen,
+    categoryFilter,
+    statusFilter,
+    skuFilter,
+    warehouseFilter,
+  ]);
 
   const handleClear = () => {
     setLocalWarehouse("ALL");
@@ -79,7 +85,6 @@ export function FilterSheet() {
     >
       <div className="flex flex-col justify-between h-full space-y-6">
         <div className="space-y-5">
-          {/* SKU Select Dropdown with Real Dynamic Dataset SKUs from TanStack Query */}
           <Select
             label="SKU"
             labelClassName="font-semibold text-slate-700 mb-1.5"
@@ -88,7 +93,6 @@ export function FilterSheet() {
             onChange={(val) => setLocalSku(val)}
           />
 
-          {/* Category Select Dropdown */}
           <Select
             label="Category"
             labelClassName="font-semibold text-slate-700 mb-1.5"
@@ -97,7 +101,6 @@ export function FilterSheet() {
             onChange={(val) => setLocalCategory(val)}
           />
 
-          {/* Stock Status Select Dropdown */}
           <Select
             label="Stock Status"
             labelClassName="font-semibold text-slate-700 mb-1.5"
@@ -106,7 +109,6 @@ export function FilterSheet() {
             onChange={(val) => setLocalStatus(val as StockStatus | "ALL")}
           />
 
-          {/* Warehouse Select Dropdown */}
           <Select
             label="Warehouse"
             labelClassName="font-semibold text-slate-700 mb-1.5"
@@ -116,7 +118,6 @@ export function FilterSheet() {
           />
         </div>
 
-        {/* Footer Action Buttons */}
         <div className="pt-6 border-t border-slate-100 grid grid-cols-2 gap-4 mt-auto shrink-0">
           <Button
             variant="outline"

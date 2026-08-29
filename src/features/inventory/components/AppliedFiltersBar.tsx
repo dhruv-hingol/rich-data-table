@@ -1,8 +1,8 @@
-import { useTableUIStore } from "../store/useTableUIStore";
+import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
 import {
   AppliedFiltersBar as AppliedFiltersBarUI,
   type AppliedFilterItem,
-} from "../../../components/ui/applied-filters-bar";
+} from "@/src/components/ui/applied-filters-bar";
 
 export function AppliedFiltersBar() {
   const {

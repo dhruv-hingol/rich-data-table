@@ -1,7 +1,13 @@
-import { Button } from "../../../../components/ui/button";
-import type { ParseResult } from "../../lib/csvParser";
-import { ImportPreviewTable } from "../ImportPreviewTable";
+import { lazy, Suspense } from "react";
+import { Button } from "@/src/components/ui/button";
+import type { ParseResult } from "@/src/features/inventory/lib/csvParser";
 import { CheckCircle2, XCircle } from "lucide-react";
+
+const ImportPreviewTable = lazy(() =>
+  import("../ImportPreviewTable").then((m) => ({
+    default: m.ImportPreviewTable,
+  }))
+);
 
 export interface ValidationPreviewStepProps {
   parseResult: ParseResult;
@@ -32,7 +38,15 @@ export function ValidationPreviewStep({
         </span>
       </div>
 
-      <ImportPreviewTable parseResult={parseResult} />
+      <Suspense
+        fallback={
+          <div className="h-64 w-full rounded-lg border border-slate-200 flex items-center justify-center text-xs text-slate-400 animate-pulse">
+            Loading preview grid...
+          </div>
+        }
+      >
+        <ImportPreviewTable parseResult={parseResult} />
+      </Suspense>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
         <Button variant="outline" onClick={onCancel}>

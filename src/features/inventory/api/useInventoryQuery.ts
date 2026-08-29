@@ -1,4 +1,3 @@
-// React Query custom hook for fetching server-side paginated inventory records.
 import { useQuery } from '@tanstack/react-query';
 import { inventoryApi } from './inventoryApi';
 import { inventoryKeys } from './inventoryKeys';

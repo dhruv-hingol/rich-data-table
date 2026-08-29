@@ -1,14 +1,25 @@
-import { showToast } from "../../../../components/ui/toast";
-import { useState } from "react";
+import { showToast } from "@/src/components/ui/toast";
+import { useState, lazy, Suspense } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { Dialog } from "../../../../components/ui/dialog";
-import { parseCSVStream, type ParseResult } from "../../lib/csvParser";
-import { useTableUIStore } from "../../store/useTableUIStore";
-import { useBulkCreateRecordsMutation, inventoryKeys } from "../../hooks/useInventoryQuery";
+import { Dialog } from "@/src/components/ui/dialog";
+import { parseCSVStream, type ParseResult } from "@/src/features/inventory/lib/csvParser";
+import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
+import { useBulkCreateRecordsMutation, inventoryKeys } from "@/src/features/inventory/hooks/useInventoryQuery";
 import { ImportWizardSteps } from "./ImportWizardSteps";
-import { UploadStep } from "./UploadStep";
-import { ValidationPreviewStep } from "./ValidationPreviewStep";
-import { CommitSummaryStep } from "./CommitSummaryStep";
+
+const UploadStep = lazy(() =>
+  import("./UploadStep").then((m) => ({ default: m.UploadStep }))
+);
+const ValidationPreviewStep = lazy(() =>
+  import("./ValidationPreviewStep").then((m) => ({
+    default: m.ValidationPreviewStep,
+  }))
+);
+const CommitSummaryStep = lazy(() =>
+  import("./CommitSummaryStep").then((m) => ({
+    default: m.CommitSummaryStep,
+  }))
+);
 
 export function BulkImportDialog() {
   const { isBulkImportOpen, setIsBulkImportOpen, triggerRefresh } =
@@ -109,7 +120,15 @@ export function BulkImportDialog() {
       size="lg"
     >
       <ImportWizardSteps currentStep={step} />
-      {renderStepContent()}
+      <Suspense
+        fallback={
+          <div className="py-12 text-center text-xs text-slate-400 animate-pulse">
+            Loading step content...
+          </div>
+        }
+      >
+        {renderStepContent()}
+      </Suspense>
     </Dialog>
   );
 }

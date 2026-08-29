@@ -1,8 +1,11 @@
-import { Sheet } from "../../../components/ui/sheet";
-import { Button } from "../../../components/ui/button";
-import { Checkbox } from "../../../components/ui/checkbox";
-import { useTableUIStore, type ColumnPreset } from "../store/useTableUIStore";
-import { ALL_COLUMNS_METADATA } from "../lib/columnDefsFactory";
+import { Sheet } from "@/src/components/ui/sheet";
+import { Button } from "@/src/components/ui/button";
+import { Checkbox } from "@/src/components/ui/checkbox";
+import {
+  useTableUIStore,
+  type ColumnPreset,
+} from "@/src/features/inventory/store/useTableUIStore";
+import { ALL_COLUMNS_METADATA } from "@/src/features/inventory/lib/columnDefsFactory";
 
 export function ColumnManagerPanel() {
   const {
@@ -31,7 +34,6 @@ export function ColumnManagerPanel() {
       title="Configure Columns & Presets"
     >
       <div className="space-y-6 flex flex-col h-full">
-        {/* Presets Selection */}
         <div>
           <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
             Column Presets
@@ -54,7 +56,6 @@ export function ColumnManagerPanel() {
           </div>
         </div>
 
-        {/* Column List Checkboxes */}
         <div className="flex-1 min-h-0 flex flex-col">
           <div className="flex items-center justify-between pb-2 border-b border-slate-100 mb-3 shrink-0">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">

@@ -1,4 +1,3 @@
-// Inventory Filter & Form Options Constants single source of truth.
 import type { SelectOption } from '../../../components/ui/select';
 
 export const WAREHOUSE_OPTIONS: SelectOption[] = [

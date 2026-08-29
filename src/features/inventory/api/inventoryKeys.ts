@@ -1,4 +1,3 @@
-// Query key factory for TanStack React Query cache management.
 import type { GetRecordsParams } from '../types/inventory.types';
 
 export const inventoryKeys = {

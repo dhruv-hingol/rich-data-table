@@ -1,8 +1,8 @@
 import type { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
-import { FormSection } from "../../../../components/ui/form-section";
-import { Input } from "../../../../components/ui/input";
-import { Select, type SelectOption } from "../../../../components/ui/select";
-import type { RecordSchemaInput } from "../../lib/recordSchema";
+import { FormSection } from "@/src/components/ui/form-section";
+import { Input } from "@/src/components/ui/input";
+import { Select, type SelectOption } from "@/src/components/ui/select";
+import type { RecordSchemaInput } from "@/src/features/inventory/lib/recordSchema";
 
 export interface StockLocationSectionProps {
   register: UseFormRegister<RecordSchemaInput>;

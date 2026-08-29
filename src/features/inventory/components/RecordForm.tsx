@@ -3,25 +3,32 @@ import type { FieldErrors } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate, useParams } from "react-router-dom";
-import { recordSchema, type RecordSchemaInput } from "../lib/recordSchema";
-import { showToast } from "../../../components/ui/toast";
-import { PageHeader } from "../../../components/ui/page-header";
-import { FormFooter } from "../../../components/ui/form-footer";
-import type { CreateInventoryRecordPayload, InventoryRecord, StockStatus } from "../types/inventory.types";
+import {
+  recordSchema,
+  type RecordSchemaInput,
+} from "@/src/features/inventory/lib/recordSchema";
+import { showToast } from "@/src/components/ui/toast";
+import { PageHeader } from "@/src/components/ui/page-header";
+import { FormFooter } from "@/src/components/ui/form-footer";
+import type {
+  CreateInventoryRecordPayload,
+  InventoryRecord,
+  StockStatus,
+} from "@/src/features/inventory/types/inventory.types";
 import {
   useCreateRecordMutation,
   useInventoryRecordDetailQuery,
   useUpdateRecordMutation,
-} from "../hooks/useInventoryQuery";
+} from "@/src/features/inventory/hooks/useInventoryQuery";
 import {
   DEFAULT_RECORD_FORM_VALUES,
   RECORD_FORM_TABS as TABS,
-} from "../constants/formDefaultValues";
+} from "@/src/features/inventory/constants/formDefaultValues";
 import {
   FORM_CATEGORY_OPTIONS as categoryOptions,
   FORM_WAREHOUSE_OPTIONS as warehouseOptions,
-} from "../constants/filterOptions";
-import { useTabScrollSpy } from "../hooks/useTabScrollSpy";
+} from "@/src/features/inventory/constants/filterOptions";
+import { useTabScrollSpy } from "@/src/features/inventory/hooks/useTabScrollSpy";
 import {
   ProductDetailsSection,
   StockLocationSection,

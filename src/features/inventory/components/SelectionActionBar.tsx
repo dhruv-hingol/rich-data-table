@@ -1,5 +1,5 @@
-import { Button } from "../../../components/ui/button";
-import { cn } from "../../../utils/cn";
+import { Button } from "@/src/components/ui/button";
+import { cn } from "@/src/utils/cn";
 
 interface SelectionActionBarProps {
   selectedRows: Set<string>;

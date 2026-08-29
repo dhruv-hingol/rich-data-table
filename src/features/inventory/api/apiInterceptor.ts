@@ -41,7 +41,6 @@ function requestInterceptor(url: string, init?: RequestInit): { url: string; ini
   };
 }
 
-// Response Interceptor: Error handling, status code check, telemetry
 async function responseInterceptor<T>(responsePromise: Promise<Response>): Promise<T> {
   try {
     const res = await responsePromise;
@@ -56,7 +55,6 @@ async function responseInterceptor<T>(responsePromise: Promise<Response>): Promi
   }
 }
 
-// Interceptor-wrapped API Interface
 export const apiInterceptor = {
   async listRecords(params: GetRecordsParams, config: RequestConfig = DEFAULT_CONFIG): Promise<PaginatedResponse<InventoryRecord>> {
     if (config.useMockApi) {

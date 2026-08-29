@@ -1,4 +1,3 @@
-// Custom hook for ScrollSpy active tab tracking and anti-flicker programmatic section scrolling.
 import { useState, useEffect, useRef, useCallback } from 'react';
 
 export interface UseTabScrollSpyParams {
@@ -24,7 +23,6 @@ export function useTabScrollSpy({
   const isProgrammaticScrollRef = useRef(false);
   const scrollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ScrollSpy: Automatically update activeTab to match section visible below sticky header on manual scroll
   useEffect(() => {
     if (isDisabled || tabs.length === 0) return;
 
@@ -56,7 +54,6 @@ export function useTabScrollSpy({
     };
   }, [tabs, scrollOffset, containerSelector, isDisabled]);
 
-  // Programmatic anti-flicker click smooth-scrolling to target section
   const scrollToSection = useCallback(
     (sectionId: string) => {
       setActiveTab(sectionId);

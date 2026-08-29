@@ -1,4 +1,3 @@
-// React Query hooks for create, update, delete, and bulk import mutations.
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { inventoryApi } from './inventoryApi';
 import { inventoryKeys } from './inventoryKeys';

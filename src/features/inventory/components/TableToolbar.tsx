@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Plus } from "lucide-react";
-import { useTableUIStore } from "../store/useTableUIStore";
-import { useDebouncedValue } from "../../../hooks/useDebouncedValue";
-import { TableHeader } from "../../../components/tables/table-header";
-import { Button } from "../../../components/ui/button";
+import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore";
+import { useDebouncedValue } from "@/src/hooks/useDebouncedValue";
+import { TableHeader } from "@/src/components/tables/table-header";
+import { Button } from "@/src/components/ui/button";
 
 interface TableToolbarProps {
   title?: string;
@@ -43,7 +43,6 @@ export function TableToolbar({
     </Button>
   );
 
-  // 3. Add Inventory Button -> Navigates to /inventory/create
   const manageInventoryButton = (
     <Button
       variant="primary"
