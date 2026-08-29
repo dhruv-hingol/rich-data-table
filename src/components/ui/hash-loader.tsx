@@ -22,47 +22,47 @@ export function HashLoader({ size = "md", className = "" }: HashLoaderProps) {
       >
         {/* Horizontal Top Line */}
         <line
-          x1="6"
+          x1="8"
           y1="14"
-          x2="34"
+          x2="32"
           y2="14"
           stroke="currentColor"
           strokeWidth="4"
           strokeLinecap="round"
-          className="animate-hash-h-top origin-center"
+          className="animate-hash-h-top"
         />
         {/* Horizontal Bottom Line */}
         <line
-          x1="6"
+          x1="8"
           y1="26"
-          x2="34"
+          x2="32"
           y2="26"
           stroke="currentColor"
           strokeWidth="4"
           strokeLinecap="round"
-          className="animate-hash-h-bottom origin-center"
+          className="animate-hash-h-bottom"
         />
         {/* Vertical Left Line */}
         <line
-          x1="16"
-          y1="6"
+          x1="14"
+          y1="8"
           x2="14"
-          y2="34"
+          y2="32"
           stroke="currentColor"
           strokeWidth="4"
           strokeLinecap="round"
-          className="animate-hash-v-left origin-center"
+          className="animate-hash-v-left"
         />
         {/* Vertical Right Line */}
         <line
           x1="26"
-          y1="6"
-          x2="24"
-          y2="34"
+          y1="8"
+          x2="26"
+          y2="32"
           stroke="currentColor"
           strokeWidth="4"
           strokeLinecap="round"
-          className="animate-hash-v-right origin-center"
+          className="animate-hash-v-right"
         />
       </svg>
     </div>

@@ -53,47 +53,52 @@ body {
   scrollbar-color: #cbd5e1 transparent;
 }
 
-/* Animated Hash Loader Icon (Lines expanding in and out) */
+/* Animated Hash Loader Icon (Smooth hardware-accelerated expanding lines) */
+.animate-hash-h-top,
+.animate-hash-h-bottom,
+.animate-hash-v-left,
+.animate-hash-v-right {
+  transform-box: fill-box;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
 @keyframes hashLineScaleH {
   0%, 100% {
-    transform: scaleX(0.2);
+    transform: scaleX(0.25);
     opacity: 0.3;
   }
   50% {
-    transform: scaleX(1.1);
+    transform: scaleX(1);
     opacity: 1;
   }
 }
 
 @keyframes hashLineScaleV {
   0%, 100% {
-    transform: scaleY(0.2);
+    transform: scaleY(0.25);
     opacity: 0.3;
   }
   50% {
-    transform: scaleY(1.1);
+    transform: scaleY(1);
     opacity: 1;
   }
 }
 
 .animate-hash-h-top {
-  animation: hashLineScaleH 1.4s ease-in-out infinite;
-  transform-origin: 20px 14px;
+  animation: hashLineScaleH 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
 .animate-hash-h-bottom {
-  animation: hashLineScaleH 1.4s ease-in-out infinite 0.2s;
-  transform-origin: 20px 26px;
+  animation: hashLineScaleH 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite 0.2s;
 }
 
 .animate-hash-v-left {
-  animation: hashLineScaleV 1.4s ease-in-out infinite 0.1s;
-  transform-origin: 15px 20px;
+  animation: hashLineScaleV 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite 0.1s;
 }
 
 .animate-hash-v-right {
-  animation: hashLineScaleV 1.4s ease-in-out infinite 0.3s;
-  transform-origin: 25px 20px;
+  animation: hashLineScaleV 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite 0.3s;
 }
 
 /* Top Center Screen Viewport Toast Position Overrides */

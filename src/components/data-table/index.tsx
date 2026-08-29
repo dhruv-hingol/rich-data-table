@@ -216,7 +216,7 @@ export function AgGridTable<T>({
       >
         {/* Consistent Loading Overlay: Uses common animated HashLoader */}
         {isLoading && (
-          <div className="absolute inset-0 z-30 bg-white/65 backdrop-blur-[1px] flex items-center justify-center animate-in fade-in duration-150 pointer-events-auto">
+          <div className="absolute inset-0 z-30 bg-white/75 backdrop-blur-[1px] flex flex-col items-center justify-center gap-2.5 animate-in fade-in duration-150 pointer-events-auto">
             <HashLoader size="md" />
           </div>
         )}
