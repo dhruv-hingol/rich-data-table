@@ -237,8 +237,12 @@ export function AgGridTable<T>({
           headerHeight={44}
           onGridReady={handleGridReady}
           onSortChanged={onSortChanged ? handleSortChanged : undefined}
-          animateRows={true}
+          animateRows={false}
           suppressCellFocus
+          suppressScrollOnNewData={true}
+          getRowId={(params) =>
+            (params.data as { id?: string })?.id || String(Math.random())
+          }
           overlayNoRowsTemplate={`<span class="text-sm font-medium text-slate-500">${noRowsMessage}</span>`}
           {...restProps}
         />

@@ -6,8 +6,8 @@
   --ag-foreground-color: #0f172a;
   --ag-secondary-foreground-color: #475569;
   --ag-border-color: #e2e8f0;
-  --ag-row-hover-color: #f8fafc;
-  --ag-selected-row-background-color: rgba(255, 102, 0, 0.08);
+  --ag-row-hover-color: rgba(255, 102, 0, 0.05);
+  --ag-selected-row-background-color: rgba(255, 102, 0, 0.10);
   --ag-cell-horizontal-border: solid #f1f5f9 1px;
   --ag-header-column-separator-display: none;
   --ag-header-column-resize-handle-color: #cbd5e1;
@@ -180,6 +180,21 @@
   transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.15s ease-in-out !important;
 }
 
+.ag-row-hover,
+.ag-row-hover .ag-cell {
+  background-color: rgba(255, 102, 0, 0.04) !important;
+}
+
+.ag-row-selected,
+.ag-row-selected .ag-cell {
+  background-color: rgba(255, 102, 0, 0.04) !important;
+}
+
+.ag-row-selected.ag-row-hover,
+.ag-row-selected.ag-row-hover .ag-cell {
+  background-color: rgba(255, 102, 0, 0.04) !important;
+}
+
 /* Column Header Resizer handle & resize guide line styling */
 .ag-header-cell-resize {
   cursor: ew-resize !important;
@@ -194,59 +209,56 @@
   width: 2px !important;
 }
 
-*::-webkit-scrollbar,
-html::-webkit-scrollbar,
-body::-webkit-scrollbar,
-div::-webkit-scrollbar,
-.ag-body-viewport::-webkit-scrollbar,
-.ag-body-horizontal-scroll-viewport::-webkit-scrollbar,
-.ag-body-vertical-scroll-viewport::-webkit-scrollbar,
-.ag-body-vertical-scroll::-webkit-scrollbar,
-.ag-vscroll::-webkit-scrollbar,
-.ag-root-wrapper ::-webkit-scrollbar {
+/* Sleek 5px Custom Minimal Vertical Scrollbar (Horizontal Scrollbar Hidden) */
+::-webkit-scrollbar {
+  width: 5px !important;
+  height: 0px !important;
+}
+
+::-webkit-scrollbar:horizontal,
+*::-webkit-scrollbar:horizontal,
+.ag-body-horizontal-scroll::-webkit-scrollbar {
   display: none !important;
-  width: 0 !important;
   height: 0 !important;
+  width: 0 !important;
 }
 
-*,
-html,
-body,
-div,
+::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1 !important;
+  border-radius: 9999px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff6600 !important;
+}
+
+.ag-body-viewport::-webkit-scrollbar,
+.ag-body-vertical-scroll-viewport::-webkit-scrollbar {
+  width: 5px !important;
+  display: block !important;
+}
+
 .ag-body-viewport,
-.ag-body-horizontal-scroll-viewport,
-.ag-body-vertical-scroll-viewport,
 .ag-body-vertical-scroll,
-.ag-vscroll,
-.ag-root-wrapper {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+.ag-body-vertical-scroll-viewport {
+  scrollbar-width: thin !important;
+  scrollbar-color: #cbd5e1 transparent !important;
 }
 
-.ag-vscroll,
-.ag-body-vertical-scroll,
-.ag-body-vertical-scroll-viewport,
-.ag-body-vertical-scroll-container,
-.ag-vscroll-viewport,
-.ag-vertical-right-spacer,
-.ag-vertical-left-spacer,
-.ag-horizontal-left-spacer,
-.ag-horizontal-right-spacer,
-.ag-body-vertical-scroll-spacer,
-.ag-body-horizontal-scroll-spacer,
 .ag-body-horizontal-scroll,
 .ag-body-horizontal-scroll-viewport,
-.ag-body-horizontal-scroll-container {
+.ag-body-horizontal-scroll-container,
+.ag-horizontal-left-spacer,
+.ag-horizontal-right-spacer,
+.ag-body-horizontal-scroll-spacer {
   display: none !important;
-  width: 0 !important;
-  min-width: 0 !important;
-  max-width: 0 !important;
   height: 0 !important;
   min-height: 0 !important;
   max-height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
   opacity: 0 !important;
   pointer-events: none !important;
 }

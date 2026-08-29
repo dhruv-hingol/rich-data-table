@@ -68,19 +68,14 @@ export function InventoryTable() {
     return list;
   }, [categoryFilter, skuFilter]);
 
-  const {
-    data,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isLoading,
-  } = useInfiniteInventoryQuery({
-    pageSize: 50,
-    search: searchQuery,
-    statusFilter,
-    warehouseFilter,
-    filters,
-  });
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+    useInfiniteInventoryQuery({
+      pageSize: 50,
+      search: searchQuery,
+      statusFilter,
+      warehouseFilter,
+      filters,
+    });
 
   const allRows = useMemo(() => {
     return data?.pages.flatMap((page) => page.rows) || [];
@@ -144,7 +139,7 @@ export function InventoryTable() {
         hasNextPage &&
         !isFetchingNextPage &&
         totalHeight > 0 &&
-        scrollPosition >= totalHeight - 200
+        scrollPosition >= totalHeight - 500
       ) {
         fetchNextPage();
       }
@@ -200,11 +195,14 @@ export function InventoryTable() {
         onBodyScroll={handleBodyScroll}
       />
 
-      {/* Infinite Scroll Footer Status Bar */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-600 font-medium shrink-0 shadow-xs mt-2.5">
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-600 font-medium shrink-0 shadow-xs mt-2.5 h-10">
         <span>
-          Showing <strong className="text-slate-900">{allRows.length}</strong> of{" "}
-          <strong className="text-slate-900">{totalCount.toLocaleString()}</strong> records
+          Showing <strong className="text-slate-900">{allRows.length}</strong>{" "}
+          of{" "}
+          <strong className="text-slate-900">
+            {totalCount.toLocaleString()}
+          </strong>{" "}
+          records
         </span>
 
         {isFetchingNextPage && (
