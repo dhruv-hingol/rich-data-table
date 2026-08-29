@@ -17,10 +17,22 @@
   --ag-grid-size: 6px;
   --ag-active-color: #ff6600;
   --ag-checkbox-checked-color: #ff6600;
+  --ag-checkbox-background-color: #ffffff;
   --ag-scrollbar-size: 0px;
   --ag-horizontal-scrollbar-height: 0px;
   border-radius: 0.75rem !important;
   overflow: hidden !important;
+}
+
+.ag-checkbox-input-wrapper.ag-checked,
+.ag-checkbox-input-wrapper.ag-checked::after {
+  background-color: #ff6600 !important;
+  border-color: #ff6600 !important;
+  color: #ffffff !important;
+}
+
+.ag-checkbox-input-wrapper:focus-within {
+  box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.25) !important;
 }
 
 .ag-root-wrapper,

@@ -8,7 +8,7 @@ export const Checkbox = React.forwardRef<
     <input
       type="checkbox"
       ref={ref}
-      className={`h-4 w-4 rounded border-slate-700 bg-slate-900 text-amber-600 focus:ring-amber-500 focus:ring-offset-slate-900 ${className}`}
+      className={`h-4 w-4 rounded border-slate-300 bg-white text-[#ff6600] accent-[#ff6600] focus:ring-[#ff6600] focus:ring-offset-1 cursor-pointer transition-colors ${className}`}
       {...props}
     />
   );

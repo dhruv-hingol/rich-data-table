@@ -14,6 +14,7 @@ import {
   useInventoryRecordsQuery,
   useDeleteRecordsMutation,
 } from "@/src/features/inventory/hooks/useInventoryQuery";
+import ConfirmationModal from "@/src/components/ui/confirmation-modal";
 
 export function InventoryTable() {
   const {
@@ -31,8 +32,12 @@ export function InventoryTable() {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(25);
   const [gridApi, setGridApi] = useState<GridApi<InventoryRecord> | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
-  const columnDefs = useMemo(() => createColumnDefinitions(visibleColumns), [visibleColumns]);
+  const columnDefs = useMemo(
+    () => createColumnDefinitions(visibleColumns),
+    [visibleColumns],
+  );
 
   const rowSelection = useMemo<RowSelectionOptions<InventoryRecord>>(
     () => ({
@@ -104,7 +109,12 @@ export function InventoryTable() {
     clearSelection();
   }, [gridApi, clearSelection]);
 
-  const handleDeleteSelected = useCallback(async () => {
+  const handleOpenDeleteModal = useCallback(() => {
+    if (selectedRowIds.length === 0) return;
+    setIsDeleteModalOpen(true);
+  }, [selectedRowIds]);
+
+  const handleConfirmDelete = useCallback(async () => {
     if (selectedRowIds.length === 0) return;
     const count = selectedRowIds.length;
     deleteMutation.mutate(selectedRowIds, {
@@ -113,7 +123,10 @@ export function InventoryTable() {
           gridApi.deselectAll();
         }
         clearSelection();
-        showToast.success(`${count} ${count === 1 ? 'product' : 'products'} deleted successfully`);
+        setIsDeleteModalOpen(false);
+        showToast.success(
+          `${count} ${count === 1 ? "product" : "products"} deleted successfully`,
+        );
       },
       onError: () => {
         showToast.error("Failed to delete selected products");
@@ -146,8 +159,26 @@ export function InventoryTable() {
 
       <SelectionActionBar
         selectedRows={selectedSet}
-        onDelete={handleDeleteSelected}
+        onDelete={handleOpenDeleteModal}
         onCancel={handleClearSelection}
+      />
+
+      <ConfirmationModal
+        open={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title={`Delete ${selectedRowIds.length} ${selectedRowIds.length === 1 ? "Product" : "Products"}?`}
+        description={`Are you sure you want to delete ${
+          selectedRowIds.length === 1
+            ? "this product"
+            : `these ${selectedRowIds.length} products`
+        }? This action cannot be undone and will permanently remove the record from inventory.`}
+        confirmText={
+          deleteMutation.isPending ? "Deleting..." : "Confirm Delete"
+        }
+        cancelText="Cancel"
+        variant="danger"
+        isLoading={deleteMutation.isPending}
       />
     </div>
   );
