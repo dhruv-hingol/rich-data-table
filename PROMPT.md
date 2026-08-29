@@ -69,62 +69,83 @@ src/
   app/
     App.tsx
     providers.tsx            # QueryClientProvider, ThemeProvider, Toaster mount
-    router.tsx                # if using TanStack Router; single-route app is fine otherwise
+  routes/
+    appRouter.tsx            # Lazy-loaded routes (InventoryDashboardPage, InventoryFormPage)
+  pages/
+    InventoryDashboardPage.tsx
+    InventoryFormPage.tsx
   features/
     inventory/
       api/
-        inventoryApi.ts       # fake network layer: list/create/update/delete/bulkCreate
-        inventoryKeys.ts       # query key factory
-        useInventoryList.ts    # useInfiniteQuery / useQuery wrapper (server-side paging)
-        useCreateRecord.ts     # useMutation
-        useDeleteRecords.ts    # useMutation, accepts string[] for bulk
-        useBulkImport.ts       # useMutation, accepts validated rows[]
+        apiInterceptor.ts     # Request/response interceptor layer
+        inventoryApi.ts       # Unified API interface
+        inventoryKeys.ts      # Query key factory
+        useInventoryQuery.ts  # TanStack Query custom hooks
+        useInventoryMutations.ts # Mutation hooks (create, update, delete, bulk import)
       components/
-        InventoryTable.tsx           # AG Grid wrapper, owns column defs
-        InventoryTable.columns.tsx   # column definitions, cell renderers
-        TableToolbar.tsx             # search box, column-manager trigger, add/import/delete buttons
-        ColumnManagerPanel.tsx       # show/hide/reorder columns, persists to localStorage
-        AddRecordDialog.tsx          # RHF + Zod form in a shadcn Dialog
-        RecordForm.tsx               # shared form body (used by Add + Edit)
-        BulkImportDialog.tsx         # 3-step wizard: upload -> preview/validate -> commit
-        ImportPreviewTable.tsx       # small AG Grid instance showing parsed rows + row-level errors
-        DeleteConfirmDialog.tsx      # used for bulk delete only
-        SelectionActionBar.tsx       # floating bar: "12 selected" + bulk delete/export
+        InventoryTable.tsx           # AG Grid table view
+        TableToolbar.tsx             # Search box, column manager trigger, add/import buttons
+        ColumnManagerPanel.tsx       # Show/hide/reorder columns, persists to localStorage
+        SelectionActionBar.tsx       # Floating bar: "N selected" + bulk delete/export
+        StatusSummaryStrip.tsx       # KPI status cards with active filter state
+        AppliedFiltersBar.tsx        # Applied filter badge chips
+        FilterSheet.tsx              # Slide-over filter drawer
+        DeleteConfirmDialog.tsx      # Bulk delete modal confirmation
         EmptyState.tsx
         TableSkeleton.tsx
+        ImportPreviewTable.tsx       # AG Grid preview table (theme="legacy")
+        RecordForm.tsx               # Shared form body container
+        RecordFormSkeleton.tsx
+        bulk-import/
+          BulkImportDialog.tsx       # 3-step wizard with switch-case step dispatch
+          ImportWizardSteps.tsx      # Step progress indicator bar
+          UploadStep.tsx             # Step 1 drag & drop upload dropzone
+          ValidationPreviewStep.tsx  # Step 2 validation preview with Lucide icons
+          CommitSummaryStep.tsx      # Step 3 commit summary
+        form-sections/
+          index.ts
+          ProductDetailsSection.tsx  # Form section with red required asterisks
+          StockLocationSection.tsx
+          PricingFinancialSection.tsx
+          SupplierInfoSection.tsx
+          PhysicalSpecsSection.tsx
+      constants/
+        filterOptions.ts     # Select options for category, warehouse, status
+        formDefaultValues.ts # Form default values and tab metadata
+        statusCardConfigs.ts # KPI status card definitions & card generator
+      hooks/
+        useTabScrollSpy.ts   # ScrollSpy tracking for form sections
       lib/
-        recordSchema.ts        # Zod schema — single source of truth for form AND CSV validation
-        csvParser.ts           # PapaParse streaming wrapper + row-to-schema mapping
-        mockServer.ts          # in-memory "database" + fake latency + query/sort/filter logic
-        mockDataGenerator.worker.ts   # Web Worker, faker-based generator
-        columnDefsFactory.ts    # generates AG Grid colDefs from schema, incl. cell types
+        columnDefsFactory.tsx # Generates AG Grid colDefs from schema
+        csvParser.ts          # PapaParse streaming wrapper + row-to-schema mapping
+        mockServer.ts         # In-memory database + debounced IDB persistence
+        mockDataGenerator.worker.ts # Web Worker Faker generator
+        recordSchema.ts       # Zod schema — single source of truth for form + CSV
       store/
-        useTableUIStore.ts      # zustand: selectedIds, filterText, activeFilters, columnVisibility
+        useTableUIStore.ts    # Zustand: selectedIds, search, statusFilter, visibleColumns
       types/
         inventory.types.ts
   components/
-    ui/                        # shadcn primitives (button, dialog, input, toast, etc.)
-    layout/
-      AppShell.tsx
-      PageHeader.tsx
+    data-table/
+      index.tsx              # Reusable AgGridTable wrapper with theme="legacy"
+      table-pagination.tsx   # Custom pagination controls
+    tables/
+      table-header.tsx
+    ui/                      # Primitives (button, input, select, dialog, drawer, sheet, toast, etc.)
   hooks/
     useDebouncedValue.ts
-    useUndoableAction.ts        # generic undo-toast timer logic, used by single-delete
+    useUndoableAction.ts     # Generic undo-toast timer logic for single delete
   styles/
-    ag-grid-theme.css           # CSS-variable overrides for AG Grid theming API
+    ag-grid-theme.css        # CSS-variable overrides for AG Grid theming API
     globals.css
-  test/
-    csvParser.test.ts
-    mockServer.test.ts
-    useUndoableAction.test.ts
-main.tsx
-vite-env.d.ts
 README.md
-prompt.md
+PROMPT.md
+INDEX.md
+SKILL.md
 ```
 
 Rule for the agent: **one component = one responsibility.** `InventoryTable.tsx` never contains
-form logic; `BulkImportDialog.tsx` never talks to AG Grid directly — it calls `useBulkImport`.
+form logic; `BulkImportDialog.tsx` never talks to AG Grid directly — it calls `useBulkCreateRecordsMutation`.
 
 ---
 
@@ -136,20 +157,20 @@ listRecords(params: {
   page: number; pageSize: number;
   sortBy?: string; sortDir?: 'asc' | 'desc';
   search?: string;
-  filters?: Record<string, unknown>;   // column-level filters from AG Grid
-}): Promise<{ rows: InventoryRecord[]; totalCount: number }>
+  filters?: Record<string, unknown>;
+}): Promise<PaginatedResponse<InventoryRecord>>
 
 getRecord(id: string): Promise<InventoryRecord>
 
-createRecord(payload: NewInventoryRecord): Promise<InventoryRecord>
+createRecord(payload: CreateInventoryRecordPayload): Promise<InventoryRecord>
 
-updateRecord(id: string, patch: Partial<InventoryRecord>): Promise<InventoryRecord>
+updateRecord(id: string, patch: UpdateInventoryRecordPayload): Promise<InventoryRecord>
 
 deleteRecords(ids: string[]): Promise<{ deletedIds: string[] }>
 
-bulkCreateRecords(rows: NewInventoryRecord[]): Promise<{
+bulkCreateRecords(rows: Partial<InventoryRecord>[]): Promise<{
   created: InventoryRecord[];
-  rejected: { row: number; errors: string[] }[];
+  rejected: { row: Record<string, unknown>; errors: string[] }[];
 }>
 ```
 
@@ -167,43 +188,40 @@ React Query hooks wrap these 1:1. No component calls `inventoryApi` directly —
 
 **InventoryTable.tsx**
 - AG Grid, `rowModelType="clientSide"` is NOT allowed for 50k+ rows — use server-side row model
-  or a paginated client cache + `useInfiniteQuery` fetched in pages of 200–500, appended to the
-  grid's data source. Column virtualization on by default (AG Grid default behavior — don't disable it).
-- Checkbox selection column pinned left. Row height comfortable (36–40px), zebra striping optional.
-- Sticky header. Horizontal scroll with a visible custom scrollbar (60 columns needs this to feel navigable).
-- Column pinning: id/sku pinned left by default.
+  or a paginated client cache + `useInventoryRecordsQuery` fetched in pages of 25–100, appended to the
+  grid's data source. Column virtualization on by default.
+- Checkbox selection column pinned left. Row height comfortable (36–40px).
+- Sticky header. Horizontal scroll with a visible custom scrollbar.
+- Column pinning: SKU and Checkbox pinned left by default.
+- AG Grid `theme="legacy"` configured to prevent v33 Error #239 styling conflicts.
 
 **TableToolbar.tsx**
 - Debounced global search input (300ms) — filters via `search` param, not client-side substring scan.
 - "Manage columns" button -> opens `ColumnManagerPanel`.
 - "Add record", "Import CSV", "Delete selected" (disabled/hidden until ≥1 row selected) buttons.
-- Row count: "Showing X of Y records" — always visible, this is a data-scale cue the reviewer will look for.
+- Row count: "Showing X of Y records" — always visible, data-scale cue.
 
 **ColumnManagerPanel.tsx**
-- Checkbox list of all ~50 columns, drag-to-reorder, "Show only essentials" preset button.
-- Persists choice to localStorage so it survives reload.
+- Controlled checkbox list of all 49 columns, preset buttons (*Essentials*, *Inventory*, *Pricing*, *Supplier*, *All*).
+- Persists choice to `localStorage` key `'apex_visible_columns_v1'`.
 
 **AddRecordDialog.tsx / RecordForm.tsx**
-- Grouped into collapsible sections matching the domain-model groups above (nobody wants a 50-field
-  flat form). Inline Zod validation, submit disabled until valid, optimistic insert into the grid
-  on success with a toast confirmation.
+- Grouped into 6 tabbed/scrollspy collapsible sections matching domain groups. Inline Zod validation,
+  submit disabled until valid, dynamic red asterisk indicators (`<span className="text-rose-500 font-bold ml-0.5">*</span>`),
+  and instant query cache invalidation on submission.
 
-**BulkImportDialog.tsx** (three explicit steps, don't collapse them)
-1. **Upload** — drag/drop or file picker, accept `.csv` only, show filename + size.
-2. **Preview & validate** — stream-parse with PapaParse, run each row through the shared Zod
-   schema, show a small grid: total rows / valid / invalid, with invalid rows flagged and their
-   specific field errors visible on hover or in an expandable panel. User can download an
-   "errors only" CSV. Commit button disabled if 0 valid rows.
-3. **Commit** — calls `bulkCreateRecords`, progress indicator for large files, final toast:
-   "1,842 imported, 12 skipped."
+**BulkImportDialog.tsx** (three explicit steps with switch-case step rendering)
+1. **Upload (`UploadStep.tsx`)** — drag/drop or file picker, accept `.csv` only, show Lucide upload icons.
+2. **Preview & validate (`ValidationPreviewStep.tsx`)** — stream-parse with PapaParse, run each row through Zod,
+   render lazy-loaded `<ImportPreviewTable>` (AG Grid with `theme="legacy"`), valid/invalid row counters with Lucide icons.
+3. **Commit (`CommitSummaryStep.tsx`)** — calls `useBulkCreateRecordsMutation`, progress indicator, final summary toast,
+   and invalidates `inventoryKeys.all` so table updates immediately without page refresh.
 
 **DeleteConfirmDialog.tsx**
-- Only shown for bulk delete (≥2 rows) or when deleting >1 row. Single-row delete skips this —
-  it uses the undo-toast pattern instead (delete immediately, 5s toast with "Undo", commit the
-  mutation only after the toast expires or on next action).
+- Shown for bulk delete (≥2 rows). Single-row delete uses `useUndoableAction` (5s undo toast).
 
 **SelectionActionBar.tsx**
-- Floating bar, appears when `selectedIds.length > 0`: "N selected — Delete / Clear selection."
+- Floating bar when `selectedRows.size > 0`: "N items selected — Delete / Export / Clear."
 
 ---
 
@@ -211,45 +229,70 @@ React Query hooks wrap these 1:1. No component calls `inventoryApi` directly —
 
 - No `useState<InventoryRecord[]>` holding the full dataset anywhere. All row data flows through
   TanStack Query's cache.
-- Debounce all search/filter inputs.
-- CSV parsing must be streaming (`Papa.parse(file, { step: ... })` or worker mode) — never
-  `Papa.parse(fullString)` on a large file.
-- Every mutation (create/delete/bulk-import) invalidates or optimistically updates the relevant
-  query key — no manual full-page refetch.
-- Loading state: skeleton rows, not a spinner overlay, on first load only (not on every page fetch).
-- Empty state and zero-search-results state are distinct, both designed (not "No data").
-- Accessibility: dialogs trap focus, table is keyboard-navigable (AG Grid gives you most of this —
-  don't break it with custom cell renderers that swallow key events).
+- Debounce all search/filter inputs (300ms).
+- CSV parsing must be streaming (`Papa.parse(file, { step: ... })`), zero main thread blocking.
+- Every mutation (create/delete/bulk-import) invalidates or optimistically updates `inventoryKeys.all`.
+- Loading state: skeleton rows, not a spinner overlay, on first load only.
+- Code splitting and dynamic imports (`React.lazy` + `Suspense`) across routes, modals, form sections, and step views.
+- Clean `@/src` path aliases configured across TypeScript and Vite.
 
 ---
 
 ## 7. Explicit "don't" list (things that look like shortcuts and will be penalized)
 
-- Don't fetch all rows once and filter/sort/paginate in-memory in the browser — defeats the point of the assignment.
-- Don't use `window.confirm()` for delete — use the shadcn Dialog.
-- Don't parse the whole CSV into a JS string with `FileReader.readAsText` then `JSON.parse`/split by newline — use PapaParse's streaming API.
-- Don't put selection state or filter state inside TanStack Query — that's UI state, belongs in Zustand.
-- Don't build a second custom virtualization layer on top of AG Grid — configure AG Grid's own virtualization correctly instead.
+- Don't fetch all rows once and filter/sort/paginate in-memory in the browser.
+- Don't use `window.confirm()` for delete — use custom confirmation dialogs.
+- Don't parse the whole CSV into a JS string with `FileReader.readAsText`.
+- Don't put selection state or filter state inside TanStack Query — belongs in Zustand.
+- Don't omit AG Grid `theme="legacy"` when combining CSS file imports with v33 engine.
 
 ---
 
 ## 8. AI Integration & Workflow Report
 
 ### Prompts Used & Interaction Summary
-1. **Architecture & Schema Scaffold:** Prompts establishing the 49-column `InventoryRecord` model, directory boundaries (Zustand for UI state vs TanStack Query for server state vs `mockServer.ts` for backend simulation), and Vite + Tailwind setup.
-2. **Virtualization & AG Grid Integration:** Prompts targeting AG Grid Community configuration with 49 wide columns, custom cell renderers (stock badges, currency formatters), and viewport auto-resizing.
-3. **PapaParse Streaming & Zod Validation:** Prompts generating the step-mode CSV streaming parser, normalizing raw headers, and handling row-level error reporting against `recordSchema.ts`.
-4. **Refactoring & Polish Prompts:** Requests to verify strict TypeScript types (`tsc -b`), fix linting rules, and implement 5-second undo toast mechanics for single deletes.
+1. **Form Required Red Asterisks Refactoring:**
+   - *Prompt:* `"in form, requried field astrik must be in red color", "can used title and erorr directl into input", "in input, pass required field and if yes then * will show, not in label"`
+   - *Action:* Updated `Input` and `Select` UI primitives to accept `required?: boolean`. Red asterisks (`<span className="text-rose-500 font-bold ml-0.5">*</span>`) are rendered automatically inside input/select labels, stripping hardcoded `*` strings across all form section components (`ProductDetailsSection`, `StockLocationSection`, `PricingFinancialSection`, `SupplierInfoSection`).
+
+2. **Icon Library Migration:**
+   - *Prompt:* `"add icon from library", "in this file we have icon, used library for htat"`
+   - *Action:* Replaced plain text arrows `→`, checkmarks `✓`, crosses `✕`, file emojis `📄`, and party emojis `🎉` with `lucide-react` icons (`UploadCloud`, `CheckCircle2`, `XCircle`, `ChevronRight`).
+
+3. **Modular Step Architecture & Switch Dispatch:**
+   - *Prompt:* `"make small component for steps and used it here, creae file in same folder only", "for this also make separete steps component, used that directly here", "here can we used switch case and for better?"`
+   - *Action:* Refactored `BulkImportDialog.tsx` to extract step content into `ImportWizardSteps.tsx`, `UploadStep.tsx`, `ValidationPreviewStep.tsx`, and `CommitSummaryStep.tsx`. Rendered steps cleanly using a `renderStepContent()` helper with a `switch (step)` statement.
+
+4. **AG Grid Import Preview & Legacy Theme Error #239 Fix:**
+   - *Prompt:* `"here cna we used ag table in place of it", "AG Grid #239: Theming API and CSS File Themes are both used in the same page... because no value was provided to the theme grid option it defaulted to themeQuartz."`
+   - *Action:* Created [`ImportPreviewTable.tsx`](file:///d:/practice/rich-data-table/src/features/inventory/components/ImportPreviewTable.tsx) using `AgGridReact` to replace the static HTML preview table in `ValidationPreviewStep.tsx`. Passed `theme="legacy"` to both `ImportPreviewTable` and `AgGridTable` to resolve AG Grid Error #239.
+
+5. **Instant Query Cache Invalidation on Commit:**
+   - *Prompt:* `"when commit the report and back to table, then ned to refresh to get the new data, make sure it should not required any of that , once i do commit, it should include directly in tabelw ithout any refresh of table"`
+   - *Action:* Added `useBulkCreateRecordsMutation` in `useInventoryQuery.ts` and called `queryClient.invalidateQueries({ queryKey: inventoryKeys.all })` upon bulk commit in `BulkImportDialog.tsx`, ensuring imported records appear in the table immediately without manual page refresh.
+
+6. **Dynamic Import & Code Splitting:**
+   - *Prompt:* `"add dynamic import and make sure it shuold be used in each file"`
+   - *Action:* Implemented `React.lazy()` and `<Suspense>` across `appRouter.tsx`, `App.tsx`, `InventoryDashboardPage.tsx`, `InventoryFormPage.tsx`, `BulkImportDialog.tsx`, and `ValidationPreviewStep.tsx`.
+
+7. **Centralized `@/src` Path Aliasing:**
+   - *Prompt:* `"import any file it should use "@/src" instead of "../../" in such way"`
+   - *Action:* Configured `@/src` and `@` path aliases in `vite.config.ts` and `tsconfig.app.json`. Refactored imports across all component files to use `@/src/...`.
+
+8. **Extracted Status KPI Card Configuration:**
+   - *Prompt:* `"write this in constatn file and take count froom arugment"`
+   - *Action:* Created [`statusCardConfigs.ts`](file:///d:/practice/rich-data-table/src/features/inventory/constants/statusCardConfigs.ts) containing `STATUS_CARD_CONFIGS` definitions and `getStatusSummaryCards(counts)`. Refactored `StatusSummaryStrip.tsx` to derive card configurations dynamically.
 
 ### What Was Written Manually vs. AI-Assisted
-- **Scaffolding & Boilerplate (AI-Assisted):** Generating the 49 column definitions, Zod schema defaults, fake domain data fields via FakerJS, and initial UI shell layout.
-- **Data Engine & Business Logic (Collaborative):** Designing `mockServer.ts` to ensure search and multi-column filtering execute on the full dataset before pagination slicing, preventing false page-sliced search results.
-- **Manual Oversight & Bug Fixes (Human Review):**
-  - **Column Manager Wiring Fix:** Identified that the initial AI-generated `ColumnManagerPanel` rendered uncontrolled `defaultChecked` checkboxes and wrote `columnPreset` to Zustand without reading it anywhere in the grid. Rewrote `columnDefsFactory.tsx` and `useTableUIStore` to introduce controlled `visibleColumns` state, preset mappings, and `localStorage` persistence.
-  - **IndexedDB Mutation Performance Fix:** Caught that `mockServer` was calling `set(IDB_KEY, this.records)` on every single row mutation (serializing 50,000 JSON items synchronously). Implemented a trailing 2-second debounced save with a `beforeunload` window listener flush.
-  - **Fabricated Testing Claim Removal:** Audited `README.md` and removed fabricated claims regarding non-existent Vitest test suites, keeping documentation strictly aligned with verified codebase reality.
+- **Scaffolding & Boilerplate (AI-Assisted):** 49 column definitions, Zod schema defaults, fake domain data fields via FakerJS, initial UI layout.
+- **Data Engine & Business Logic (Collaborative):** `mockServer.ts` server-side search/filter/pagination logic, debounced IndexedDB persistence, `idb-keyval` window unload flushing.
+- **Manual Oversight & Refactorings (Human Review):**
+  - **Column Manager Panel Controlled State:** Converted uncontrolled checkboxes to controlled components wired to `visibleColumns` in Zustand store with `localStorage` persistence.
+  - **IndexedDB Mutation Performance Optimization:** Replaced synchronous full-array IndexedDB writes per mutation with a 2000ms debounced trailing edge `scheduleSaveToIDB` plus `window.beforeunload` flush.
+  - **AG Grid Error #239 Fix:** Identified and resolved AG Grid v33 theme conflict by explicitly specifying `theme="legacy"`.
 
 ### Areas for Further Review With More Time
 - **SQLite Wasm Web Worker:** Moving the mock database out of main-thread JavaScript arrays into a Web Worker running SQLite Wasm for 1M+ row scalability.
-- **Inline Grid Cell Editing:** Extending AG Grid with multi-cell batch editing and dirty-state transaction commits.
+- **Multi-Cell Batch Inline Editing:** Extending AG Grid with multi-cell batch editing and dirty-state transaction commits.
+
 

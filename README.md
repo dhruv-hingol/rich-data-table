@@ -28,12 +28,14 @@ npm run build
 
 | Concern | Choice | Technical Rationale & Defense |
 |---|---|---|
-| **Grid Engine** | `ag-grid-community` + `ag-grid-react` | Provides hardware-accelerated **row and column virtualization** out-of-the-box. Crucial for handling 49 columns and 50k+ records without DOM bloat. |
-| **Server State & Caching** | `@tanstack/react-query` v5 | Treats mock dataset as async paginated backend server state. Features automatic query key invalidation, background refetching, and `keepPreviousData` for fast pagination. |
+| **Grid Engine** | `ag-grid-community` + `ag-grid-react` | Provides hardware-accelerated **row and column virtualization** out-of-the-box (`theme="legacy"` mode to eliminate AG Grid v33 Error #239). Crucial for handling 49 columns and 50k+ records without DOM bloat. |
+| **Server State & Caching** | `@tanstack/react-query` v5 | Treats mock dataset as async paginated backend server state. Features automatic query key invalidation (`inventoryKeys.all`), background refetching, instant multi-record commit updates, and `keepPreviousData` for seamless pagination. |
+| **Code Splitting & Lazy Loading** | `React.lazy()` + `<Suspense>` | Code-splits application routes, modals (`BulkImportDialog`, `FilterSheet`), form containers (`RecordForm`), and wizard steps into separate dynamic JavaScript bundles, optimizing initial page load time (~700ms build). |
+| **Path Aliasing** | `@/src` (Vite + TS) | Centralized path alias (`@/src/*`) configured across `vite.config.ts` and `tsconfig.app.json` for clean, decoupled, and refactor-safe component imports. |
 | **UI State** | `zustand` | Decoupled client UI state (selected row IDs, search query, filter drafts, column visibility) from data cache, preventing unnecessary grid re-renders. |
-| **Form Logic & Schema** | `react-hook-form` + `zod` | Single source of truth Zod schema (`recordSchema.ts`) shared between the 6-section Add/Edit record form and CSV row-level stream validation. |
-| **CSV Import Engine** | `papaparse` (Streaming Mode) | Uses `step`-based stream parsing so large CSV files (100k+ rows) are processed sequentially without blocking the browser UI main thread. |
-| **Styling & Components** | Tailwind CSS v4 + Custom AG Grid Theme | Modern visual design, custom CSS variable overrides (`ag-grid-theme.css`), Sonner toast notifications, responsive drawers, and modal dialogs. |
+| **Form Logic & Schema** | `react-hook-form` + `zod` | Single source of truth Zod schema (`recordSchema.ts`) shared between the 6-section Add/Edit record form and CSV row-level stream validation. UI primitives support dynamic red required asterisks (`*`). |
+| **CSV Import Engine** | `papaparse` + AG Grid Preview | Uses `step`-based stream parsing for zero-main-thread-blocking CSV parsing, combined with a lazy-loaded AG Grid validation preview table (`ImportPreviewTable.tsx`) and modular 3-step wizard dispatch (`switch (step)`). |
+| **Styling & Icons** | Tailwind CSS v4 + `lucide-react` | Modern visual aesthetics, dark-themed KPI summary cards, custom CSS variable overrides (`ag-grid-theme.css`), Sonner toast notifications, responsive drawers, and Lucide icons. |
 | **Mock Network & DB Layer** | In-Memory Server + `idb-keyval` | Simulates real REST API with 150–500ms network latency, server-side pagination, sorting, filtering, debounced background IndexedDB persistence, and window unload flushing. |
 | **Data Generation** | `@faker-js/faker` in Web Worker | Generates 50,000 deterministic domain records in a Web Worker (`mockDataGenerator.worker.ts`) to keep app initialization instant. |
 
@@ -43,10 +45,12 @@ npm run build
 
 - [x] **50,000 Mock Records Dataset:** High-cardinality e-commerce inventory data covering 49 fields across 7 domain categories (Identity, Inventory & Location, Pricing & Financial, Supplier Details, Physical & Lifecycle, Extra Attributes & Audit, Derived/Computed metrics).
 - [x] **Wide Table (~10 to 60 Columns Configurable):** 49 configurable columns with pinned columns (SKU, Checkbox), column reordering, custom cell renderers (SKU navigation, stock status pills with live status indicators, returnable/fragile badges, Indian Rupee currency formatters `₹ INR`), and a persistent, toggleable **Column Manager Panel** saved to `localStorage`.
+- [x] **Interactive Status Summary KPI Strip:** Real-time summary cards for stock status breakdown (*Total Inventory*, *Low Stock Alert*, *Healthy Stock*, *Overstock*, *Discontinued*) powered by `statusCardConfigs.ts`. Clicking cards updates table filters instantly.
 - [x] **Search & Filter:** Global debounced search input (300ms), stock status quick-filter tabs, and column filter sheet. **All search and filter execution occurs on the server layer before pagination**, ensuring accuracy across the dataset.
-- [x] **Add / Edit Record Form:** Multi-section drawer/page form powered by React Hook Form & Zod with live derived status calculation and optimistic cache update on submission.
-- [x] **Bulk CSV Upload:** 3-step wizard (Upload → Streaming Validation & Preview Table with downloadable errors CSV → Bulk Commit progress indicator).
+- [x] **Add / Edit Record Form:** Multi-section drawer/page form powered by React Hook Form & Zod with live derived status calculation and optimistic cache update on submission. Fields feature standard red asterisk indicators (`<span className="text-rose-500 font-bold ml-0.5">*</span>`).
+- [x] **Bulk CSV Upload Wizard:** Modular 3-step wizard (`UploadStep` → `ValidationPreviewStep` with AG Grid preview & downloadable error CSV → `CommitSummaryStep` progress indicator). Features instant query cache invalidation on commit without requiring a page refresh.
 - [x] **Single & Bulk Delete:** Multi-select checkbox column with a floating action bar (`SelectionActionBar`), bulk delete modal confirmation (`DeleteConfirmDialog`), and single-item delete with a 5-second undo toast (`useUndoableAction`).
+- [x] **Dynamic Import Code-Splitting:** Heavy components (`RecordForm`, `InventoryTable`, `FilterSheet`, `BulkImportDialog`, `ImportPreviewTable`) are loaded on-demand via `React.lazy()` and `<Suspense>`.
 
 ---
 
@@ -92,12 +96,14 @@ src/
   app/                     # App shell, router, providers (QueryClient, Toaster)
   components/
     data-table/            # Reusable AG Grid wrapper & custom pagination bar
-    ui/                    # Design system components (button, dialog, drawer, toast, select)
+    ui/                    # Design system primitives (button, input, select, dialog, drawer, toast)
   features/
     inventory/
       api/                 # API interceptors, React Query hooks & query key factories
       components/          # InventoryTable, TableToolbar, BulkImportDialog, RecordForm, etc.
-      constants/           # Options & default values
+        bulk-import/       # Modular wizard step components (UploadStep, ValidationPreviewStep, etc.)
+        form-sections/     # Form section tab components (ProductDetails, StockLocation, etc.)
+      constants/           # Status card configs, filter options & default values
       hooks/               # Custom inventory hooks & scrollspy logic
       lib/                 # Zod schema, PapaParse streaming, MockServer & Web Worker generator
       store/               # Zustand table UI store (selection, search, filters, drawer state)
