@@ -56,7 +56,7 @@ export function RecordForm() {
     watch,
     setValue,
     reset,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<RecordSchemaInput>({
     resolver: zodResolver(recordSchema) as any,
     defaultValues: DEFAULT_RECORD_FORM_VALUES,
@@ -178,7 +178,7 @@ export function RecordForm() {
             : "Create Product Inventory"
         }
       >
-        <div className="flex items-center gap-8 text-sm font-medium overflow-x-auto pt-2">
+        <div className="flex items-center gap-4 sm:gap-8 text-xs sm:text-sm font-medium overflow-x-auto pt-2 pb-1 scrollbar-none">
           {TABS.map((tab) => (
             <button
               key={tab.id}
@@ -221,6 +221,7 @@ export function RecordForm() {
       <FormFooter
         onCancel={() => navigate("/")}
         isSubmitting={isSubmitting}
+        disabled={!isDirty}
         submitText="Save"
         submittingText="Saving..."
       />
