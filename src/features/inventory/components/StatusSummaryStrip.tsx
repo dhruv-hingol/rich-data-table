@@ -1,5 +1,3 @@
-// Summary strip component showing real-time Low Stock, Healthy, Overstock, and Discontinued counts.
-import React from 'react';
 import { useTableUIStore } from '../store/useTableUIStore';
 import type { StockStatus } from '../types/inventory.types';
 

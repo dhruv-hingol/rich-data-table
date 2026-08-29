@@ -1,4 +1,3 @@
-import React from "react";
 import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormSection } from "../../../../components/ui/form-section";
 import { Input } from "../../../../components/ui/input";

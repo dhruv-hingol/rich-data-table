@@ -10,7 +10,6 @@ export function BulkImportDialog() {
   const { isBulkImportOpen, setIsBulkImportOpen, triggerRefresh } =
     useTableUIStore();
   const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [file, setFile] = useState<File | null>(null);
   const [isParsing, setIsParsing] = useState(false);
   const [parseResult, setParseResult] = useState<ParseResult | null>(null);
   const [isImporting, setIsImporting] = useState(false);
@@ -20,7 +19,6 @@ export function BulkImportDialog() {
   } | null>(null);
 
   const handleFileChange = async (selectedFile: File) => {
-    setFile(selectedFile);
     setIsParsing(true);
     try {
       const result = await parseCSVStream(selectedFile);
@@ -54,7 +52,6 @@ export function BulkImportDialog() {
 
   const resetState = () => {
     setStep(1);
-    setFile(null);
     setParseResult(null);
     setImportSummary(null);
     triggerRefresh();

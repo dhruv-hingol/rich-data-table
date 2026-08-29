@@ -155,7 +155,7 @@ interface ColumnConfig {
   cellClass?: string | ((params: any) => string);
   cellRenderer?: any;
   valueFormatter?: (params: any) => string;
-  tooltipField?: string;
+  tooltipField?: keyof InventoryRecord;
 }
 
 const columnConfigs: ColumnConfig[] = [
@@ -498,7 +498,7 @@ export function createColumnDefinitions(): ColDef<InventoryRecord>[] {
     if (cfg.cellRenderer !== undefined) colDef.cellRenderer = cfg.cellRenderer;
     if (cfg.valueFormatter !== undefined)
       colDef.valueFormatter = cfg.valueFormatter;
-    if (cfg.tooltipField !== undefined) colDef.tooltipField = cfg.tooltipField;
+    if (cfg.tooltipField !== undefined) colDef.tooltipField = cfg.tooltipField as any;
 
     return colDef;
   });

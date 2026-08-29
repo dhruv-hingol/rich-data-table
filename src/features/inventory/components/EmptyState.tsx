@@ -1,6 +1,4 @@
 // Differentiated empty states for zero-data vs active filter search miss results.
-import React from 'react';
-
 export function EmptyState({ type = 'filtered' }: { type?: 'filtered' | 'nodata' }) {
   if (type === 'nodata') {
     return (

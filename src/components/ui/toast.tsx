@@ -1,5 +1,4 @@
 // Toast helper functions matching exact screenshot design: light green tint bg, green border, checkmark icon, and top-center positioning.
-import React from "react";
 import { toast as sonnerToast } from "sonner";
 import { CheckCircle2, AlertCircle, Info } from "lucide-react";
 
