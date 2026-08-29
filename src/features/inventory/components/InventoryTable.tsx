@@ -4,6 +4,7 @@ import type {
   GridReadyEvent,
   GridApi,
   RowSelectionOptions,
+  BodyScrollEvent,
 } from "ag-grid-community";
 import { AgGridTable } from "@/src/components/data-table";
 import { createColumnDefinitions } from "@/src/features/inventory/lib/columnDefsFactory";
@@ -11,10 +12,11 @@ import { useTableUIStore } from "@/src/features/inventory/store/useTableUIStore"
 import { SelectionActionBar } from "./SelectionActionBar";
 import type { InventoryRecord } from "@/src/features/inventory/types/inventory.types";
 import {
-  useInventoryRecordsQuery,
+  useInfiniteInventoryQuery,
   useDeleteRecordsMutation,
 } from "@/src/features/inventory/hooks/useInventoryQuery";
 import ConfirmationModal from "@/src/components/ui/confirmation-modal";
+import { HashLoader } from "@/src/components/ui/hash-loader";
 
 export function InventoryTable() {
   const {
@@ -29,8 +31,6 @@ export function InventoryTable() {
     visibleColumns,
   } = useTableUIStore();
 
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(25);
   const [gridApi, setGridApi] = useState<GridApi<InventoryRecord> | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
@@ -68,23 +68,27 @@ export function InventoryTable() {
     return list;
   }, [categoryFilter, skuFilter]);
 
-  const { data, isFetching } = useInventoryRecordsQuery({
-    page: currentPage - 1,
-    pageSize,
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteInventoryQuery({
+    pageSize: 50,
     search: searchQuery,
     statusFilter,
     warehouseFilter,
     filters,
   });
 
-  const deleteMutation = useDeleteRecordsMutation();
+  const allRows = useMemo(() => {
+    return data?.pages.flatMap((page) => page.rows) || [];
+  }, [data]);
 
-  const filterKey = `${searchQuery}_${statusFilter}_${categoryFilter}_${skuFilter}_${warehouseFilter}`;
-  const [prevFilterKey, setPrevFilterKey] = useState(filterKey);
-  if (filterKey !== prevFilterKey) {
-    setPrevFilterKey(filterKey);
-    setCurrentPage(1);
-  }
+  const totalCount = data?.pages[0]?.totalCount || 0;
+
+  const deleteMutation = useDeleteRecordsMutation();
 
   const onGridReady = useCallback((params: GridReadyEvent<InventoryRecord>) => {
     setGridApi(params.api);
@@ -99,6 +103,26 @@ export function InventoryTable() {
       setSelectedRowIds(ids);
     }
   }, [gridApi, setSelectedRowIds]);
+
+  const handleBodyScroll = useCallback(
+    (event: BodyScrollEvent<InventoryRecord>) => {
+      if (event.direction !== "vertical") return;
+      const api = event.api;
+      const pixelRange = api.getVerticalPixelRange();
+      const scrollPosition = pixelRange.bottom;
+      const totalHeight = api.getDisplayedRowCount() * 44;
+
+      if (
+        hasNextPage &&
+        !isFetchingNextPage &&
+        totalHeight > 0 &&
+        scrollPosition >= totalHeight - 200
+      ) {
+        fetchNextPage();
+      }
+    },
+    [hasNextPage, isFetchingNextPage, fetchNextPage],
+  );
 
   const selectedSet = useMemo(() => new Set(selectedRowIds), [selectedRowIds]);
 
@@ -137,25 +161,37 @@ export function InventoryTable() {
   return (
     <div className="w-full flex-1 flex flex-col min-h-0">
       <AgGridTable<InventoryRecord>
-        rowData={data?.rows || []}
+        rowData={allRows}
         columnDefs={columnDefs}
-        isLoading={isFetching}
+        isLoading={isLoading}
         rowSelection={rowSelection}
         rowHeight={44}
         dynamicViewportHeight={true}
         onGridReady={onGridReady}
         onSelectionChanged={onSelectionChanged}
-        paginatorOptions={{
-          current: currentPage,
-          total: data?.totalCount || 0,
-          pageSize,
-          onChange: (page) => setCurrentPage(page),
-          setPageSize: (size) => {
-            setPageSize(size);
-            setCurrentPage(1);
-          },
-        }}
+        onBodyScroll={handleBodyScroll}
       />
+
+      {/* Infinite Scroll Footer Status Bar */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-600 font-medium shrink-0 shadow-xs mt-2.5">
+        <span>
+          Showing <strong className="text-slate-900">{allRows.length}</strong> of{" "}
+          <strong className="text-slate-900">{totalCount.toLocaleString()}</strong> records
+        </span>
+
+        {isFetchingNextPage && (
+          <div className="inline-flex items-center gap-2 text-[#ff6600] font-semibold animate-pulse">
+            <HashLoader size="sm" />
+            <span>Loading more records...</span>
+          </div>
+        )}
+
+        {!hasNextPage && allRows.length > 0 && (
+          <span className="text-slate-500 font-medium">
+            All {totalCount.toLocaleString()} records loaded
+          </span>
+        )}
+      </div>
 
       <SelectionActionBar
         selectedRows={selectedSet}

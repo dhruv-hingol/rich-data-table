@@ -1,4 +1,4 @@
-import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import { inventoryApi } from '../api/inventoryApi';
 import type {
   GetRecordsParams,
@@ -21,6 +21,24 @@ export function useInventoryRecordsQuery(params: GetRecordsParams) {
     queryKey: inventoryKeys.list(params),
     queryFn: () => inventoryApi.listRecords(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useInfiniteInventoryQuery(params: Omit<GetRecordsParams, 'page'>) {
+  return useInfiniteQuery({
+    queryKey: inventoryKeys.list({ ...params, page: 0 }),
+    queryFn: ({ pageParam = 0 }) =>
+      inventoryApi.listRecords({
+        ...params,
+        page: pageParam,
+      }),
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.totalPages - 1) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    initialPageParam: 0,
   });
 }
 
