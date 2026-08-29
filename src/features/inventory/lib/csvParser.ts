@@ -1,4 +1,3 @@
-// Streaming CSV parser utility with header normalization and fallback schema validation.
 import Papa from 'papaparse';
 import { recordSchema } from './recordSchema';
 import type { InventoryRecord } from '../types/inventory.types';

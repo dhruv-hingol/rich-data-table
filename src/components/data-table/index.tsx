@@ -76,7 +76,6 @@ export function AgGridTable<T>({
     [],
   );
 
-  // Configure selectionColumnDef to ensure checkbox column is pinned at index 0 as first column
   const defaultSelectionColumnDef = useMemo(
     () => ({
       width: 50,

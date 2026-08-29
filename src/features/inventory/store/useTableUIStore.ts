@@ -1,4 +1,3 @@
-// Zustand UI-only state store for search text, status quick filters, category, SKU, column presets, row selections, and refresh trigger.
 import { create } from 'zustand';
 import type { StockStatus } from '../types/inventory.types';
 

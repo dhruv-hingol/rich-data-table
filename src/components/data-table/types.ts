@@ -1,10 +1,9 @@
-// Reusable data table type definitions matching reference codebase.
 import type { ColDef } from 'ag-grid-community';
 import type { AgGridReactProps } from 'ag-grid-react';
 import type { CSSProperties } from 'react';
 
 export interface DataTablePaginationProps {
-  current: number; // 1-indexed page
+  current: number; 
   total: number;
   pageSize: number;
   onChange: (page: number) => void;

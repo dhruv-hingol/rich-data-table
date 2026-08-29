@@ -1,5 +1,4 @@
-// Reusable FormSection UI component rendering section anchor ID, title sidebar, grid container, and dashed divider.
-import React from 'react';
+import React from "react";
 
 export interface FormSectionProps {
   id: string;
@@ -14,7 +13,7 @@ export function FormSection({
   title,
   children,
   showDivider = true,
-  className = '',
+  className = "",
 }: FormSectionProps) {
   return (
     <>

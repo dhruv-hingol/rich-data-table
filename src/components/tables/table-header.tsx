@@ -36,21 +36,16 @@ export function TableHeader({
 }: TableHeaderProps) {
   return (
     <div className={`flex flex-col gap-4 pt-1 ${className}`}>
-      {/* Top Row: Title (Left) + Action Buttons (Right) */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        {/* Title */}
         {title && (
           <h1 className="text-2xl font-bold tracking-tight text-slate-900">
             {title}
           </h1>
         )}
 
-        {/* Action Buttons: 1. Import CSV -> 2. Filters -> 3. Manage Inventory */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* 1. Import CSV Button */}
           {importCsvButton}
 
-          {/* 2. Filters Button */}
           {showFilterButton && (
             <Button
               variant="outline"
@@ -65,15 +60,12 @@ export function TableHeader({
               )}
             </Button>
           )}
-
           {manageInventoryButton}
-
           {extraButtons}
           {children}
         </div>
       </div>
 
-      {/* Bottom Row: Search Bar */}
       {showSearch && (
         <div className="relative w-full sm:w-80 self-end">
           <Input

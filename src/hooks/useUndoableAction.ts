@@ -1,4 +1,3 @@
-// Custom hook executing mutations after a 5-second undo timer window.
 import { useState, useRef, useCallback } from 'react';
 
 export function useUndoableAction<T>(onExecute: (data: T) => void, timeoutMs: number = 5000) {

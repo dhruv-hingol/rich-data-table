@@ -1,5 +1,8 @@
-import React from "react";
-import type { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
+import type {
+  UseFormRegister,
+  FieldErrors,
+  UseFormSetValue,
+} from "react-hook-form";
 import { FormSection } from "../../../../components/ui/form-section";
 import { Input } from "../../../../components/ui/input";
 import { Select, type SelectOption } from "../../../../components/ui/select";
@@ -22,53 +25,26 @@ export function ProductDetailsSection({
 }: ProductDetailsSectionProps) {
   return (
     <FormSection id="sec-details" title="Details">
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          SKU *
-        </label>
-        <Input
-          {...register("sku")}
-          error={!!errors.sku}
-          placeholder="e.g. SKU-10023"
-        />
-        {errors.sku && (
-          <p className="text-[11px] text-rose-500 mt-1">
-            {errors.sku.message}
-          </p>
-        )}
-      </div>
+      <Input
+        label="SKU *"
+        placeholder="e.g. SKU-10023"
+        errorMessage={errors.sku?.message}
+        {...register("sku")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Product Name *
-        </label>
-        <Input
-          {...register("name")}
-          error={!!errors.name}
-          placeholder="e.g. Wireless Barcode Scanner"
-        />
-        {errors.name && (
-          <p className="text-[11px] text-rose-500 mt-1">
-            {errors.name.message}
-          </p>
-        )}
-      </div>
+      <Input
+        label="Product Name *"
+        placeholder="e.g. Wireless Barcode Scanner"
+        errorMessage={errors.name?.message}
+        {...register("name")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Barcode *
-        </label>
-        <Input
-          {...register("barcode")}
-          error={!!errors.barcode}
-          placeholder="e.g. 8901234567890"
-        />
-        {errors.barcode && (
-          <p className="text-[11px] text-rose-500 mt-1">
-            {errors.barcode.message}
-          </p>
-        )}
-      </div>
+      <Input
+        label="Barcode *"
+        placeholder="e.g. 8901234567890"
+        errorMessage={errors.barcode?.message}
+        {...register("barcode")}
+      />
 
       <Select
         label="Category *"
@@ -78,25 +54,17 @@ export function ProductDetailsSection({
         onChange={(val) => setValue("category", val)}
       />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Subcategory
-        </label>
-        <Input
-          {...register("subcategory")}
-          placeholder="e.g. Handheld Scanners"
-        />
-      </div>
+      <Input
+        label="Subcategory"
+        placeholder="e.g. Handheld Scanners"
+        {...register("subcategory")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Brand *
-        </label>
-        <Input
-          {...register("brand")}
-          placeholder="e.g. Zebra Technologies"
-        />
-      </div>
+      <Input
+        label="Brand *"
+        placeholder="e.g. Zebra Technologies"
+        {...register("brand")}
+      />
     </FormSection>
   );
 }

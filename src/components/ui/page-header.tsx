@@ -37,7 +37,7 @@ export function PageHeader({
   };
 
   const stickyClasses = sticky
-    ? "sticky top-0 bg-white z-30 py-2 border-b border-slate-200 mb-8"
+    ? "sticky top-0 bg-white z-30 pt-5 pb-3 border-b border-slate-200 mb-8"
     : "pt-2 pb-6";
 
   return (

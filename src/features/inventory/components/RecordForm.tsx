@@ -38,7 +38,6 @@ export function RecordForm() {
   const { data: record, isLoading: isLoadingRecord } =
     useInventoryRecordDetailQuery(id);
 
-  // Custom hook for sticky header tab scrollspy tracking & smooth section scroll
   const { activeTab, scrollToSection } = useTabScrollSpy({
     tabs: TABS,
     defaultTabId: "sec-details",
@@ -50,7 +49,6 @@ export function RecordForm() {
   const createMutation = useCreateRecordMutation();
   const updateMutation = useUpdateRecordMutation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const {
     register,
@@ -159,12 +157,17 @@ export function RecordForm() {
     }
   };
 
+  const onInvalid = (fieldErrors: any) => {
+    console.warn("Form validation errors:", fieldErrors);
+    showToast.error("Please fill out all required fields marked with *");
+  };
+
   if (isLoadingRecord) {
     return <RecordFormSkeleton />;
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="pb-4">
+    <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="pb-4">
       <PageHeader
         sticky
         backText="Back to Product Inventories"
@@ -209,11 +212,11 @@ export function RecordForm() {
         setValue={setValue}
       />
 
-      <PricingFinancialSection register={register} />
+      <PricingFinancialSection register={register} errors={errors} />
 
-      <SupplierInfoSection register={register} />
+      <SupplierInfoSection register={register} errors={errors} />
 
-      <PhysicalSpecsSection register={register} />
+      <PhysicalSpecsSection register={register} errors={errors} />
 
       <FormFooter
         onCancel={() => navigate("/")}

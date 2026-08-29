@@ -1,4 +1,3 @@
-// Web Worker for asynchronous multi-threaded generation of 50,000+ mock InventoryRecords.
 import { faker } from '@faker-js/faker';
 import type { InventoryRecord, StockStatus } from '../types/inventory.types';
 
@@ -115,7 +114,6 @@ export function generateMockRecord(index: number): InventoryRecord {
   };
 }
 
-// Worker message handling context
 if (typeof self !== 'undefined' && 'addEventListener' in self) {
   self.addEventListener('message', (e: MessageEvent) => {
     if (e.data?.type === 'GENERATE_MOCK_DATA') {

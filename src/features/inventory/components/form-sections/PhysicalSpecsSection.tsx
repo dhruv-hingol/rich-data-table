@@ -1,57 +1,48 @@
-import React from "react";
-import type { UseFormRegister } from "react-hook-form";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormSection } from "../../../../components/ui/form-section";
 import { Input } from "../../../../components/ui/input";
 import type { RecordSchemaInput } from "../../lib/recordSchema";
 
 export interface PhysicalSpecsSectionProps {
   register: UseFormRegister<RecordSchemaInput>;
+  errors?: FieldErrors<RecordSchemaInput>;
 }
 
-export function PhysicalSpecsSection({ register }: PhysicalSpecsSectionProps) {
+export function PhysicalSpecsSection({
+  register,
+  errors,
+}: PhysicalSpecsSectionProps) {
   return (
     <FormSection id="sec-physical" title="Physical Specs" showDivider={false}>
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Weight (kg)
-        </label>
-        <Input
-          type="number"
-          step="0.1"
-          {...register("weightKg")}
-          placeholder="e.g. 1.25"
-        />
-      </div>
+      <Input
+        label="Weight (kg)"
+        type="number"
+        step="0.1"
+        placeholder="e.g. 1.25"
+        errorMessage={errors?.weightKg?.message}
+        {...register("weightKg")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Dimensions (cm)
-        </label>
-        <Input
-          {...register("dimensionsCm")}
-          placeholder="e.g. 20 x 15 x 10"
-        />
-      </div>
+      <Input
+        label="Dimensions (cm)"
+        placeholder="e.g. 20 x 15 x 10"
+        errorMessage={errors?.dimensionsCm?.message}
+        {...register("dimensionsCm")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Package Type
-        </label>
-        <Input
-          {...register("packageType")}
-          placeholder="e.g. Corrugated Box"
-        />
-      </div>
+      <Input
+        label="Package Type"
+        placeholder="e.g. Corrugated Box"
+        errorMessage={errors?.packageType?.message}
+        {...register("packageType")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Handling Instructions
-        </label>
-        <Input
-          {...register("handlingInstructions")}
-          placeholder="e.g. Handle with care, fragile glass lens"
-        />
-      </div>
+      <Input
+        label="Handling Instructions"
+        placeholder="e.g. Handle with care, fragile glass lens"
+        errorMessage={errors?.handlingInstructions?.message}
+        {...register("handlingInstructions")}
+      />
     </FormSection>
   );
 }

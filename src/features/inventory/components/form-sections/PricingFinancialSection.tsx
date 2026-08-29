@@ -1,63 +1,55 @@
 import React from "react";
-import type { UseFormRegister } from "react-hook-form";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormSection } from "../../../../components/ui/form-section";
 import { Input } from "../../../../components/ui/input";
 import type { RecordSchemaInput } from "../../lib/recordSchema";
 
 export interface PricingFinancialSectionProps {
   register: UseFormRegister<RecordSchemaInput>;
+  errors?: FieldErrors<RecordSchemaInput>;
 }
 
-export function PricingFinancialSection({ register }: PricingFinancialSectionProps) {
+export function PricingFinancialSection({
+  register,
+  errors,
+}: PricingFinancialSectionProps) {
   return (
     <FormSection id="sec-pricing" title="Pricing & Financial">
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Unit Cost (₹) *
-        </label>
-        <Input
-          type="number"
-          step="0.01"
-          {...register("unitCost")}
-          placeholder="e.g. 450.00"
-        />
-      </div>
+      <Input
+        label="Unit Cost (₹) *"
+        type="number"
+        step="0.01"
+        placeholder="e.g. 450.00"
+        errorMessage={errors?.unitCost?.message}
+        {...register("unitCost")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          List Price (₹) *
-        </label>
-        <Input
-          type="number"
-          step="0.01"
-          {...register("listPrice")}
-          placeholder="e.g. 899.00"
-        />
-      </div>
+      <Input
+        label="List Price (₹) *"
+        type="number"
+        step="0.01"
+        placeholder="e.g. 899.00"
+        errorMessage={errors?.listPrice?.message}
+        {...register("listPrice")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Sale Price (₹)
-        </label>
-        <Input
-          type="number"
-          step="0.01"
-          {...register("salePrice")}
-          placeholder="e.g. 799.00"
-        />
-      </div>
+      <Input
+        label="Sale Price (₹)"
+        type="number"
+        step="0.01"
+        placeholder="e.g. 799.00"
+        errorMessage={errors?.salePrice?.message}
+        {...register("salePrice")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Tax Rate (%)
-        </label>
-        <Input
-          type="number"
-          step="0.1"
-          {...register("taxRate")}
-          placeholder="e.g. 18"
-        />
-      </div>
+      <Input
+        label="Tax Rate (%)"
+        type="number"
+        step="0.1"
+        placeholder="e.g. 18"
+        errorMessage={errors?.taxRate?.message}
+        {...register("taxRate")}
+      />
     </FormSection>
   );
 }

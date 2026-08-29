@@ -1,57 +1,49 @@
 import React from "react";
-import type { UseFormRegister } from "react-hook-form";
+import type { UseFormRegister, FieldErrors } from "react-hook-form";
 import { FormSection } from "../../../../components/ui/form-section";
 import { Input } from "../../../../components/ui/input";
 import type { RecordSchemaInput } from "../../lib/recordSchema";
 
 export interface SupplierInfoSectionProps {
   register: UseFormRegister<RecordSchemaInput>;
+  errors?: FieldErrors<RecordSchemaInput>;
 }
 
-export function SupplierInfoSection({ register }: SupplierInfoSectionProps) {
+export function SupplierInfoSection({
+  register,
+  errors,
+}: SupplierInfoSectionProps) {
   return (
     <FormSection id="sec-supplier" title="Supplier Info">
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Supplier Name *
-        </label>
-        <Input
-          {...register("supplierName")}
-          placeholder="e.g. Acme Tech Solutions Pvt Ltd"
-        />
-      </div>
+      <Input
+        label="Supplier Name *"
+        placeholder="e.g. Acme Tech Solutions Pvt Ltd"
+        errorMessage={errors?.supplierName?.message}
+        {...register("supplierName")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Supplier SKU
-        </label>
-        <Input
-          {...register("supplierSku")}
-          placeholder="e.g. SUP-ZB-990"
-        />
-      </div>
+      <Input
+        label="Supplier SKU"
+        placeholder="e.g. SUP-ZB-990"
+        errorMessage={errors?.supplierSku?.message}
+        {...register("supplierSku")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Lead Time (Days)
-        </label>
-        <Input
-          type="number"
-          {...register("leadTimeDays")}
-          placeholder="e.g. 7"
-        />
-      </div>
+      <Input
+        label="Lead Time (Days)"
+        type="number"
+        placeholder="e.g. 7"
+        errorMessage={errors?.leadTimeDays?.message}
+        {...register("leadTimeDays")}
+      />
 
-      <div>
-        <label className="block text-xs font-medium text-slate-700 mb-1.5">
-          Min Order Qty
-        </label>
-        <Input
-          type="number"
-          {...register("minOrderQty")}
-          placeholder="e.g. 10"
-        />
-      </div>
+      <Input
+        label="Min Order Qty"
+        type="number"
+        placeholder="e.g. 10"
+        errorMessage={errors?.minOrderQty?.message}
+        {...register("minOrderQty")}
+      />
     </FormSection>
   );
 }

@@ -1,5 +1,8 @@
-import React from "react";
-import type { UseFormRegister, FieldErrors, UseFormSetValue } from "react-hook-form";
+import type {
+  UseFormRegister,
+  FieldErrors,
+  UseFormSetValue,
+} from "react-hook-form";
 import { FormSection } from "../../../../components/ui/form-section";
 import { Input } from "../../../../components/ui/input";
 import { Select, type SelectOption } from "../../../../components/ui/select";
@@ -28,9 +31,7 @@ export function ProductDetailsSection({
         </label>
         <Input {...register("sku")} error={!!errors.sku} />
         {errors.sku && (
-          <p className="text-[11px] text-rose-500 mt-1">
-            {errors.sku.message}
-          </p>
+          <p className="text-[11px] text-rose-500 mt-1">{errors.sku.message}</p>
         )}
       </div>
 
