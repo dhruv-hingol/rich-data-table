@@ -49,16 +49,12 @@ export function CommitSummaryStep({
                 variant="outline"
                 onClick={onUploadAnother}
                 className="flex items-center gap-1.5"
+                prefixIcon={<UploadCloud className="w-4 h-4 text-[#ff6600]" />}
               >
-                <UploadCloud className="w-4 h-4 text-[#ff6600]" />
                 Upload Another File
               </Button>
             )}
-            <Button
-              variant="primary"
-              onClick={onDone}
-              className="bg-[#ff6600]"
-            >
+            <Button variant="primary" onClick={onDone} className="bg-[#ff6600]">
               Done & Return to Dashboard
             </Button>
           </div>
