@@ -24,13 +24,28 @@ export function TableToolbar({
     setIsColumnManagerOpen,
     setIsBulkImportOpen,
     statusFilter,
+    categoryFilter,
+    skuFilter,
+    warehouseFilter,
   } = useTableUIStore();
   const [localSearch, setLocalSearch] = useState(searchQuery);
   const debouncedSearch = useDebouncedValue(localSearch, 300);
 
   useEffect(() => {
-    setSearchQuery(debouncedSearch);
-  }, [debouncedSearch, setSearchQuery]);
+    setLocalSearch(searchQuery);
+  }, [searchQuery]);
+
+  useEffect(() => {
+    if (debouncedSearch !== searchQuery) {
+      setSearchQuery(debouncedSearch);
+    }
+  }, [debouncedSearch, searchQuery, setSearchQuery]);
+
+  const isFilterActive =
+    statusFilter !== "ALL" ||
+    categoryFilter !== "ALL" ||
+    Boolean(skuFilter && skuFilter.trim() !== "") ||
+    Boolean(warehouseFilter && warehouseFilter !== "ALL");
 
   const importCsvButton = (
     <Button
@@ -62,7 +77,7 @@ export function TableToolbar({
       searchPlaceholder="Search by SKU, product name or category"
       onSearchChange={setLocalSearch}
       showFilterButton={showFilterButton}
-      isFilterActive={statusFilter !== "ALL"}
+      isFilterActive={isFilterActive}
       onFilterClick={() => setIsColumnManagerOpen(true)}
       importCsvButton={importCsvButton}
       manageInventoryButton={manageInventoryButton}

@@ -65,6 +65,7 @@ export const apiInterceptor = {
       pageSize: String(params.pageSize),
       ...(params.search && { search: params.search }),
       ...(params.statusFilter && { statusFilter: params.statusFilter }),
+      ...(params.warehouseFilter && { warehouseFilter: params.warehouseFilter }),
     }).toString();
 
     const { url, init } = requestInterceptor(`${config.baseUrl}/inventory?${query}`);

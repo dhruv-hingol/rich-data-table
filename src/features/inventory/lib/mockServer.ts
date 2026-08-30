@@ -32,7 +32,7 @@ class MockServerEngine {
    * This maintains 60 FPS UI responsiveness during rapid mutations while ensuring
    * eventual consistency and durability across page reloads.
    */
-  private scheduleSaveToIDB(): void {
+  public scheduleSaveToIDB(): void {
     if (this.saveDebounceTimer) {
       clearTimeout(this.saveDebounceTimer);
     }

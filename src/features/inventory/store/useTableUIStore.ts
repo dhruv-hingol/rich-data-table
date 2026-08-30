@@ -74,12 +74,45 @@ interface TableUIState {
   triggerRefresh: () => void;
 }
 
+function getInitialFiltersFromUrl() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const urlSearch = params.get('search') || params.get('q') || '';
+    const rawStatus = params.get('status');
+    const validStatuses = ['ALL', 'LOW_STOCK', 'HEALTHY', 'OVERSTOCK', 'DISCONTINUED'];
+    const statusFilter = validStatuses.includes(rawStatus || '')
+      ? (rawStatus as StockStatus | 'ALL')
+      : 'ALL';
+    const categoryFilter = params.get('category') || 'ALL';
+    const skuFilter = params.get('sku') || '';
+    const warehouseFilter = params.get('warehouse') || 'ALL';
+
+    return {
+      searchQuery: urlSearch,
+      statusFilter,
+      categoryFilter,
+      skuFilter,
+      warehouseFilter,
+    };
+  } catch {
+    return {
+      searchQuery: '',
+      statusFilter: 'ALL' as const,
+      categoryFilter: 'ALL',
+      skuFilter: '',
+      warehouseFilter: 'ALL',
+    };
+  }
+}
+
+const initialFilters = getInitialFiltersFromUrl();
+
 export const useTableUIStore = create<TableUIState>((set) => ({
-  searchQuery: '',
-  statusFilter: 'ALL',
-  categoryFilter: 'ALL',
-  skuFilter: '',
-  warehouseFilter: 'ALL',
+  searchQuery: initialFilters.searchQuery,
+  statusFilter: initialFilters.statusFilter,
+  categoryFilter: initialFilters.categoryFilter,
+  skuFilter: initialFilters.skuFilter,
+  warehouseFilter: initialFilters.warehouseFilter,
   selectedRowIds: [],
   columnPreset: getInitialPreset(),
   visibleColumns: getInitialVisibleColumns(),

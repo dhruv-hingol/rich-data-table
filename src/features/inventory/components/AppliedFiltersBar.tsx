@@ -12,6 +12,8 @@ export function AppliedFiltersBar() {
     setCategoryFilter,
     skuFilter,
     setSkuFilter,
+    warehouseFilter,
+    setWarehouseFilter,
     searchQuery,
     setSearchQuery,
     resetAllFilters,
@@ -52,6 +54,15 @@ export function AppliedFiltersBar() {
       label: "SKU",
       value: skuFilter.trim(),
       onRemove: () => setSkuFilter(""),
+    });
+  }
+
+  if (warehouseFilter && warehouseFilter !== "ALL") {
+    filters.push({
+      key: "warehouse",
+      label: "Warehouse",
+      value: warehouseFilter,
+      onRemove: () => setWarehouseFilter("ALL"),
     });
   }
 
