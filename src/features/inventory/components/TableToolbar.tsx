@@ -59,7 +59,7 @@ export function TableToolbar({
       title={title}
       showSearch={showSearch}
       searchValue={localSearch}
-      searchPlaceholder="Search by product name"
+      searchPlaceholder="Search by SKU, product name or category"
       onSearchChange={setLocalSearch}
       showFilterButton={showFilterButton}
       isFilterActive={statusFilter !== "ALL"}

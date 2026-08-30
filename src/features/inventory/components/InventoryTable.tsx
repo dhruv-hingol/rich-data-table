@@ -68,7 +68,7 @@ export function InventoryTable() {
     return list;
   }, [categoryFilter, skuFilter]);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } =
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
     useInfiniteInventoryQuery({
       pageSize: 50,
       search: searchQuery,
@@ -181,12 +181,14 @@ export function InventoryTable() {
     });
   }, [selectedRowIds, gridApi, clearSelection, deleteMutation]);
 
+  const isTableLoading = isLoading || (isFetching && allRows.length === 0);
+
   return (
     <div className="w-full flex-1 flex flex-col min-h-0">
       <AgGridTable<InventoryRecord>
         rowData={allRows}
         columnDefs={columnDefs}
-        isLoading={isLoading}
+        isLoading={isTableLoading}
         rowSelection={rowSelection}
         rowHeight={44}
         dynamicViewportHeight={true}

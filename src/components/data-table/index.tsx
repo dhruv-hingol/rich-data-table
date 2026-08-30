@@ -1,4 +1,11 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { AgGridReact } from "ag-grid-react";
 import {
   ModuleRegistry,
@@ -117,22 +124,41 @@ export function AgGridTable<T>({
   const handleGridReady = useCallback(
     (params: GridReadyEvent<T>) => {
       gridApiRef.current = params.api;
+      if (isLoading) {
+        params.api.hideOverlay();
+      } else if (!rowData || rowData.length === 0) {
+        params.api.showNoRowsOverlay();
+      }
       if (onGridReady) {
         onGridReady(params);
       }
     },
-    [onGridReady],
+    [onGridReady, isLoading, rowData],
   );
+
+  useEffect(() => {
+    if (!gridApiRef.current) return;
+    if (isLoading) {
+      gridApiRef.current.hideOverlay();
+    } else if (!rowData || rowData.length === 0) {
+      gridApiRef.current.showNoRowsOverlay();
+    } else {
+      gridApiRef.current.hideOverlay();
+    }
+  }, [isLoading, rowData]);
 
   const handleSortChanged = useCallback(
     (event: SortChangedEvent<T>) => {
       if (!onSortChanged) return;
       const columnState = event.api.getColumnState();
-      const sortedCol = columnState.find((col: ColumnState) => col.sort !== null);
+      const sortedCol = columnState.find(
+        (col: ColumnState) => col.sort !== null,
+      );
 
       if (sortedCol) {
         const colDef = event.api.getColumnDef(sortedCol.colId);
-        const sortField = (colDef as { sortField?: string })?.sortField || sortedCol.colId;
+        const sortField =
+          (colDef as { sortField?: string })?.sortField || sortedCol.colId;
         onSortChanged(sortField).onClick();
       } else {
         onSortChanged("").onClick();
@@ -148,15 +174,38 @@ export function AgGridTable<T>({
       if (!tableRef.current) return;
 
       const tableTop = tableRef.current.getBoundingClientRect().top;
+      let siblingBottomHeight = 0;
+
+      const agGridTableRoot =
+        tableRef.current.closest(".w-full.flex.flex-col") || tableRef.current;
+      const parentContainer = agGridTableRoot.parentElement;
+
+      if (parentContainer) {
+        const children = Array.from(parentContainer.children);
+        const agGridIndex = children.indexOf(agGridTableRoot);
+
+        if (agGridIndex !== -1) {
+          for (let i = agGridIndex + 1; i < children.length; i++) {
+            const child = children[i] as HTMLElement;
+            const style = window.getComputedStyle(child);
+            if (style.position !== "absolute" && style.position !== "fixed") {
+              const marginTop = parseFloat(style.marginTop) || 0;
+              const marginBottom = parseFloat(style.marginBottom) || 0;
+              siblingBottomHeight += child.offsetHeight + marginTop + marginBottom;
+            }
+          }
+        }
+      }
+
       const paginationHeight = paginationRef.current?.offsetHeight ?? 0;
 
       const computedHeight = Math.max(
         200,
         window.innerHeight -
           tableTop -
+          siblingBottomHeight -
           paginationHeight -
-          VIEWPORT_BOTTOM_GAP -
-          10,
+          VIEWPORT_BOTTOM_GAP,
       );
       setAvailableHeight(computedHeight);
     };
@@ -165,8 +214,15 @@ export function AgGridTable<T>({
 
     const resizeObserver = new ResizeObserver(updateAvailableHeight);
     if (paginationRef.current) resizeObserver.observe(paginationRef.current);
-    if (tableRef.current?.parentElement) {
-      resizeObserver.observe(tableRef.current.parentElement);
+
+    const agGridTableRoot =
+      tableRef.current?.closest(".w-full.flex.flex-col") || tableRef.current;
+    if (agGridTableRoot?.parentElement) {
+      const parent = agGridTableRoot.parentElement;
+      resizeObserver.observe(parent);
+      Array.from(parent.children).forEach((child) => {
+        resizeObserver.observe(child);
+      });
     }
     window.addEventListener("resize", updateAvailableHeight);
 
@@ -180,32 +236,20 @@ export function AgGridTable<T>({
     if (height !== undefined) {
       return {
         height: typeof height === "number" ? `${height}px` : height,
+        minHeight: typeof height === "number" ? `${height}px` : height,
         width: "100%",
       };
     }
     if (dynamicViewportHeight && availableHeight !== undefined) {
-      const headerHeight = 44;
-      const hasRows = rowData && rowData.length > 0;
-
-      if (!hasRows) {
-        return {
-          height: "400px",
-          minHeight: "400px",
-          maxHeight: `${availableHeight}px`,
-          width: "100%",
-        };
-      }
-
-      const contentHeight = headerHeight + rowData.length * rowHeight;
-      const finalHeight = Math.min(contentHeight, availableHeight);
       return {
-        height: `${finalHeight}px`,
+        height: `${availableHeight}px`,
+        minHeight: `${availableHeight}px`,
         maxHeight: `${availableHeight}px`,
         width: "100%",
       };
     }
-    return { height: "580px", width: "100%" };
-  }, [height, dynamicViewportHeight, availableHeight, rowData, rowHeight]);
+    return { height: "580px", minHeight: "580px", width: "100%" };
+  }, [height, dynamicViewportHeight, availableHeight]);
 
   return (
     <div
@@ -214,7 +258,7 @@ export function AgGridTable<T>({
     >
       <div
         ref={tableRef}
-        className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden ag-theme-alpine ag-theme-custom-light relative shadow-xs transition-[height] duration-200"
+        className="w-full bg-white border border-slate-200 rounded-xl overflow-hidden ag-theme-alpine ag-theme-custom-light relative shadow-xs"
         style={gridContainerStyle}
       >
         {/* Consistent Loading Overlay: Uses common animated HashLoader */}
@@ -240,6 +284,7 @@ export function AgGridTable<T>({
           animateRows={false}
           suppressCellFocus
           suppressScrollOnNewData={true}
+          suppressNoRowsOverlay={isLoading}
           getRowId={(params) =>
             (params.data as { id?: string })?.id || String(Math.random())
           }

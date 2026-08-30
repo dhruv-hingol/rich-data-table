@@ -18,7 +18,7 @@
   --ag-active-color: #ff6600;
   --ag-checkbox-checked-color: #ff6600;
   --ag-checkbox-background-color: #ffffff;
-  --ag-scrollbar-size: 0px;
+  --ag-scrollbar-size: 8px;
   --ag-horizontal-scrollbar-height: 0px;
   border-radius: 0.75rem !important;
   overflow: hidden !important;
@@ -209,9 +209,9 @@
   width: 2px !important;
 }
 
-/* Sleek 5px Custom Minimal Vertical Scrollbar (Horizontal Scrollbar Hidden) */
+/* Sleek 8px Custom Minimal Vertical Scrollbar (Horizontal Scrollbar Hidden) */
 ::-webkit-scrollbar {
-  width: 5px !important;
+  width: 8px !important;
   height: 0px !important;
 }
 
@@ -238,7 +238,7 @@
 
 .ag-body-viewport::-webkit-scrollbar,
 .ag-body-vertical-scroll-viewport::-webkit-scrollbar {
-  width: 5px !important;
+  width: 8px !important;
   display: block !important;
 }
 

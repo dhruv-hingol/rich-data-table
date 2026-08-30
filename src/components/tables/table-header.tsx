@@ -23,7 +23,7 @@ export function TableHeader({
   title = "Inventories",
   showSearch = true,
   searchValue = "",
-  searchPlaceholder = "Search by product name",
+  searchPlaceholder = "Search by SKU, product name or category...",
   onSearchChange,
   showFilterButton = true,
   isFilterActive = false,
@@ -64,7 +64,7 @@ export function TableHeader({
       </div>
 
       {showSearch && (
-        <div className="relative w-full sm:w-80 sm:self-end">
+        <div className="relative w-full sm:w-88 md:w-96 sm:self-end">
           <Input
             type="text"
             placeholder={searchPlaceholder}
