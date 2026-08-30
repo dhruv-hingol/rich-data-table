@@ -68,14 +68,20 @@ export function InventoryTable() {
     return list;
   }, [categoryFilter, skuFilter]);
 
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading, isFetching } =
-    useInfiniteInventoryQuery({
-      pageSize: 50,
-      search: searchQuery,
-      statusFilter,
-      warehouseFilter,
-      filters,
-    });
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+    isFetching,
+  } = useInfiniteInventoryQuery({
+    pageSize: 100,
+    search: searchQuery,
+    statusFilter,
+    warehouseFilter,
+    filters,
+  });
 
   const allRows = useMemo(() => {
     return data?.pages.flatMap((page) => page.rows) || [];
@@ -156,14 +162,18 @@ export function InventoryTable() {
     clearSelection();
   }, [gridApi, clearSelection]);
 
+  const [deletingCount, setDeletingCount] = useState<number | null>(null);
+
   const handleOpenDeleteModal = useCallback(() => {
     if (selectedRowIds.length === 0) return;
+    setDeletingCount(selectedRowIds.length);
     setIsDeleteModalOpen(true);
   }, [selectedRowIds]);
 
   const handleConfirmDelete = useCallback(async () => {
     if (selectedRowIds.length === 0) return;
     const count = selectedRowIds.length;
+    setDeletingCount(count);
     deleteMutation.mutate(selectedRowIds, {
       onSuccess: () => {
         if (gridApi) {
@@ -171,16 +181,19 @@ export function InventoryTable() {
         }
         clearSelection();
         setIsDeleteModalOpen(false);
+        setDeletingCount(null);
         showToast.success(
           `${count} ${count === 1 ? "product" : "products"} deleted successfully`,
         );
       },
       onError: () => {
+        setDeletingCount(null);
         showToast.error("Failed to delete selected products");
       },
     });
   }, [selectedRowIds, gridApi, clearSelection, deleteMutation]);
 
+  const activeDeleteCount = deletingCount ?? selectedRowIds.length;
   const isTableLoading = isLoading || (isFetching && allRows.length === 0);
 
   return (
@@ -229,17 +242,16 @@ export function InventoryTable() {
 
       <ConfirmationModal
         open={isDeleteModalOpen}
-        onClose={() => setIsDeleteModalOpen(false)}
+        onClose={() => !deleteMutation.isPending && setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmDelete}
-        title={`Delete ${selectedRowIds.length} ${selectedRowIds.length === 1 ? "Product" : "Products"}?`}
+        title={`Delete ${activeDeleteCount} ${activeDeleteCount === 1 ? "Product" : "Products"}?`}
         description={`Are you sure you want to delete ${
-          selectedRowIds.length === 1
+          activeDeleteCount === 1
             ? "this product"
-            : `these ${selectedRowIds.length} products`
+            : `these ${activeDeleteCount} products`
         }? This action cannot be undone and will permanently remove the record from inventory.`}
-        confirmText={
-          deleteMutation.isPending ? "Deleting..." : "Confirm Delete"
-        }
+        confirmText="Confirm Delete"
+        loadingText={`Deleting ${activeDeleteCount} ${activeDeleteCount === 1 ? "Product" : "Products"}...`}
         cancelText="Cancel"
         variant="danger"
         isLoading={deleteMutation.isPending}

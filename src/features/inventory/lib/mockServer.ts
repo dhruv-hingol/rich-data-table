@@ -9,7 +9,7 @@ import type {
 } from '../types/inventory.types';
 import { generateMockRecord } from './mockDataGenerator.worker';
 
-const IDB_KEY = 'apex_inventory_records_v1';
+const IDB_KEY = 'apex_inventory_records_v2';
 
 class MockServerEngine {
   private records: InventoryRecord[] = [];
@@ -26,7 +26,7 @@ class MockServerEngine {
 
   /**
    * PERFORMANCE TRADEOFF & ARCHITECTURAL CHOICE:
-   * Instead of executing a costly 50,000-item JSON serialization & IndexedDB write
+   * Instead of executing a costly 100,000-item JSON serialization & IndexedDB write
    * synchronously on every single mutation (e.g. single row edit/delete), writes are debounced
    * (2000ms trailing edge) and automatically flushed on window unload (`beforeunload`).
    * This maintains 60 FPS UI responsiveness during rapid mutations while ensuring
@@ -59,7 +59,7 @@ class MockServerEngine {
   }
 
   public async initialize(initialRecords?: InventoryRecord[]): Promise<void> {
-    if (this.isInitialized && this.records.length > 0) return;
+    if (this.isInitialized) return;
 
     if (initialRecords && initialRecords.length > 0) {
       this.records = initialRecords;
@@ -74,7 +74,7 @@ class MockServerEngine {
 
     try {
       const stored = await get<InventoryRecord[]>(IDB_KEY);
-      if (stored && stored.length > 0) {
+      if (stored !== undefined && stored !== null && Array.isArray(stored)) {
         this.records = stored;
         this.isInitialized = true;
         return;
@@ -83,8 +83,8 @@ class MockServerEngine {
       console.warn('IDB read error:', err);
     }
 
-    // Generate fallback 50,000 records if not provided
-    const count = 50000;
+    // Generate fallback 100,000 records (1 Lakh) if not provided
+    const count = 100000;
     const generated: InventoryRecord[] = new Array(count);
     for (let i = 0; i < count; i++) {
       generated[i] = generateMockRecord(i);
@@ -101,6 +101,7 @@ class MockServerEngine {
   public setDatasetDirectly(records: InventoryRecord[]): void {
     this.records = records;
     this.isInitialized = true;
+    this.flushSaveToIDB();
   }
 
   public getRawRecordsCount(): number {
@@ -274,7 +275,7 @@ class MockServerEngine {
     };
 
     this.records.unshift(newRecord); // Place newly created record at the beginning
-    this.scheduleSaveToIDB();
+    await this.flushSaveToIDB();
     return newRecord;
   }
 
@@ -301,7 +302,7 @@ class MockServerEngine {
     updated.isLowStock = updated.qtyOnHand <= updated.reorderPoint;
 
     this.records[index] = updated;
-    this.scheduleSaveToIDB();
+    await this.flushSaveToIDB();
     return updated;
   }
 
@@ -309,7 +310,7 @@ class MockServerEngine {
     await this.simulateNetworkDelay();
     const idSet = new Set(ids);
     this.records = this.records.filter((r) => !idSet.has(r.id));
-    this.scheduleSaveToIDB();
+    await this.flushSaveToIDB();
     return { deletedIds: ids };
   }
 
@@ -318,7 +319,7 @@ class MockServerEngine {
     const existingIds = new Set(this.records.map((r) => r.id));
     const newToInsert = recordsToRestore.filter((r) => !existingIds.has(r.id));
     this.records.unshift(...newToInsert);
-    this.scheduleSaveToIDB();
+    await this.flushSaveToIDB();
   }
 
   public async bulkCreateRecords(
@@ -417,7 +418,7 @@ class MockServerEngine {
     }
 
     this.records.unshift(...created);
-    this.scheduleSaveToIDB();
+    await this.flushSaveToIDB();
 
     return { created, rejected };
   }

@@ -117,7 +117,7 @@ export function generateMockRecord(index: number): InventoryRecord {
 if (typeof self !== 'undefined' && 'addEventListener' in self) {
   self.addEventListener('message', (e: MessageEvent) => {
     if (e.data?.type === 'GENERATE_MOCK_DATA') {
-      const count = e.data.count || 50000;
+      const count = e.data.count || 100000;
       const records: InventoryRecord[] = new Array(count);
       for (let i = 0; i < count; i++) {
         records[i] = generateMockRecord(i);

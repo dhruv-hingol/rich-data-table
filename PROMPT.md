@@ -283,12 +283,21 @@ React Query hooks wrap these 1:1. No component calls `inventoryApi` directly —
    - *Prompt:* `"write this in constatn file and take count froom arugment"`
    - *Action:* Created [`statusCardConfigs.ts`](file:///d:/practice/rich-data-table/src/features/inventory/constants/statusCardConfigs.ts) containing `STATUS_CARD_CONFIGS` definitions and `getStatusSummaryCards(counts)`. Refactored `StatusSummaryStrip.tsx` to derive card configurations dynamically.
 
+9. **Modal Deleting Loader & Auto-Close on Completion:**
+   - *Prompt:* `"untill all selected record dont delete, show loader of deleting in modal, modal should close on after all seelcte record deeltee"`
+   - *Action:* Added `preventClose` prop to [`modal.tsx`](file:///d:/practice/rich-data-table/src/components/ui/modal.tsx) to block closing during deletion. Updated [`confirmation-modal.tsx`](file:///d:/practice/rich-data-table/src/components/ui/confirmation-modal.tsx) to show an animated `Loader2` spinner, progress pulse bar, loading text, and disabled buttons while deleting. Configured [`InventoryTable.tsx`](file:///d:/practice/rich-data-table/src/features/inventory/components/InventoryTable.tsx) to keep the modal open until all selected records are deleted and automatically close on `onSuccess`.
+
+10. **Full Session IndexedDB Persistence Across Reloads:**
+    - *Prompt:* `"on refresh, recod of 1,00,000 icme again deleted, added, record is not being persistence, make sure it persistance across the session"`
+    - *Action:* Fixed `mockServer.ts` initialization logic (`stored !== undefined && Array.isArray(stored)`) to restore stored dataset regardless of length, preventing reset back to default 100,000 records on reload. Updated all mutation methods (`deleteRecords`, `createRecord`, `updateRecord`, `bulkCreateRecords`, `restoreRecords`, `setDatasetDirectly`) to execute an immediate `await this.flushSaveToIDB()`.
+
 ### What Was Written Manually vs. AI-Assisted
 - **Scaffolding & Boilerplate (AI-Assisted):** 49 column definitions, Zod schema defaults, fake domain data fields via FakerJS, initial UI layout.
-- **Data Engine & Business Logic (Collaborative):** `mockServer.ts` server-side search/filter/pagination logic, debounced IndexedDB persistence, `idb-keyval` window unload flushing.
+- **Data Engine & Business Logic (Collaborative):** `mockServer.ts` server-side search/filter/pagination logic, immediate IndexedDB persistence, `idb-keyval` window unload flushing.
 - **Manual Oversight & Refactorings (Human Review):**
   - **Column Manager Panel Controlled State:** Converted uncontrolled checkboxes to controlled components wired to `visibleColumns` in Zustand store with `localStorage` persistence.
-  - **IndexedDB Mutation Performance Optimization:** Replaced synchronous full-array IndexedDB writes per mutation with a 2000ms debounced trailing edge `scheduleSaveToIDB` plus `window.beforeunload` flush.
+  - **IndexedDB Session Persistence Fix:** Removed the rigid `stored.length >= 100000` initialization guard in `mockServer.ts` and added immediate IndexedDB sync flushes on all data mutations.
+  - **Modal Retention & Deleting Loader:** Implemented modal prevention control (`preventClose`) and deleting spinner UI to guarantee the delete modal stays open until all selected records are removed.
   - **AG Grid Error #239 Fix:** Identified and resolved AG Grid v33 theme conflict by explicitly specifying `theme="legacy"`.
 
 ### Areas for Further Review With More Time

@@ -9,6 +9,7 @@ export interface ModalProps {
   children: React.ReactNode;
   size?: "sm" | "md" | "lg" | "xl" | "full";
   className?: string;
+  preventClose?: boolean;
 }
 
 export function Modal({
@@ -19,6 +20,7 @@ export function Modal({
   children,
   size = "md",
   className = "",
+  preventClose = false,
 }: ModalProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(open);
@@ -44,21 +46,22 @@ export function Modal({
   }, [open]);
 
   const handleClose = useCallback(() => {
+    if (preventClose) return;
     setIsAnimating(false);
     setTimeout(() => {
       onClose();
     }, 200);
-  }, [onClose]);
+  }, [onClose, preventClose]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && open) {
+      if (e.key === "Escape" && open && !preventClose) {
         handleClose();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, handleClose]);
+  }, [open, handleClose, preventClose]);
 
   if (!isVisible && !open) return null;
 
@@ -72,7 +75,9 @@ export function Modal({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-200 ease-in-out cursor-pointer ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs transition-opacity duration-200 ease-in-out ${
+        preventClose ? "cursor-not-allowed" : "cursor-pointer"
+      } ${
         isAnimating ? "opacity-100" : "opacity-0"
       }`}
       onClick={handleClose}
@@ -102,18 +107,20 @@ export function Modal({
                 </p>
               )}
             </div>
-            <button
-              type="button"
-              onClick={handleClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer ml-auto"
-              aria-label="Close modal"
-            >
-              <X className="h-5 w-5" />
-            </button>
+            {!preventClose && (
+              <button
+                type="button"
+                onClick={handleClose}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors cursor-pointer ml-auto"
+                aria-label="Close modal"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            )}
           </div>
         )}
 
-        {!title && !description && (
+        {!title && !description && !preventClose && (
           <button
             type="button"
             onClick={handleClose}

@@ -26,6 +26,17 @@ npm run build
 
 ---
 
+## 📥 Sample CSV Dataset Download
+
+A pre-formatted 100-row sample inventory dataset is available in the repository for testing bulk imports:
+
+- **Sample CSV File:** [`public/sample-import.csv`](file:///d:/practice/rich-data-table/public/sample-import.csv)
+- **Direct Download Link:** [Download sample-import.csv](file:///d:/practice/rich-data-table/public/sample-import.csv)
+
+You can download this CSV file and upload it using the **Import CSV** wizard in the application to test validation, previewing, and bulk creation.
+
+---
+
 ## 🛠️ Architecture & Tech Stack Defense
 
 | Concern                           | Choice                                | Technical Rationale & Defense                                                                                                                                                                                                             |
@@ -38,7 +49,7 @@ npm run build
 | **Form Logic & Schema**           | `react-hook-form` + `zod`             | Single source of truth Zod schema (`recordSchema.ts`) shared between the 6-section Add/Edit record form and CSV row-level stream validation. UI primitives support dynamic red required asterisks (`*`).                                  |
 | **CSV Import Engine**             | `papaparse` + AG Grid Preview         | Uses `step`-based stream parsing for zero-main-thread-blocking CSV parsing, combined with a lazy-loaded AG Grid validation preview table (`ImportPreviewTable.tsx`) and modular 3-step wizard dispatch (`switch (step)`).                 |
 | **Styling & Icons**               | Tailwind CSS v4 + `lucide-react`      | Modern visual aesthetics, dark-themed KPI summary cards, custom CSS variable overrides (`ag-grid-theme.css`), Sonner toast notifications, responsive drawers, and Lucide icons.                                                           |
-| **Mock Network & DB Layer**       | In-Memory Server + `idb-keyval`       | Simulates real REST API with 150–500ms network latency, server-side pagination, sorting, filtering, debounced background IndexedDB persistence, and window unload flushing.                                                               |
+| **Mock Network & DB Layer**       | In-Memory Server + `idb-keyval`       | Simulates real REST API with 150–500ms network latency, server-side pagination, sorting, filtering, and instant IndexedDB session persistence (`idb-keyval`) across page reloads.                             |
 | **Data Generation**               | `@faker-js/faker` in Web Worker       | Generates 50,000 deterministic domain records in a Web Worker (`mockDataGenerator.worker.ts`) to keep app initialization instant.                                                                                                         |
 
 ---
@@ -51,7 +62,8 @@ npm run build
 - [x] **Search & Filter:** Global debounced search input (300ms), stock status quick-filter tabs, and column filter sheet. **All search and filter execution occurs on the server layer before pagination**, ensuring accuracy across the dataset.
 - [x] **Add / Edit Record Form:** Multi-section drawer/page form powered by React Hook Form & Zod with live derived status calculation and optimistic cache update on submission. Fields feature standard red asterisk indicators (`<span className="text-rose-500 font-bold ml-0.5">*</span>`).
 - [x] **Bulk CSV Upload Wizard:** Modular 3-step wizard (`UploadStep` → `ValidationPreviewStep` with AG Grid preview & downloadable error CSV → `CommitSummaryStep` progress indicator). Features instant query cache invalidation on commit without requiring a page refresh.
-- [x] **Single & Bulk Delete:** Multi-select checkbox column with a floating action bar (`SelectionActionBar`), bulk delete modal confirmation (`DeleteConfirmDialog`), and single-item delete with a 5-second undo toast (`useUndoableAction`).
+- [x] **Single & Bulk Delete with Modal Deleting Loader:** Multi-select checkbox column with floating action bar (`SelectionActionBar`) and confirmation modal (`ConfirmationModal`). Shows an animated deleting loader (`Loader2` + progress pulse) and prevents modal closure (`preventClose`) until all selected records are deleted, automatically closing upon completion.
+- [x] **Session Persistence Across Reloads:** Full IndexedDB persistence via `idb-keyval` in `mockServer.ts`. Mutations perform immediate sync flushes to IndexedDB, ensuring additions, edits, and deletions persist across reloads and browser sessions.
 - [x] **Dynamic Import Code-Splitting:** Heavy components (`RecordForm`, `InventoryTable`, `FilterSheet`, `BulkImportDialog`, `ImportPreviewTable`) are loaded on-demand via `React.lazy()` and `<Suspense>`.
 
 ---

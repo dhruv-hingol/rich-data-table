@@ -84,7 +84,7 @@ it off because you ran it and it does what section says.
 
 | File | Phase | Spec | Verified? |
 |---|---|---|---|
-| `DeleteConfirmDialog.tsx` | 7 | §5 (bulk delete confirmation) | ☑ |
+| `confirmation-modal.tsx` | 7 | §5 (deleting spinner loader, preventClose during deletion, auto-close on finish) | ☑ |
 | `FilterSheet.tsx` | 4 | §5 (slide-over filter drawer) | ☑ |
 
 ## Polish & UI Components
@@ -93,7 +93,7 @@ it off because you ran it and it does what section says.
 |---|---|---|---|
 | `EmptyState.tsx` | 8 | §6 | ☑ |
 | `TableSkeleton.tsx` | 8 | §6 | ☑ |
-| `button.tsx`, `input.tsx`, `select.tsx`, `modal.tsx`, `confirmation-modal.tsx`, `drawer.tsx`, `toast.tsx`, `badge.tsx`, `checkbox.tsx` | 8 | §1 (primitives with red asterisk support) | ☑ |
+| `button.tsx`, `input.tsx`, `select.tsx`, `modal.tsx` (`preventClose`), `confirmation-modal.tsx` (`deleting loader`), `drawer.tsx`, `toast.tsx`, `badge.tsx`, `checkbox.tsx` | 8 | §1 (primitives with red asterisk support, deleting modal loader) | ☑ |
 
 ## API Contract (implemented in `inventoryApi.ts`, backed by `mockServer.ts`)
 
@@ -110,7 +110,7 @@ it off because you ran it and it does what section says.
 
 | File | Phase | Content |
 |---|---|---|
-| `README.md` | 9 | Tech stack defense, 10x scalability, path aliases, lazy loading | ☑ |
+| `README.md` | 9 | Tech stack defense, 10x scalability, path aliases, lazy loading, session persistence | ☑ |
 | `PROMPT.md` | 9 | Master prompt, folder structure, AI interaction & workflow report | ☑ |
 | `INDEX.md` | 9 | File reference table & progress tracker | ☑ |
 | `SKILL.md` | 9 | Agent workflow guide & build phase checkpoints | ☑ |
@@ -120,6 +120,8 @@ it off because you ran it and it does what section says.
 
 - ☑ No component holds the full dataset in `useState`
 - ☑ Every mutation updates or invalidates the TanStack Query cache (`inventoryKeys.all`) — no manual full-page reload required
+- ☑ Deleting selected records displays a deleting spinner loader inside modal, blocks closing (`preventClose`), and closes modal automatically upon completion
+- ☑ Dataset state (edits, deletions, additions) persists across page reloads & sessions via IndexedDB (`idb-keyval`) in `mockServer.ts` with immediate sync flushes
 - ☑ Search and filter inputs are debounced (300ms)
 - ☑ CSV parsing is streaming (`Papa.parse(file, { step: ... })`), zero main thread blocking
 - ☑ Selection and filter state lives in Zustand (`useTableUIStore`), not React Query

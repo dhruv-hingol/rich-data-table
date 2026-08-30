@@ -31,15 +31,18 @@ re-run before continuing.
 **Prompt to send:**
 > Implement `inventory.types.ts`, `recordSchema.ts` (Zod), `mockDataGenerator.worker.ts`, and
 > `mockServer.ts` from PROMPT.md section 4. The worker should generate 50,000 records on app
-> init and store them in memory (module-level array is fine) or IndexedDB via idb-keyval.
+> init and store them in memory or IndexedDB via `idb-keyval`.
 > `mockServer.ts` must implement pagination, sort, search, and column-filter logic entirely
-> server-side (i.e., inside this file), with an artificial 150–500ms delay per call. Write a
-> Vitest test file that calls `listRecords` with a search term and asserts filtering happens
+> server-side (i.e., inside this file), with an artificial 150–500ms delay per call. Ensure
+> IndexedDB session persistence across reloads: restore stored records regardless of record count length
+> (`stored !== undefined && Array.isArray(stored)`), and flush mutations immediately (`await this.flushSaveToIDB()`).
+> Write a Vitest test file that calls `listRecords` with a search term and asserts filtering happens
 > before pagination, not after.
 
 **Checkpoint:** Run the Vitest suite — it passes. In a scratch `console.log`, call
 `listRecords({ page: 1, pageSize: 20 })` and confirm it resolves after a visible delay with the
-right shape. **Do not proceed to UI until this works** — every UI bug downstream traces back to
+right shape. Verify session persistence: modify or delete a record, reload page, confirm changes persist.
+**Do not proceed to UI until this works** — every UI bug downstream traces back to
 data-layer bugs, and it's far cheaper to fix here.
 
 ---
@@ -118,17 +121,20 @@ updates after commit.
 
 ---
 
-## Phase 7 — Delete (single + bulk)
+## Phase 7 — Delete (single + bulk with deleting loader)
 
 **Prompt to send:**
 > Implement `useUndoableAction.ts` (generic undo-timer hook) and wire single-row delete to it:
 > remove from cache immediately, show a 5s toast with an "Undo" button, only call
 > `useDeleteRecords` when the toast expires without undo being clicked. Implement
-> `SelectionActionBar.tsx` and `DeleteConfirmDialog.tsx` for bulk delete (≥2 rows): confirm dialog,
-> then a single `useDeleteRecords` call with all selected ids.
+> `SelectionActionBar.tsx` and `ConfirmationModal.tsx` for bulk delete: show confirmation modal,
+> display an animated deleting loader (`Loader2` + progress bar) while deletion is in progress,
+> block closing the modal (`preventClose`) until all selected records are deleted, and automatically close
+> the modal after all selected records are deleted.
 
 **Checkpoint:** Delete one row -> toast appears -> click Undo -> row comes back with no network
-call having fired. Select 5 rows -> bulk delete -> confirm dialog -> all 5 gone in one request.
+call having fired. Select 5 rows -> bulk delete -> confirm -> modal shows deleting loader and stays open
+until deletion completes -> modal closes automatically after deletion -> records remain deleted on refresh.
 
 ---
 

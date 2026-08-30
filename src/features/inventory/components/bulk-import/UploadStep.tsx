@@ -71,6 +71,18 @@ export function UploadStep({ isParsing, onFileSelected }: UploadStepProps) {
           </p>
         </label>
       </div>
+
+      <div className="flex items-center justify-between text-xs px-1">
+        <span className="text-slate-500 font-medium">Need a template to test?</span>
+        <a
+          href="/sample-import.csv"
+          download="sample-import.csv"
+          className="inline-flex items-center gap-1.5 text-[#ff6600] font-semibold hover:underline"
+        >
+          Download Sample CSV Template
+        </a>
+      </div>
+
       {isParsing && (
         <p className="text-xs font-semibold text-[#ff6600] animate-pulse">
           Parsing CSV stream and validating schema rules...
